@@ -40,5 +40,8 @@ namespace EnemyGenerator
 
     //Differentiates population from the intermediate one
     public struct Population : IComponentData { }
-    public struct IntermediatePopulation : IComponentData { }
+    public struct IntermediatePopulation : IComponentData {
+        public int parent1;
+        public int parent2;
+    }
 }

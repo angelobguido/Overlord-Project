@@ -37,13 +37,16 @@ public class GameManagerTest : MonoBehaviour
     public NativeArray<Entity> enemyPopulationArray;
     //Array of entities for the intermediate population of enemies
     public NativeArray<Entity> intermediateEnemyPopulationArray;
+
+    public NativeArray<float> fitnessArray;
     void Awake()
     {
         //Singleton
         if (instance == null)
         {
             instance = this;
-        }
+            fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
+}
         else if (instance != this)
         {
             Destroy(gameObject);
@@ -74,8 +77,8 @@ public class GameManagerTest : MonoBehaviour
         );
 
         //Instantiate "Population Size" individuals for both populations using a native array
-        enemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Temp);
-        intermediateEnemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Temp);
+        enemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
+        intermediateEnemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
         //Create the entities themselves in the memory
         entityManager.CreateEntity(enemyArchetype, enemyPopulationArray);
         entityManager.CreateEntity(intermediateEnemyArchetype, intermediateEnemyPopulationArray);
@@ -124,8 +127,8 @@ public class GameManagerTest : MonoBehaviour
         }
 
         //Kill the temporary arrays to free memory
-        enemyPopulationArray.Dispose();
-        intermediateEnemyPopulationArray.Dispose();
+        //enemyPopulationArray.Dispose();
+        //intermediateEnemyPopulationArray.Dispose();
 
     }
 
@@ -140,5 +143,12 @@ public class GameManagerTest : MonoBehaviour
         if(player != null)
             return player.transform.position;
         return new Vector3(0,0,0);
+    }
+
+    protected void OnApplicationQuit()
+    {
+        enemyPopulationArray.Dispose();
+        intermediateEnemyPopulationArray.Dispose();
+        fitnessArray.Dispose();
     }
 }

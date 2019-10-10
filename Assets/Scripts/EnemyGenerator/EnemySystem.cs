@@ -42,16 +42,46 @@ public class EnemySystem : ComponentSystem
                 return null;
         }
     }
+
+    
 }
 
 
 //Job to calculate the fitness of the whole population
 public class EASystem : JobComponentSystem {
-    //The job that handles the fitness calculatios
+
+    [RequireComponentTag(typeof(Population))]
     [BurstCompile]
-    public struct FitnessJob : IJobForEachWithEntity<EnemyComponent, WeaponComponent>
+    struct CopyPopulationJob : IJobForEachWithEntity<EnemyComponent, WeaponComponent>
     {
-        public void Execute(Entity entity, int index, ref EnemyComponent enemy, [ReadOnly] ref WeaponComponent weapon)
+        public NativeArray<EnemyComponent> enemyPopulationCopy;
+        public NativeArray<WeaponComponent> weaponPopulationCopy;
+
+        public void Execute(Entity entity, int index, [ReadOnly]ref EnemyComponent enemy, [ReadOnly]ref WeaponComponent weapon)
+        {
+            enemyPopulationCopy[index] = enemy;
+            weaponPopulationCopy[index] = weapon;
+        }
+    }
+
+    [RequireComponentTag(typeof(Population))]
+    [BurstCompile]
+    struct GetFitnessJob : IJobForEachWithEntity<EnemyComponent>
+    {
+        public NativeArray<float> fitness;
+
+        public void Execute(Entity entity, int index, [ReadOnly]ref EnemyComponent enemy)
+        {
+            fitness[index] = enemy.fitness;
+        }
+    }
+
+    //The job that handles the fitness calculatios
+    [RequireComponentTag(typeof(Population))]
+    [BurstCompile]
+    public struct FitnessJob : IJobForEach<EnemyComponent, WeaponComponent>
+    {
+        public void Execute(ref EnemyComponent enemy, [ReadOnly] ref WeaponComponent weapon)
         {
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
@@ -121,25 +151,152 @@ public class EASystem : JobComponentSystem {
     }
 
     [BurstCompile]
-    public struct TournamentJob : IJobForEachWithEntity<EnemyComponent, WeaponComponent>
+    public struct TournamentJob : IJobForEach<IntermediatePopulation>
     {
-        public void Execute(Entity entity, int index, ref EnemyComponent enemy, [ReadOnly] ref WeaponComponent weapon)
+        [ReadOnly]
+        public NativeArray<float> enemyPopulationFitness;
+        public Unity.Mathematics.Random random;
+
+
+        public void Execute(ref IntermediatePopulation interPop)
         {
+            int auxIdx1, auxIdx2;
+            auxIdx1 = random.NextInt(0, enemyPopulationFitness.Length);
+            auxIdx2 = random.NextInt(0, enemyPopulationFitness.Length);
+            if(enemyPopulationFitness[auxIdx1] > enemyPopulationFitness[auxIdx2])
+            {
+                interPop.parent1 = auxIdx1;
+            }
+            else
+            {
+                interPop.parent1 = auxIdx2;
+            }
+            auxIdx1 = random.NextInt(0, enemyPopulationFitness.Length);
+            auxIdx2 = random.NextInt(0, enemyPopulationFitness.Length);
+            if (enemyPopulationFitness[auxIdx1] > enemyPopulationFitness[auxIdx2])
+            {
+                interPop.parent2 = auxIdx1;
+            }
+            else
+            {
+                interPop.parent2 = auxIdx1;
+            }
             
-            //Tournament logic goes here.
+        }
+    }
+
+    [BurstCompile]
+    struct CrossoverJob : IJobForEach<EnemyComponent, WeaponComponent, IntermediatePopulation>
+    {
+        [ReadOnly]
+        public NativeArray<EnemyComponent> enemyPopulationCopy;
+        [ReadOnly]
+        public NativeArray<WeaponComponent> weaponPopulationCopy;
+        public Unity.Mathematics.Random random;
+        public void Execute(ref EnemyComponent enemy, ref WeaponComponent weapon, [ReadOnly] ref IntermediatePopulation interPop)
+        {
+            enemy.health = (enemyPopulationCopy[interPop.parent1].health + enemyPopulationCopy[interPop.parent2].health) / 2;
+            enemy.damage = (enemyPopulationCopy[interPop.parent1].damage + enemyPopulationCopy[interPop.parent2].damage) / 2;
+            enemy.movementSpeed = (enemyPopulationCopy[interPop.parent1].movementSpeed + enemyPopulationCopy[interPop.parent2].movementSpeed) / 2;
+            enemy.activeTime = (enemyPopulationCopy[interPop.parent1].activeTime + enemyPopulationCopy[interPop.parent2].activeTime) / 2;
+            enemy.restTime = (enemyPopulationCopy[interPop.parent1].restTime + enemyPopulationCopy[interPop.parent2].restTime) / 2;
+
+            int mainParent, secParent;
+            if (random.NextBool())
+            {
+                mainParent = interPop.parent1;
+                secParent = interPop.parent2;
+            }
+            else
+            {
+                mainParent = interPop.parent2;
+                secParent = interPop.parent1;
+            }
+            enemy.weapon = enemyPopulationCopy[mainParent].weapon;
+            weapon.projectile = weaponPopulationCopy[mainParent].projectile;
+            if (enemyPopulationCopy[mainParent].weapon == enemyPopulationCopy[secParent].weapon)
+            {
+                weapon.attackSpeed = (weaponPopulationCopy[mainParent].attackSpeed + weaponPopulationCopy[secParent].attackSpeed) / 2;
+                weapon.projectileSpeed = (weaponPopulationCopy[mainParent].projectileSpeed + weaponPopulationCopy[secParent].projectileSpeed) / 2;
+            }
+            else
+            {
+                weapon.attackSpeed = weaponPopulationCopy[mainParent].attackSpeed;
+                weapon.projectileSpeed = weaponPopulationCopy[mainParent].projectileSpeed;
+            }
+
+            if (random.NextBool())
+            {
+                mainParent = interPop.parent1;
+                secParent = interPop.parent2;
+            }
+            else
+            {
+                mainParent = interPop.parent2;
+                secParent = interPop.parent1;
+            }
+            enemy.movement = enemyPopulationCopy[mainParent].movement;
+            //TODO think about the movement speed averaging according to the movement type
         }
     }
 
     //The EA main loop
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
+        
         float startTime = Time.realtimeSinceStartup;
-        FitnessJob job = new FitnessJob
+        FitnessJob fitJob = new FitnessJob
         { };
         //return job.Schedule(this, inputDeps);
-        JobHandle handle = job.Schedule(this, inputDeps);
+        JobHandle handle = fitJob.Schedule(this, inputDeps);
         handle.Complete();
         Debug.Log(Time.realtimeSinceStartup-startTime);
+
+        
+        GetFitnessJob getFitnessJob = new GetFitnessJob
+        {
+            fitness = GameManagerTest.instance.fitnessArray
+        };
+
+        handle = getFitnessJob.Schedule(this, inputDeps);
+
+        handle.Complete();
+
+        var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
+        TournamentJob tournJob = new TournamentJob()
+        {
+            enemyPopulationFitness = GameManagerTest.instance.fitnessArray,
+            random = random
+        };
+
+        handle = tournJob.Schedule(this, inputDeps);
+
+        handle.Complete();
+
+        NativeArray<EnemyComponent> enemyPopCopy = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
+        NativeArray<WeaponComponent> weaponPopCopy = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
+        CopyPopulationJob copyPopulation = new CopyPopulationJob
+        {
+            enemyPopulationCopy = enemyPopCopy,
+            weaponPopulationCopy = weaponPopCopy
+        };
+
+        handle = copyPopulation.Schedule(this, inputDeps);
+
+        handle.Complete();
+
+        random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
+        CrossoverJob crossJob = new CrossoverJob
+        {
+            random = random,
+            enemyPopulationCopy = enemyPopCopy,
+            weaponPopulationCopy = weaponPopCopy
+        };
+
+        handle = crossJob.Schedule(this, inputDeps);
+
         return handle;
     }
 }
