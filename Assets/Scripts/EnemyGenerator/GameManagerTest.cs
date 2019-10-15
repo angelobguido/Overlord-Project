@@ -39,6 +39,10 @@ public class GameManagerTest : MonoBehaviour
     public NativeArray<Entity> intermediateEnemyPopulationArray;
 
     public NativeArray<float> fitnessArray;
+
+    public int generationCounter;
+
+    public float startTime;
     void Awake()
     {
         //Singleton
@@ -46,7 +50,9 @@ public class GameManagerTest : MonoBehaviour
         {
             instance = this;
             fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
-}
+            generationCounter = 0;
+            startTime = Time.realtimeSinceStartup;
+        }
         else if (instance != this)
         {
             Destroy(gameObject);
@@ -134,7 +140,6 @@ public class GameManagerTest : MonoBehaviour
 
     public void Update()
     {
-        Debug.Log("RoundX");
     }
 
     //Returns the current position of the player
