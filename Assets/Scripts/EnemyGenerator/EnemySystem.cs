@@ -42,13 +42,12 @@ public class EnemySystem : ComponentSystem
                 return null;
         }
     }
-
-    
 }
 
 
 //Job to calculate the fitness of the whole population
-public class EASystem : JobComponentSystem {
+public class EASystem : JobComponentSystem
+{
 
     [RequireComponentTag(typeof(Population))]
     [BurstCompile]
@@ -114,7 +113,7 @@ public class EASystem : JobComponentSystem {
         {
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
-            
+
             //Depending on each weapon, assign a damage multiplier
             switch (enemy.weapon)
             {
@@ -258,15 +257,23 @@ public class EASystem : JobComponentSystem {
     {
         [ReadOnly]
         public NativeArray<float> enemyPopulationFitness;
+        [ReadOnly]
+        public float desiredFitness;
         public Unity.Mathematics.Random random;
 
 
         public void Execute(ref IntermediatePopulation interPop)
         {
             int auxIdx1, auxIdx2;
+            float auxFit1, auxFit2;
+
             auxIdx1 = random.NextInt(0, enemyPopulationFitness.Length);
             auxIdx2 = random.NextInt(0, enemyPopulationFitness.Length);
-            if(enemyPopulationFitness[auxIdx1] < enemyPopulationFitness[auxIdx2])
+
+            auxFit1 = math.abs(enemyPopulationFitness[auxIdx1] - desiredFitness);
+            auxFit2 = math.abs(enemyPopulationFitness[auxIdx2] - desiredFitness);
+
+            if (auxFit1 < auxFit2)
             {
                 interPop.parent1 = auxIdx1;
             }
@@ -276,7 +283,11 @@ public class EASystem : JobComponentSystem {
             }
             auxIdx1 = random.NextInt(0, enemyPopulationFitness.Length);
             auxIdx2 = random.NextInt(0, enemyPopulationFitness.Length);
-            if (enemyPopulationFitness[auxIdx1] < enemyPopulationFitness[auxIdx2])
+
+            auxFit1 = math.abs(enemyPopulationFitness[auxIdx1] - desiredFitness);
+            auxFit2 = math.abs(enemyPopulationFitness[auxIdx2] - desiredFitness);
+
+            if (auxFit1 < auxFit2)
             {
                 interPop.parent2 = auxIdx1;
             }
@@ -284,7 +295,7 @@ public class EASystem : JobComponentSystem {
             {
                 interPop.parent2 = auxIdx1;
             }
-            
+
         }
     }
 
@@ -376,6 +387,24 @@ public class EASystem : JobComponentSystem {
         }
     }
 
+
+    [RequireComponentTag(typeof(Population))]
+    [BurstCompile]
+    struct FindBestJob : IJobForEachWithEntity<EnemyComponent, WeaponComponent>
+    {
+        public float bestFitness;
+        [ReadOnly] public float desiredFitness;
+        public void Execute(Entity entity, int index, [ReadOnly]ref EnemyComponent enemy, [ReadOnly]ref WeaponComponent weapon)
+        {
+            float auxFitness = math.abs(enemy.fitness - desiredFitness);
+            if (auxFitness < bestFitness)
+            {
+                bestFitness = auxFitness;
+                GameManagerTest.instance.bestIdx = index;
+            }
+        }
+    }
+
     [BurstCompile]
     struct EmptyJob : IJob
     {
@@ -389,28 +418,30 @@ public class EASystem : JobComponentSystem {
         JobHandle handle;
         if (GameManagerTest.instance.generationCounter < EnemyUtil.maxGenerations)
         {
-
-            FitnessJob fitJob = new FitnessJob
-            { };
-            //return job.Schedule(this, inputDeps);
-            handle = fitJob.Schedule(this, inputDeps);
-            handle.Complete();
-
-
-            GetFitnessJob getFitnessJob = new GetFitnessJob
+            if (GameManagerTest.instance.generationCounter == 0)
             {
-                fitness = GameManagerTest.instance.fitnessArray
-            };
+                FitnessJob fitJob = new FitnessJob
+                { };
+                //return job.Schedule(this, inputDeps);
+                handle = fitJob.Schedule(this, inputDeps);
+                handle.Complete();
 
-            handle = getFitnessJob.Schedule(this, inputDeps);
 
-            handle.Complete();
+                GetFitnessJob getFitnessJob = new GetFitnessJob
+                {
+                    fitness = GameManagerTest.instance.fitnessArray
+                };
+
+                handle = getFitnessJob.Schedule(this, inputDeps);
+                handle.Complete();
+            }
 
             var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
 
             TournamentJob tournJob = new TournamentJob()
             {
                 enemyPopulationFitness = GameManagerTest.instance.fitnessArray,
+                desiredFitness = EnemyUtil.desiredFitness,
                 random = random
             };
 
@@ -418,12 +449,11 @@ public class EASystem : JobComponentSystem {
 
             handle.Complete();
 
-            NativeArray<EnemyComponent> enemyPopCopy = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
-            NativeArray<WeaponComponent> weaponPopCopy = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
+            
             CopyPopulationJob copyPopulation = new CopyPopulationJob
             {
-                enemyPopulationCopy = enemyPopCopy,
-                weaponPopulationCopy = weaponPopCopy
+                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                weaponPopulationCopy = GameManagerTest.instance.weaponPop
             };
 
             handle = copyPopulation.Schedule(this, inputDeps);
@@ -435,8 +465,8 @@ public class EASystem : JobComponentSystem {
             CrossoverJob crossJob = new CrossoverJob
             {
                 random = random,
-                enemyPopulationCopy = enemyPopCopy,
-                weaponPopulationCopy = weaponPopCopy
+                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                weaponPopulationCopy = GameManagerTest.instance.weaponPop
             };
 
             handle = crossJob.Schedule(this, inputDeps);
@@ -463,8 +493,8 @@ public class EASystem : JobComponentSystem {
 
             CopyIntermediatePopulationJob copyIntermediatePopJob = new CopyIntermediatePopulationJob
             {
-                enemyPopulationCopy = enemyPopCopy,
-                weaponPopulationCopy = weaponPopCopy
+                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                weaponPopulationCopy = GameManagerTest.instance.weaponPop
             };
 
             handle = copyIntermediatePopJob.Schedule(this, inputDeps);
@@ -473,19 +503,33 @@ public class EASystem : JobComponentSystem {
 
             ReplacePopulationJob replacePopulation = new ReplacePopulationJob
             {
-                enemyPopulationCopy = enemyPopCopy,
-                weaponPopulationCopy = weaponPopCopy
+                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                weaponPopulationCopy = GameManagerTest.instance.weaponPop
             };
 
             handle = replacePopulation.Schedule(this, inputDeps);
+
+            handle.Complete();
 
             GameManagerTest.instance.generationCounter++;
             return handle;
         }
         else if (GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations)
         {
+            float bestFitness = Mathf.Infinity;
+            FindBestJob findBest = new FindBestJob
+            {
+                bestFitness = bestFitness,
+                desiredFitness = EnemyUtil.desiredFitness
+            };
+
+            handle = findBest.Schedule(this, inputDeps);
             Debug.Log(Time.realtimeSinceStartup - GameManagerTest.instance.startTime);
-            GameManagerTest.instance.generationCounter++;
+            GameManagerTest.instance.enemyGenerated = true;
+
+            handle.Complete();
+
+            return handle;
         }
         EmptyJob emptyJob = new EmptyJob
         { };
@@ -493,5 +537,18 @@ public class EASystem : JobComponentSystem {
         return handle;
 
     }
+}
 
+public class SignalEAEnding : ComponentSystem
+{
+    protected override void OnUpdate()
+    {
+        if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
+        {
+            Debug.Log("This different update!");
+
+            GameManagerTest.instance.generationCounter++;
+            GameManagerTest.instance.enemyReady = true;
+        }
+    }
 }

@@ -43,6 +43,13 @@ public class GameManagerTest : MonoBehaviour
     public int generationCounter;
 
     public float startTime;
+
+    public bool enemyGenerated, enemyPrinted, enemyReady;
+
+
+    public NativeArray<EnemyComponent> enemyPop;
+    public NativeArray<WeaponComponent> weaponPop;
+    public int bestIdx;
     void Awake()
     {
         //Singleton
@@ -50,8 +57,13 @@ public class GameManagerTest : MonoBehaviour
         {
             instance = this;
             fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
+            enemyPop = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
+            weaponPop = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
             generationCounter = 0;
             startTime = Time.realtimeSinceStartup;
+            enemyGenerated = false;
+            enemyPrinted = false;
+            enemyReady = false;
         }
         else if (instance != this)
         {
@@ -140,6 +152,20 @@ public class GameManagerTest : MonoBehaviour
 
     public void Update()
     {
+        if(enemyReady)
+        {
+            if(!enemyPrinted)
+            {
+                Debug.Log("Fitness: " + enemyPop[bestIdx].fitness);
+                Debug.Log("Health: " + enemyPop[bestIdx].health);
+                Debug.Log("damage: " + enemyPop[bestIdx].damage);
+                Debug.Log("activetime: " + enemyPop[bestIdx].activeTime);
+                Debug.Log("movement: " + enemyPop[bestIdx].movement);
+                Debug.Log("movementspeed: " + enemyPop[bestIdx].movementSpeed);
+                Debug.Log("resttime: " + enemyPop[bestIdx].restTime);
+                enemyPrinted = true;
+            }
+        }
     }
 
     //Returns the current position of the player
@@ -155,5 +181,7 @@ public class GameManagerTest : MonoBehaviour
         enemyPopulationArray.Dispose();
         intermediateEnemyPopulationArray.Dispose();
         fitnessArray.Dispose();
+        enemyPop.Dispose();
+        weaponPop.Dispose();
     }
 }
