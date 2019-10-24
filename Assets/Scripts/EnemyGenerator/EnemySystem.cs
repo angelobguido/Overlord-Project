@@ -158,7 +158,7 @@ public class EASystem : JobComponentSystem
             }
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
+            /*if (enemy.weapon != EnemyComponent.WeaponEnum.None)
             {
                 switch (weapon.projectile)
                 {
@@ -172,7 +172,9 @@ public class EASystem : JobComponentSystem
                         projectileMultiplier = 0;
                         break;
                 }
-            }
+            }*/
+            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
+                projectileMultiplier = (int)GameManagerTest.instance.projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -232,7 +234,7 @@ public class EASystem : JobComponentSystem
             }
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
+            /*if (enemy.weapon != EnemyComponent.WeaponEnum.None)
             {
                 switch (weapon.projectile)
                 {
@@ -246,7 +248,9 @@ public class EASystem : JobComponentSystem
                         projectileMultiplier = 0;
                         break;
                 }
-            }
+            }*/
+            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
+                projectileMultiplier = (int)GameManagerTest.instance.projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -365,7 +369,8 @@ public class EASystem : JobComponentSystem
         public void Execute(ref EnemyComponent enemy, ref WeaponComponent weapon, [ReadOnly] ref IntermediatePopulation interPop)
         {
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                weapon.projectile = (WeaponComponent.ProjectileEnum)random.NextInt(0, (int)WeaponComponent.ProjectileEnum.COUNT);
+                weapon.projectile = random.NextInt(0, GameManagerTest.instance.projectileMultipliers.Length);
+                //weapon.projectile = (WeaponComponent.ProjectileEnum)random.NextInt(0, (int)WeaponComponent.ProjectileEnum.COUNT);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
                 weapon.attackSpeed = random.NextInt(1, 11);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)

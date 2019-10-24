@@ -50,6 +50,9 @@ public class GameManagerTest : MonoBehaviour
     public NativeArray<EnemyComponent> enemyPop;
     public NativeArray<WeaponComponent> weaponPop;
     public int bestIdx;
+
+    public ProjectileTypeRuntimeSetSO projectileSet;
+    public float[] projectileMultipliers;
     void Awake()
     {
         //Singleton
@@ -64,6 +67,7 @@ public class GameManagerTest : MonoBehaviour
             enemyGenerated = false;
             enemyPrinted = false;
             enemyReady = false;
+            projectileMultipliers = new float[projectileSet.Items.Count];
         }
         else if (instance != this)
         {
@@ -73,6 +77,11 @@ public class GameManagerTest : MonoBehaviour
 
     private void Start()
     {
+        
+        for (int i = (projectileSet.Items.Count - 1); i >= 0; i--)
+        {
+            projectileMultipliers[i] = projectileSet.Items[i].multiplier;
+        }
         //We must have an entity manager in our current world to create and handle the entities
         EntityManager entityManager = World.Active.EntityManager;
 
@@ -109,7 +118,8 @@ public class GameManagerTest : MonoBehaviour
             entityManager.SetComponentData(entity,
                 new WeaponComponent
                 {
-                    projectile = (WeaponComponent.ProjectileEnum)UnityEngine.Random.Range(0, (int)WeaponComponent.ProjectileEnum.COUNT),
+                    //projectile = (WeaponComponent.ProjectileEnum)UnityEngine.Random.Range(0, (int)WeaponComponent.ProjectileEnum.COUNT),
+                    projectile = UnityEngine.Random.Range(0, projectileMultipliers.Length),
                     attackSpeed = UnityEngine.Random.Range(1, 11),
                     projectileSpeed = UnityEngine.Random.Range(1, 11)
                 }

@@ -7,7 +7,7 @@ namespace EnemyGenerator
 {
     public struct WeaponComponent : IComponentData
     {
-        public ProjectileEnum projectile;
+        public int projectile;
         public float attackSpeed;
         public float projectileSpeed;
 

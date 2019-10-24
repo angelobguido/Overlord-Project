@@ -228,7 +228,10 @@ MonoBehaviour:
   startTime: 0
   enemyGenerated: 0
   enemyPrinted: 0
+  enemyReady: 0
   bestIdx: 0
+  projectileSet: {fileID: 11400000, guid: fd434a2423766d64bbde424b0396009a, type: 2}
+  projectileMultipliers: []
 --- !u!1 &1371007583
 GameObject:
   m_ObjectHideFlags: 0
