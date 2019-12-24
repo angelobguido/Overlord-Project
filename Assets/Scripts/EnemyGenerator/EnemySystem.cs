@@ -12,7 +12,6 @@ using Unity.Jobs;
 
 public class EnemySystem : ComponentSystem
 {
-    public delegate Vector3 MovementType(Vector3 playerPos, Vector3 enemyPos);
     protected override void OnUpdate()
     {
 
@@ -25,23 +24,23 @@ public class EnemySystem : ComponentSystem
     }
 
     //Returns the type of movement the enemy has
-    public MovementType GetMovementType(EnemyComponent.MovementEnum moveTypeEnum)
+    /*public MovementType GetMovementType(MovementEnum moveTypeEnum)
     {
         switch (moveTypeEnum)
         {
-            case EnemyComponent.MovementEnum.None:
+            case MovementEnum.None:
                 return EnemyMovement.NoMovement;
-            case EnemyComponent.MovementEnum.Random:
+            case MovementEnum.Random:
                 return EnemyMovement.MoveRandomly;
-            case EnemyComponent.MovementEnum.Flee:
+            case MovementEnum.Flee:
                 return EnemyMovement.FleeFromPlayer;
-            case EnemyComponent.MovementEnum.Follow:
+            case MovementEnum.Follow:
                 return EnemyMovement.FollowPlayer;
             default:
                 Debug.Log("No Movement Attached to Enemy");
                 return null;
         }
-    }
+    }*/
 }
 
 
@@ -114,67 +113,15 @@ public class EASystem : JobComponentSystem
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
 
-            //Depending on each weapon, assign a damage multiplier
-            switch (enemy.weapon)
-            {
-                case EnemyComponent.WeaponEnum.None:
-                    damageMultiplier = 1.0f;
-                    break;
-                case EnemyComponent.WeaponEnum.Sword:
-                    damageMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.WeaponEnum.Bow:
-                    damageMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.WeaponEnum.Bomb:
-                    damageMultiplier = 1.2f;
-                    break;
-                case EnemyComponent.WeaponEnum.Shield:
-                    damageMultiplier = 1.1f;
-                    break;
-                default:
-                    damageMultiplier = 1.0f;
-                    break;
-            }
+            //Depending on each weapon, assign a damage 
+            damageMultiplier = GameManagerTest.instance.weaponMultipliers[enemy.weapon];
 
             //Depending on movement type, assign a movement multiplier
-            switch (enemy.movement)
-            {
-                case EnemyComponent.MovementEnum.None:
-                    movementMultiplier = 0.0f;
-                    break;
-                case EnemyComponent.MovementEnum.Random:
-                    movementMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.MovementEnum.Flee:
-                    movementMultiplier = 1.2f;
-                    break;
-                case EnemyComponent.MovementEnum.Follow:
-                    movementMultiplier = 1.3f;
-                    break;
-                default:
-                    movementMultiplier = 1.0f;
-                    break;
-            }
+            movementMultiplier = GameManagerTest.instance.movementMultipliers[enemy.movement];
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            /*if (enemy.weapon != EnemyComponent.WeaponEnum.None)
-            {
-                switch (weapon.projectile)
-                {
-                    case WeaponComponent.ProjectileEnum.None:
-                        projectileMultiplier = 0;
-                        break;
-                    case WeaponComponent.ProjectileEnum.Arrow:
-                        projectileMultiplier = 1;
-                        break;
-                    default:
-                        projectileMultiplier = 0;
-                        break;
-                }
-            }*/
-            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
-                projectileMultiplier = (int)GameManagerTest.instance.projectileMultipliers[weapon.projectile];
+            if(GameManagerTest.instance.weaponHasProjectile[enemy.weapon])
+                projectileMultiplier = GameManagerTest.instance.projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -190,67 +137,15 @@ public class EASystem : JobComponentSystem
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
 
-            //Depending on each weapon, assign a damage multiplier
-            switch (enemy.weapon)
-            {
-                case EnemyComponent.WeaponEnum.None:
-                    damageMultiplier = 1.0f;
-                    break;
-                case EnemyComponent.WeaponEnum.Sword:
-                    damageMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.WeaponEnum.Bow:
-                    damageMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.WeaponEnum.Bomb:
-                    damageMultiplier = 1.2f;
-                    break;
-                case EnemyComponent.WeaponEnum.Shield:
-                    damageMultiplier = 1.1f;
-                    break;
-                default:
-                    damageMultiplier = 1.0f;
-                    break;
-            }
+            //Depending on each weapon, assign a damage 
+            damageMultiplier = GameManagerTest.instance.weaponMultipliers[enemy.weapon];
 
             //Depending on movement type, assign a movement multiplier
-            switch (enemy.movement)
-            {
-                case EnemyComponent.MovementEnum.None:
-                    movementMultiplier = 0.0f;
-                    break;
-                case EnemyComponent.MovementEnum.Random:
-                    movementMultiplier = 1.1f;
-                    break;
-                case EnemyComponent.MovementEnum.Flee:
-                    movementMultiplier = 1.2f;
-                    break;
-                case EnemyComponent.MovementEnum.Follow:
-                    movementMultiplier = 1.3f;
-                    break;
-                default:
-                    movementMultiplier = 1.0f;
-                    break;
-            }
+            movementMultiplier = GameManagerTest.instance.movementMultipliers[enemy.movement];
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            /*if (enemy.weapon != EnemyComponent.WeaponEnum.None)
-            {
-                switch (weapon.projectile)
-                {
-                    case WeaponComponent.ProjectileEnum.None:
-                        projectileMultiplier = 0;
-                        break;
-                    case WeaponComponent.ProjectileEnum.Arrow:
-                        projectileMultiplier = 1;
-                        break;
-                    default:
-                        projectileMultiplier = 0;
-                        break;
-                }
-            }*/
-            if (enemy.weapon != EnemyComponent.WeaponEnum.None)
-                projectileMultiplier = (int)GameManagerTest.instance.projectileMultipliers[weapon.projectile];
+            if (GameManagerTest.instance.weaponHasProjectile[enemy.weapon])
+                projectileMultiplier = GameManagerTest.instance.projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -372,23 +267,23 @@ public class EASystem : JobComponentSystem
                 weapon.projectile = random.NextInt(0, GameManagerTest.instance.projectileMultipliers.Length);
                 //weapon.projectile = (WeaponComponent.ProjectileEnum)random.NextInt(0, (int)WeaponComponent.ProjectileEnum.COUNT);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                weapon.attackSpeed = random.NextInt(1, 11);
+                weapon.attackSpeed = random.NextFloat(EnemyUtil.minAtkSpeed, EnemyUtil.maxAtkSpeed);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                weapon.projectileSpeed = random.NextInt(1, 11);
+                weapon.projectileSpeed = random.NextFloat(EnemyUtil.minProjectileSpeed, EnemyUtil.maxProjectileSpeed);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.health = random.NextInt(1, 11);
+                enemy.health = random.NextInt(EnemyUtil.minHealth, EnemyUtil.maxHealth);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.damage = random.NextInt(1, 11);
+                enemy.damage = random.NextInt(EnemyUtil.minDamage, EnemyUtil.maxDamage);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.movementSpeed = random.NextInt(1, 11);
+                enemy.movementSpeed = random.NextFloat(EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.activeTime = random.NextInt(1, 11);
+                enemy.activeTime = random.NextFloat(EnemyUtil.minActivetime, EnemyUtil.maxActiveTime);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.restTime = random.NextInt(1, 11);
+                enemy.restTime = random.NextFloat(EnemyUtil.minResttime, EnemyUtil.maxRestTime);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.weapon = (EnemyComponent.WeaponEnum)random.NextInt(0, (int)EnemyComponent.WeaponEnum.COUNT);
+                enemy.weapon = random.NextInt(0, GameManagerTest.instance.weaponMultipliers.Length);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.movement = (EnemyComponent.MovementEnum)random.NextInt(0, (int)EnemyComponent.MovementEnum.COUNT);
+                enemy.movement = random.NextInt(0, GameManagerTest.instance.movementMultipliers.Length);
         }
     }
 
@@ -421,7 +316,7 @@ public class EASystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         JobHandle handle;
-        if (GameManagerTest.instance.generationCounter < EnemyUtil.maxGenerations)
+        /*if (GameManagerTest.instance.generationCounter < EnemyUtil.maxGenerations)
         {
             if (GameManagerTest.instance.generationCounter == 0)
             {
@@ -536,6 +431,7 @@ public class EASystem : JobComponentSystem
 
             return handle;
         }
+        */
         EmptyJob emptyJob = new EmptyJob
         { };
         handle = emptyJob.Schedule();
@@ -548,12 +444,12 @@ public class SignalEAEnding : ComponentSystem
 {
     protected override void OnUpdate()
     {
-        if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
+        /*if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
         {
             Debug.Log("This different update!");
 
             GameManagerTest.instance.generationCounter++;
             GameManagerTest.instance.enemyReady = true;
-        }
+        }*/
     }
 }

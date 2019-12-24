@@ -10,15 +10,13 @@ namespace EnemyGenerator
         public int projectile;
         public float attackSpeed;
         public float projectileSpeed;
-
-        public enum ProjectileEnum
-        {
-            None,
-            Arrow,
-            Bomb,
-            COUNT
-        }
+    }
+    public enum ProjectileEnum
+    {
+        None,
+        Arrow,
+        Bomb,
+        COUNT
     }
 
-    
 }

@@ -92,9 +92,44 @@ public class DoorBHV : MonoBehaviour
 
     private void MovePlayerToNextRoom ()
     {
+        //Enemy spawning logic here TODO make it better and work with the variable enemies SOs
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        //Debug.Log("Lenght>>>" + enemies.Length);
+        if (enemies.Length == 0)
+        {
+            parentRoom.hasEnemies = false;
+        }
+        else
+        {
+            foreach (GameObject enemy in enemies)
+            {
+                Destroy(enemy);
+            }
+        }
+        //The normal room transition
         Player.instance.transform.position = destination.teleportTransform.position;
         RoomBHV parent = destination.parentRoom;
         Player.instance.AdjustCamera(parent.x, parent.y);
+
+
+        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(0, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
+        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(1, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
+        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(2, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
+        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(3, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
+        //Spawn the enemies TODO make it spawn the variable enemies SOs
+        /*if (destination.transform.parent.gameObject.GetComponent<RoomBHV>().hasEnemies)
+        {
+            for (int i = 0; i < parent.nSlimes; ++i)
+                Instantiate(enemyPrefab, new Vector3(destination.transform.parent.position.x + 0.1f * i, destination.transform.parent.position.y + 0.1f * i, 0f), destination.transform.parent.rotation);
+            if (parent.hasTower[0])
+                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
+            if (parent.hasTower[1])
+                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
+            if (parent.hasTower[2])
+                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
+            if (parent.hasTower[3])
+                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
+        }*/
         OnRoomExit();
         OnRoomEnter();
     }

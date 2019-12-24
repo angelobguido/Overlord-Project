@@ -49,6 +49,8 @@ public class GameManager : MonoBehaviour {
     public static LevelPlayState state = LevelPlayState.InProgress;
     private static float secondsElapsed = 0;
 
+    public EnemyLoader enemyLoader;
+
     void Awake() {
         //Singleton
         if (instance == null) {
@@ -355,7 +357,7 @@ public class GameManager : MonoBehaviour {
         Debug.Log("Level Loaded");
         Debug.Log(scene.name);
         Debug.Log(mode);
-        if(scene.name == "Level" || scene.name == "LevelGenerator")
+        if(scene.name == "Level" || scene.name == "LevelGenerator" || scene.name == "LevelWithEnemies")
         {
             coroutine = generator.CreateDungeonParallel(progressText);
             StartCoroutine(coroutine);
@@ -369,7 +371,7 @@ public class GameManager : MonoBehaviour {
             startButton.interactable = false;
         }
 
-        if (scene.name == "Level")
+        if (scene.name == "Level" || scene.name == "LevelWithEnemies")
         {
             isInGame = true;
             startButton = null;
@@ -377,11 +379,13 @@ public class GameManager : MonoBehaviour {
 
             Player pl = Player.instance;
             pl.cam = Camera.main;
-            formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
+            //Recover health
+            pl.gameObject.GetComponent<PlayerController>().ResetHealth();
+            //formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
             keyText = GameObject.Find("KeyUIText").GetComponent<TextMeshProUGUI>();
             roomText = GameObject.Find("RoomUI").GetComponent<TextMeshProUGUI>();
             levelText = GameObject.Find("LevelUI").GetComponent<TextMeshProUGUI>();
-            endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
+            //endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
             LoadNewLevel();
         }
     }
@@ -475,5 +479,15 @@ public class GameManager : MonoBehaviour {
         audioSource.loop = true;
         audioSource.Play();
     }
-    
+
+    //TODO display something about the player losing and call a continue screen os something like this.
+    public void GameOver()
+    {
+
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene("Level");
+    }
 }

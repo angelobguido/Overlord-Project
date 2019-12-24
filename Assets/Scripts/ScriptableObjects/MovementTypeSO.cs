@@ -4,8 +4,11 @@ using UnityEngine;
 
 namespace EnemyGenerator
 {
+    public delegate Vector3 MovementType(Vector3 playerPos, Vector3 enemyPos);
+    [CreateAssetMenu]
     public class MovementTypeSO : ScriptableObject
     {
-
+        public float multiplier;
+        public MovementType enemyMovement;
     }
 }

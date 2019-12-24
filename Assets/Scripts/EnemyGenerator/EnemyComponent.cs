@@ -14,28 +14,13 @@ namespace EnemyGenerator
         public float movementSpeed;
         public float activeTime;
         public float restTime;
-        public WeaponEnum weapon;
-        public MovementEnum movement;
+        //public WeaponEnum weapon;
+        //public MovementEnum movement;
+        public int weapon;
+        public int movement;
+        public int behavior;
         public float fitness;
 
-        public enum WeaponEnum
-        {
-            None,
-            Sword,
-            Shield,
-            Bow,
-            Bomb,
-            COUNT
-        }
-
-        public enum MovementEnum
-        {
-            None,
-            Random,
-            Follow,
-            Flee,
-            COUNT
-        }
     }
 
     //Differentiates population from the intermediate one
@@ -44,4 +29,23 @@ namespace EnemyGenerator
         public int parent1;
         public int parent2;
     }
+
+    /*public enum WeaponEnum
+    {
+        None,
+        Sword,
+        Shield,
+        Bow,
+        Bomb,
+        COUNT
+    }
+
+    public enum MovementEnum
+    {
+        None,
+        Random,
+        Follow,
+        Flee,
+        COUNT
+    }*/
 }

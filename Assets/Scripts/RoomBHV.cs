@@ -14,13 +14,22 @@ public class RoomBHV : MonoBehaviour {
 	public bool isStart = false;
 	public bool isEnd = false;
 
-	public DoorBHV doorNorth;
+    public bool hasEnemies;
+    //TODO change this for the variable SO enemies
+    public bool[] hasTower;
+    public int nSlimes;
+
+    public DoorBHV doorNorth;
 	public DoorBHV doorSouth;
 	public DoorBHV doorEast;
 	public DoorBHV doorWest;
 
 	public KeyBHV keyPrefab;
     public TriforceBHV triPrefab;
+
+    //TODO change this for the SO enemies prefabs
+    public GameObject enemyPrefab, towerPrefab;
+
 
     public Collider2D colNorth;
 	public Collider2D colSouth;
@@ -29,6 +38,25 @@ public class RoomBHV : MonoBehaviour {
 
 	public TileBHV tilePrefab;
     public BlockBHV blockPrefab;
+
+    //TODO change for SO enemies
+    private void Awake()
+    {
+        hasEnemies = true;
+        nSlimes = Random.Range(0, 5);
+        hasTower = new bool[4];
+        for (int i = 0; i < 4; ++i)
+        {
+            if (Random.Range(0, 99) > 49)
+            {
+                hasTower[i] = true;
+            }
+            else
+            {
+                hasTower[i] = false;
+            }
+        }
+    }
 
     // Use this for initialization
     void Start () {
@@ -43,17 +71,19 @@ public class RoomBHV : MonoBehaviour {
 		if (isStart){
 			//Algum efeito
 			transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.green;
-		}
-		if (isEnd){
+            hasEnemies = false;
+        }
+        if (isEnd){
             TriforceBHV tri = Instantiate(triPrefab, transform);
             tri.SetRoom(x, y);
             //Algum efeito
             transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.red;
-		}
-	}
-	
-	// Update is called once per frame
-	void Update () {
+            hasEnemies = false;
+        }
+    }
+
+    // Update is called once per frame
+    void Update () {
         
 	}
 

@@ -7,6 +7,7 @@ namespace EnemyGenerator
     [CreateAssetMenu]
     public class ProjectileTypeSO : ScriptableObject
     {
-        public float multiplier;
+        public int multiplier;
+        public GameObject projectilePrefab;
     }
 }

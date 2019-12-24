@@ -4,10 +4,12 @@ using UnityEngine;
 
 namespace EnemyGenerator
 {
+    [CreateAssetMenu]
     public class WeaponTypeSO : ScriptableObject
     {
+        public float multiplier;
+        public bool hasProjectile;
         public ProjectileTypeSO projectile;
-        public float attackSpeed;
-        public float projectileSpeed;
+        public GameObject weaponPrefab;
     }
 }

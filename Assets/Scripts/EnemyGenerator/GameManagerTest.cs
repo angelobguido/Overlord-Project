@@ -7,6 +7,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Rendering;
 using EnemyGenerator;
+using UnityEditor;
 
 public class GameManagerTest : MonoBehaviour
 {
@@ -44,7 +45,7 @@ public class GameManagerTest : MonoBehaviour
 
     public float startTime;
 
-    public bool enemyGenerated, enemyPrinted, enemyReady;
+    public bool enemyGenerated, enemyPrinted, enemyReady, enemySorted;
 
 
     public NativeArray<EnemyComponent> enemyPop;
@@ -52,7 +53,15 @@ public class GameManagerTest : MonoBehaviour
     public int bestIdx;
 
     public ProjectileTypeRuntimeSetSO projectileSet;
-    public float[] projectileMultipliers;
+    public MovementTypeRuntimeSetSO movementSet;
+    public BehaviorTypeRuntimeSetSO behaviorSet;
+    public WeaponTypeRuntimeSetSO weaponSet;
+    public int[] projectileMultipliers;
+    public float[] movementMultipliers;
+    //TODO put them into the EA
+    public float[] behaviorMultipliers;
+    public float[] weaponMultipliers;
+    public bool[] weaponHasProjectile;
     void Awake()
     {
         //Singleton
@@ -67,7 +76,12 @@ public class GameManagerTest : MonoBehaviour
             enemyGenerated = false;
             enemyPrinted = false;
             enemyReady = false;
-            projectileMultipliers = new float[projectileSet.Items.Count];
+            enemySorted = false;
+            projectileMultipliers = new int[projectileSet.Items.Count];
+            movementMultipliers = new float[movementSet.Items.Count];
+            behaviorMultipliers = new float[behaviorSet.Items.Count];
+            weaponMultipliers = new float[weaponSet.Items.Count];
+            weaponHasProjectile = new bool[weaponSet.Items.Count];
         }
         else if (instance != this)
         {
@@ -79,9 +93,19 @@ public class GameManagerTest : MonoBehaviour
     {
         
         for (int i = (projectileSet.Items.Count - 1); i >= 0; i--)
-        {
             projectileMultipliers[i] = projectileSet.Items[i].multiplier;
-        }
+
+        for (int i = (movementSet.Items.Count - 1); i >= 0; i--)
+            movementMultipliers[i] = movementSet.Items[i].multiplier;
+
+        for (int i = (behaviorSet.Items.Count - 1); i >= 0; i--)
+            behaviorMultipliers[i] = behaviorSet.Items[i].multiplier; 
+        
+        for (int i = (weaponSet.Items.Count - 1); i >= 0; i--)
+            weaponMultipliers[i] = weaponSet.Items[i].multiplier;
+
+        for (int i = (weaponSet.Items.Count - 1); i >= 0; i--)
+            weaponHasProjectile[i] = weaponSet.Items[i].hasProjectile;
         //We must have an entity manager in our current world to create and handle the entities
         EntityManager entityManager = World.Active.EntityManager;
 
@@ -120,21 +144,22 @@ public class GameManagerTest : MonoBehaviour
                 {
                     //projectile = (WeaponComponent.ProjectileEnum)UnityEngine.Random.Range(0, (int)WeaponComponent.ProjectileEnum.COUNT),
                     projectile = UnityEngine.Random.Range(0, projectileMultipliers.Length),
-                    attackSpeed = UnityEngine.Random.Range(1, 11),
-                    projectileSpeed = UnityEngine.Random.Range(1, 11)
+                    attackSpeed = UnityEngine.Random.Range(EnemyUtil.minAtkSpeed, EnemyUtil.maxAtkSpeed),
+                    projectileSpeed = UnityEngine.Random.Range(EnemyUtil.minProjectileSpeed, EnemyUtil.maxProjectileSpeed)
                 }
             );
 
             entityManager.SetComponentData(entity,
                 new EnemyComponent
                 {
-                    health = UnityEngine.Random.Range(1, 11),
-                    damage = UnityEngine.Random.Range(1, 11),
-                    movementSpeed = UnityEngine.Random.Range(1, 11),
-                    activeTime = UnityEngine.Random.Range(1, 11),
-                    restTime = UnityEngine.Random.Range(1, 11),
-                    weapon = (EnemyComponent.WeaponEnum)UnityEngine.Random.Range(0, (int)EnemyComponent.WeaponEnum.COUNT),
-                    movement = (EnemyComponent.MovementEnum)UnityEngine.Random.Range(0, (int)EnemyComponent.MovementEnum.COUNT),
+                    health = UnityEngine.Random.Range(EnemyUtil.minHealth, EnemyUtil.maxHealth),
+                    damage = UnityEngine.Random.Range(EnemyUtil.minDamage, EnemyUtil.maxDamage),
+                    movementSpeed = UnityEngine.Random.Range(EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed),
+                    activeTime = UnityEngine.Random.Range(EnemyUtil.minActivetime, EnemyUtil.maxActiveTime),
+                    restTime = UnityEngine.Random.Range(EnemyUtil.minResttime, EnemyUtil.maxRestTime),
+                    weapon = UnityEngine.Random.Range(0, weaponMultipliers.Length),
+                    movement = UnityEngine.Random.Range(0, movementMultipliers.Length),
+                    behavior = UnityEngine.Random.Range(0, behaviorMultipliers.Length),
                     fitness = Mathf.Infinity
                 }
             );
@@ -162,7 +187,7 @@ public class GameManagerTest : MonoBehaviour
 
     public void Update()
     {
-        if(enemyReady)
+        if(enemyReady & enemySorted)
         {
             if(!enemyPrinted)
             {
@@ -174,6 +199,7 @@ public class GameManagerTest : MonoBehaviour
                 Debug.Log("movementspeed: " + enemyPop[bestIdx].movementSpeed);
                 Debug.Log("resttime: " + enemyPop[bestIdx].restTime);
                 enemyPrinted = true;
+                CreateSOBestEnemies();
             }
         }
     }
@@ -193,5 +219,15 @@ public class GameManagerTest : MonoBehaviour
         fitnessArray.Dispose();
         enemyPop.Dispose();
         weaponPop.Dispose();
+    }
+
+    public void CreateSOBestEnemies()
+    {
+        EnemySO bestEnemy = ScriptableObject.CreateInstance<EnemySO>();
+        for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
+        {
+            bestEnemy.Init(enemyPop[i].health, enemyPop[i].damage, enemyPop[i].movementSpeed, enemyPop[i].activeTime, enemyPop[i].restTime, enemyPop[i].weapon, enemyPop[i].movement, enemyPop[i].behavior, enemyPop[i].fitness, weaponPop[i].attackSpeed, weaponPop[i].projectileSpeed);
+            AssetDatabase.CreateAsset(bestEnemy, "Assets/ScriptableObjectsData/" + "Enemy"+i+".asset");
+        }   
     }
 }

@@ -4,7 +4,22 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
-    public GameObject introScreen, mainScreen;
+
+    public static MainMenu instance = null;
+    public GameObject introScreen, mainScreen, gameOverScreen;
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+
+            DontDestroyOnLoad(gameObject);
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
     public void IntroScreen()
     {
         mainScreen.SetActive(false);
@@ -12,7 +27,7 @@ public class MainMenu : MonoBehaviour {
     }
     public void PlayGame()
     {
-        SceneManager.LoadScene("Level");
+        SceneManager.LoadScene("LevelWithEnemies");
     }
     public void CreateLevels()
     {
@@ -21,5 +36,9 @@ public class MainMenu : MonoBehaviour {
     public void QuitGame()
     {
         Application.Quit();
+    }
+    public void GameOver()
+    {
+        gameOverScreen.SetActive(true);
     }
 }
