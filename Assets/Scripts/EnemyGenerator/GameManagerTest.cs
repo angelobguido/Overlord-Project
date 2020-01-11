@@ -14,26 +14,6 @@ public class GameManagerTest : MonoBehaviour
     //singleton
     public static GameManagerTest instance = null;
 
-    //The player the enemies will follow
-    [SerializeField] private GameObject player = null;
-
-    //Mesh and material if we will create the sprites of the enemies with them.
-    //TODO check the video where the CodeMonkey guy uses a spritesheet animation
-    //Maybe we will ignore ECS for the gameplay itself as it is overly complicated and we will have few enemyes per room.
-    [SerializeField] private Mesh mesh;
-    [SerializeField] private Material material;
-
-    //Prefabs of the weapons
-    //TODO create them in unity
-    [SerializeField] private GameObject swordPrefab;
-    [SerializeField] private GameObject bowPrefab;
-    [SerializeField] private GameObject shieldPrefab;
-    [SerializeField] private GameObject bombPrefab;
-
-    //Prefabs of the projectiles
-    //TODO create them in unity
-    [SerializeField] private GameObject projectilePrefab;
-
     //Array of entities for the population of enemies
     public NativeArray<Entity> enemyPopulationArray;
     //Array of entities for the intermediate population of enemies
@@ -49,19 +29,21 @@ public class GameManagerTest : MonoBehaviour
 
 
     public NativeArray<EnemyComponent> enemyPop;
+    public NativeArray<EnemyComponent> bestEnemyPop;
     public NativeArray<WeaponComponent> weaponPop;
+    public NativeArray<WeaponComponent> bestWeaponPop;
     public int bestIdx;
 
     public ProjectileTypeRuntimeSetSO projectileSet;
     public MovementTypeRuntimeSetSO movementSet;
     public BehaviorTypeRuntimeSetSO behaviorSet;
     public WeaponTypeRuntimeSetSO weaponSet;
-    public int[] projectileMultipliers;
-    public float[] movementMultipliers;
+    public NativeArray<int> projectileMultipliers;
+    public NativeArray<float> movementMultipliers;
     //TODO put them into the EA
-    public float[] behaviorMultipliers;
-    public float[] weaponMultipliers;
-    public bool[] weaponHasProjectile;
+    public NativeArray<float> behaviorMultipliers;
+    public NativeArray<float> weaponMultipliers;
+    public NativeArray<bool> weaponHasProjectile;
     void Awake()
     {
         //Singleton
@@ -71,17 +53,19 @@ public class GameManagerTest : MonoBehaviour
             fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
             enemyPop = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
             weaponPop = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
+            bestEnemyPop = new NativeArray<EnemyComponent>(EnemyUtil.nBestEnemies, Allocator.Persistent);
+            bestWeaponPop = new NativeArray<WeaponComponent>(EnemyUtil.nBestEnemies, Allocator.Persistent);
             generationCounter = 0;
             startTime = Time.realtimeSinceStartup;
             enemyGenerated = false;
             enemyPrinted = false;
             enemyReady = false;
             enemySorted = false;
-            projectileMultipliers = new int[projectileSet.Items.Count];
-            movementMultipliers = new float[movementSet.Items.Count];
-            behaviorMultipliers = new float[behaviorSet.Items.Count];
-            weaponMultipliers = new float[weaponSet.Items.Count];
-            weaponHasProjectile = new bool[weaponSet.Items.Count];
+            projectileMultipliers = new NativeArray<int>(projectileSet.Items.Count, Allocator.Persistent);
+            movementMultipliers = new NativeArray<float>(movementSet.Items.Count, Allocator.Persistent);
+            behaviorMultipliers = new NativeArray<float>(behaviorSet.Items.Count, Allocator.Persistent);
+            weaponMultipliers = new NativeArray<float>(weaponSet.Items.Count, Allocator.Persistent);
+            weaponHasProjectile = new NativeArray<bool>(weaponSet.Items.Count, Allocator.Persistent);
         }
         else if (instance != this)
         {
@@ -127,9 +111,18 @@ public class GameManagerTest : MonoBehaviour
             typeof(WeaponComponent)
         );
 
+        //The entity archetype for the elite population. As the translation is not used in the EA evolution, it does not contain one
+        EntityArchetype eliteEnemyArchetype = entityManager.CreateArchetype(
+            typeof(ElitePopulation),
+            typeof(EnemyComponent),
+            typeof(WeaponComponent)
+        );
+
         //Instantiate "Population Size" individuals for both populations using a native array
         enemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
         intermediateEnemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
+
+
         //Create the entities themselves in the memory
         entityManager.CreateEntity(enemyArchetype, enemyPopulationArray);
         entityManager.CreateEntity(intermediateEnemyArchetype, intermediateEnemyPopulationArray);
@@ -191,25 +184,17 @@ public class GameManagerTest : MonoBehaviour
         {
             if(!enemyPrinted)
             {
-                Debug.Log("Fitness: " + enemyPop[bestIdx].fitness);
+                /*Debug.Log("Fitness: " + enemyPop[bestIdx].fitness);
                 Debug.Log("Health: " + enemyPop[bestIdx].health);
                 Debug.Log("damage: " + enemyPop[bestIdx].damage);
                 Debug.Log("activetime: " + enemyPop[bestIdx].activeTime);
                 Debug.Log("movement: " + enemyPop[bestIdx].movement);
                 Debug.Log("movementspeed: " + enemyPop[bestIdx].movementSpeed);
-                Debug.Log("resttime: " + enemyPop[bestIdx].restTime);
+                Debug.Log("resttime: " + enemyPop[bestIdx].restTime);*/
                 enemyPrinted = true;
                 CreateSOBestEnemies();
             }
         }
-    }
-
-    //Returns the current position of the player
-    public Vector3 GetPlayerPos()
-    {
-        if(player != null)
-            return player.transform.position;
-        return new Vector3(0,0,0);
     }
 
     protected void OnApplicationQuit()
@@ -219,15 +204,53 @@ public class GameManagerTest : MonoBehaviour
         fitnessArray.Dispose();
         enemyPop.Dispose();
         weaponPop.Dispose();
+        bestEnemyPop.Dispose();
+        bestWeaponPop.Dispose();
+        projectileMultipliers.Dispose();
+        movementMultipliers.Dispose();
+        behaviorMultipliers.Dispose();
+        weaponMultipliers.Dispose();
+        weaponHasProjectile.Dispose();
     }
 
     public void CreateSOBestEnemies()
     {
-        EnemySO bestEnemy = ScriptableObject.CreateInstance<EnemySO>();
-        for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
+        EnemySO[] bestEnemies = new EnemySO [EnemyUtil.nBestEnemies];
+        int shift = 0, i = 0;
+
+        while(i < EnemyUtil.nBestEnemies)
         {
-            bestEnemy.Init(enemyPop[i].health, enemyPop[i].damage, enemyPop[i].movementSpeed, enemyPop[i].activeTime, enemyPop[i].restTime, enemyPop[i].weapon, enemyPop[i].movement, enemyPop[i].behavior, enemyPop[i].fitness, weaponPop[i].attackSpeed, weaponPop[i].projectileSpeed);
-            AssetDatabase.CreateAsset(bestEnemy, "Assets/ScriptableObjectsData/" + "Enemy"+i+".asset");
-        }   
+            if (IsEnemyDifferent(i + shift))
+            {
+                bestEnemies[i] = ScriptableObject.CreateInstance<EnemySO>();
+                AssetDatabase.DeleteAsset("Assets/Resources/Enemies/" + "Enemy" + i + ".asset");
+                bestEnemies[i].Init(enemyPop[i + shift].health, enemyPop[i + shift].damage, enemyPop[i + shift].movementSpeed, enemyPop[i + shift].activeTime,
+                    enemyPop[i + shift].restTime, enemyPop[i + shift].weapon, enemyPop[i + shift].movement, enemyPop[i + shift].behavior, enemyPop[i + shift].fitness,
+                    weaponPop[i + shift].attackSpeed, weaponPop[i + shift].projectileSpeed);
+                AssetDatabase.CreateAsset(bestEnemies[i], "Assets/Resources/Enemies/" + "Enemy" + i + ".asset");
+                ++i;
+            }
+            else
+            {
+                ++shift;
+            }
+        }
+        GameManager.instance.createEnemy = false;
+    }
+
+    private bool IsEnemyDifferent(int index)
+    {
+        if (enemyPop[index].health == enemyPop[index + 1].health)
+            if (enemyPop[index].damage == enemyPop[index + 1].damage)
+                if (math.abs(enemyPop[index].movementSpeed - enemyPop[index + 1].movementSpeed) < 0.001f)
+                    if (math.abs(enemyPop[index].activeTime - enemyPop[index + 1].activeTime) < 0.001f)
+                        if (math.abs(enemyPop[index].restTime - enemyPop[index + 1].restTime) < 0.001f)
+                            if (enemyPop[index].weapon == enemyPop[index + 1].weapon)
+                                if (enemyPop[index].movement == enemyPop[index + 1].movement)
+                                    if (enemyPop[index].behavior == enemyPop[index + 1].behavior)
+                                        if (math.abs(weaponPop[index].attackSpeed - weaponPop[index + 1].attackSpeed) < 0.001f)
+                                            if (math.abs(weaponPop[index].projectileSpeed - weaponPop[index + 1].projectileSpeed) < 0.001f)
+                                                return false;
+        return true;
     }
 }

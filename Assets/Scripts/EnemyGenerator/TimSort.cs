@@ -6,6 +6,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class TimSort : MonoBehaviour
 {
@@ -13,35 +14,31 @@ public class TimSort : MonoBehaviour
 
     // this function sorts array from left index to 
     // to right index which is of size atmost RUN 
-    public static void insertionSort(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, ref NativeArray<float> fitness, int left, int right)
+    public static void insertionSort(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, int left, int right)
     {
         for (int i = left + 1; i <= right; i++)
         {
             EnemyComponent auxEnemy;
             WeaponComponent auxWeapon;
-            float auxFitness;
             auxEnemy = enemies[i];
             auxWeapon = weapons[i];
-            auxFitness = fitness[i];
 
             int j = (i - 1);
-            while ((j >= left) && (fitness[j] > auxFitness))
+            while ((j >= left) && (math.abs(EnemyUtil.desiredFitness - enemies[j].fitness) > math.abs(EnemyUtil.desiredFitness - auxEnemy.fitness)))
             {
                 //Debug.Log("j = " + j);
-                fitness[j + 1] = fitness[j];
                 enemies[j + 1] = enemies[j];
                 weapons[j + 1] = weapons[j];
 
                 j--;
             }
-            fitness[j + 1] = auxFitness;
             enemies[j + 1] = auxEnemy;
             weapons[j + 1] = auxWeapon;
         }
     }
 
     // merge function merges the sorted runs 
-    public static void merge(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, ref NativeArray<float> fitness, int l, int m, int r)
+    public static void merge(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, int l, int m, int r)
     {
         // original array is broken in two parts 
         // left and right array 
@@ -55,23 +52,19 @@ public class TimSort : MonoBehaviour
         //Debug.Log("r = " + r + "- m = " + m + "- len2= " + len2);
         NativeArray<EnemyComponent> leftEnemies = new NativeArray<EnemyComponent>(len1, Allocator.Temp);
         NativeArray<WeaponComponent> leftWeapons = new NativeArray<WeaponComponent>(len1, Allocator.Temp);
-        NativeArray<float> leftFitness = new NativeArray<float>(len1, Allocator.Temp);
 
         NativeArray<EnemyComponent> rightEnemies = new NativeArray<EnemyComponent>(len2, Allocator.Temp);
         NativeArray<WeaponComponent> rightWeapons = new NativeArray<WeaponComponent>(len2, Allocator.Temp);
-        NativeArray<float> rightFitness = new NativeArray<float>(len2, Allocator.Temp);
 
         for (int x = 0; x < len1; x++)
         {
             leftEnemies[x] = enemies[l + x];
             leftWeapons[x] = weapons[l + x];
-            leftFitness[x] = fitness[l + x];
         }
         for (int x = 0; x < len2; x++)
         {
             rightEnemies[x] = enemies[m + 1 + x];
             rightWeapons[x] = weapons[m + 1 + x];
-            rightFitness[x] = fitness[m + 1 + x];
         }
 
         int i = 0;
@@ -82,18 +75,16 @@ public class TimSort : MonoBehaviour
         // in larger sub array 
         while (i < len1 && j < len2)
         {
-            if (leftFitness[i] <= rightFitness[j])
+            if (math.abs(EnemyUtil.desiredFitness - leftEnemies[i].fitness) <= math.abs(EnemyUtil.desiredFitness - rightEnemies[j].fitness))
             {
                 weapons[k] = leftWeapons[i];
                 enemies[k] = leftEnemies[i];
-                fitness[k] = leftFitness[i];
                 i++;
             }
             else
             {
                 weapons[k] = rightWeapons[j];
                 enemies[k] = rightEnemies[j];
-                fitness[k] = rightFitness[j];
                 j++;
             }
             k++;
@@ -104,7 +95,6 @@ public class TimSort : MonoBehaviour
         {
             weapons[k] = leftWeapons[i];
             enemies[k] = leftEnemies[i];
-            fitness[k] = leftFitness[i];
             k++;
             i++;
         }
@@ -114,26 +104,27 @@ public class TimSort : MonoBehaviour
         {
             weapons[k] = rightWeapons[j];
             enemies[k] = rightEnemies[j];
-            fitness[k] = rightFitness[j];
             k++;
             j++;
         }
 
-        leftFitness.Dispose();
+        /*leftFitness.Dispose();
         leftEnemies.Dispose();
         leftWeapons.Dispose();
         rightFitness.Dispose();
         rightEnemies.Dispose();
-        rightWeapons.Dispose();
+        rightWeapons.Dispose();*/
     }
 
     // iterative Timsort function to sort the 
     // array[0...n-1] (similar to merge sort) 
-    public static void timSort(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, ref NativeArray<float> fitness, int n)
+    public static void timSort(ref NativeArray<EnemyComponent> enemies, ref NativeArray<WeaponComponent> weapons, int n)
     {
         // Sort individual subarrays of size RUN 
         for (int i = 0; i < n; i += RUN)
-            insertionSort(ref enemies, ref weapons, ref fitness, i, Mathf.Min((i + 31), (n - 1)));
+        {
+            insertionSort(ref enemies, ref weapons, i, Mathf.Min((i + 31), (n - 1)));
+        }
 
         // start merging from size RUN (or 32). It will merge 
         // to form size 64, then 128, 256 and so on .... 
@@ -152,7 +143,7 @@ public class TimSort : MonoBehaviour
 
                 // merge sub array arr[left.....mid] & 
                 // arr[mid+1....right] 
-                merge(ref enemies, ref weapons, ref fitness, left, mid, right);
+                merge(ref enemies, ref weapons, left, mid, right);
             }
         }
     }
@@ -162,18 +153,16 @@ public class TimSort : MonoBehaviour
 }
 public class TimSortSystem : JobComponentSystem
 {
-    [BurstCompile]
-    private struct SortEnemiesJob : IJob
+    //[BurstCompile]
+    public struct SortEnemiesJob : IJob
     {
         public NativeArray<EnemyComponent> enemies;
         public NativeArray<WeaponComponent> weapons;
-        public NativeArray<float> fitness;
-        public Unity.Mathematics.Random random;
 
         public void Execute()
         {
-            Debug.Log(enemies.Length + " - " + weapons.Length + " - " + fitness.Length);
-            TimSort.timSort(ref enemies, ref weapons, ref fitness, enemies.Length);
+            //Debug.Log(enemies.Length + " - " + weapons.Length + " - " + fitness.Length);
+            TimSort.timSort(ref enemies, ref weapons, enemies.Length);
 
 
             /*for (var i = 0; i <= enemies.Length - 2; ++i)
@@ -197,28 +186,28 @@ public class TimSortSystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         JobHandle handle;
-        /*if (GameManagerTest.instance.enemyReady && !GameManagerTest.instance.enemySorted)
+        if (GameManager.instance.createEnemy)
         {
-            var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
-            SortEnemiesJob sortJob = new SortEnemiesJob
+            if (GameManagerTest.instance.enemyReady && !GameManagerTest.instance.enemySorted)
             {
-                enemies = GameManagerTest.instance.enemyPop,
-                weapons = GameManagerTest.instance.weaponPop,
-                fitness = GameManagerTest.instance.fitnessArray,
-                random = random
-            };
-            //return job.Schedule(this, inputDeps);
+                SortEnemiesJob sortJob = new SortEnemiesJob
+                {
+                    enemies = GameManagerTest.instance.enemyPop,
+                    weapons = GameManagerTest.instance.weaponPop,
+                };
+                //return job.Schedule(this, inputDeps);
 
-            handle = sortJob.Schedule(inputDeps);
-            handle.Complete();
+                handle = sortJob.Schedule(inputDeps);
+                handle.Complete();
 
-            for (int i = 0; i < GameManagerTest.instance.enemyPop.Length; ++i)
-                Debug.Log("i = " + i + " - Fitness = " + GameManagerTest.instance.fitnessArray[i]);
+                /*for (int i = 0; i < GameManagerTest.instance.enemyPop.Length; ++i)
+                    Debug.Log("i = " + i + " - Fitness = " + GameManagerTest.instance.enemyPop[i].fitness + "Fitness - " + GameManagerTest.instance.fitnessArray[i]);*/
 
-            GameManagerTest.instance.enemySorted = true;
+                GameManagerTest.instance.enemySorted = true;
 
-            return handle;
-        }*/
+                return handle;
+            }
+        }
         EmptyJob emptyJob = new EmptyJob
         { };
         handle = emptyJob.Schedule();

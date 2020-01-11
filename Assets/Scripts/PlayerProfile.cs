@@ -2,10 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using EnemyGenerator;
+
+public struct CombatRoomInfo
+{
+    public int roomId;
+    public int hasEnemies;
+    public int nEnemies;
+    public List<int> enemiesIndex;
+    public int playerInitHealth;
+    public int playerFinalHealth;
+    public int timeToExit;
+}
 
 public class PlayerProfile : MonoBehaviour {
 
     public static PlayerProfile instance = null;
+
+    private int roomID = 0;
 
     private const string PostDataURL = "http://jogos.icmc.usp.br/pag/data/upload.php?";
     private int attemptNumber = 1; //TODO: entender o por quê desse int
@@ -37,7 +51,14 @@ public class PlayerProfile : MonoBehaviour {
     System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
     [SerializeField]
     private int[,] heatMap;
-    
+
+    //Enemy Generator Data
+    protected List<CombatRoomInfo> combatInfoList;
+    protected int difficultyLevel;
+    protected List<int> damageDoneByEnemy;
+    protected int timesPlayerDied;
+    protected int hasFinished; //0 if player gave up, 1 if he completed the stage 
+    protected CombatRoomInfo actualRoomInfo;
 
 
     void Awake()
@@ -46,6 +67,7 @@ public class PlayerProfile : MonoBehaviour {
         if (instance == null)
         {
             instance = this;
+            combatInfoList = new List<CombatRoomInfo>();
         }
         else if (instance != this)
         {
@@ -62,6 +84,7 @@ public class PlayerProfile : MonoBehaviour {
         sessionUID = Random.Range(0, 99).ToString("00");
         sessionUID += "_";
         sessionUID += dateTime;
+        damageDoneByEnemy = new List<int>(EnemyUtil.nBestEnemies);
     }
 	
 	// Update is called once per frame
@@ -78,12 +101,17 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From DoorBHV
-    public void OnRoomEnter (int x, int y)
+    public void OnRoomEnter (int x, int y, bool hasEnemies, List<int> enemyList, int playerHealth)
     {
         //Log
         //Mais métricas - organiza em TAD
         heatMap[x / 2, y / 2]++;
         visitedRooms.Add(new Vector2Int(x, y));
+        actualRoomInfo.hasEnemies = System.Convert.ToInt32(hasEnemies);
+        actualRoomInfo.playerInitHealth = playerHealth;
+        actualRoomInfo.nEnemies = enemyList.Count;
+        actualRoomInfo.enemiesIndex = enemyList;
+        actualRoomInfo.timeToExit = System.Convert.ToInt32(stopWatch.ElapsedMilliseconds);
     }
 
     //From DoorBHV
@@ -94,8 +122,10 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From DoorBHV
-    public void OnRoomExit(Vector2Int offset)
+    public void OnRoomExit(Vector2Int offset, int playerHealth)
     {
+        actualRoomInfo.playerFinalHealth = playerHealth;
+        combatInfoList.Add(actualRoomInfo);
         //Log
         //Mais métricas - organiza em TAD
     }
@@ -248,5 +278,10 @@ public class PlayerProfile : MonoBehaviour {
         }
         Debug.Log("Finished Creating HeatMap");
         return heatMap;
+    }
+
+    public void OnEnemyGiveDamage(int index)
+    {
+        damageDoneByEnemy[index]++;
     }
 }

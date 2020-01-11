@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using EnemyGenerator;
 
 public class RoomBHV : MonoBehaviour {
 
@@ -18,6 +19,9 @@ public class RoomBHV : MonoBehaviour {
     //TODO change this for the variable SO enemies
     public bool[] hasTower;
     public int nSlimes;
+    public int difficultyLevel;
+    public List<int> enemiesIndex;
+    private int enemiesDead;
 
     public DoorBHV doorNorth;
 	public DoorBHV doorSouth;
@@ -43,7 +47,9 @@ public class RoomBHV : MonoBehaviour {
     private void Awake()
     {
         hasEnemies = true;
-        nSlimes = Random.Range(0, 5);
+        enemiesIndex = new List<int>();
+        enemiesDead = 0;
+        /*nSlimes = Random.Range(0, 5);
         hasTower = new bool[4];
         for (int i = 0; i < 4; ++i)
         {
@@ -55,7 +61,7 @@ public class RoomBHV : MonoBehaviour {
             {
                 hasTower[i] = false;
             }
-        }
+        }*/
     }
 
     // Use this for initialization
@@ -73,12 +79,16 @@ public class RoomBHV : MonoBehaviour {
 			transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.green;
             hasEnemies = false;
         }
-        if (isEnd){
+        else if (isEnd){
             TriforceBHV tri = Instantiate(triPrefab, transform);
             tri.SetRoom(x, y);
             //Algum efeito
             transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.red;
             hasEnemies = false;
+        }
+        else
+        {
+            SelectEnemies();
         }
     }
 
@@ -136,4 +146,54 @@ public class RoomBHV : MonoBehaviour {
 			}
 		}
 	}
+
+    private void SelectEnemies()
+    {
+        difficultyLevel = GameManager.instance.GetMap().rooms[x, y].difficulty;
+        float actualDifficulty = 0;
+        int auxIndex;
+        while (actualDifficulty < difficultyLevel)
+        {
+            auxIndex = Random.Range(0, EnemyUtil.nBestEnemies);
+            enemiesIndex.Add(auxIndex);
+            actualDifficulty += GameManager.instance.enemyLoader.bestEnemies[auxIndex].fitness;
+        }
+    }
+
+    public void SpawnEnemies()
+    {
+        GameObject enemy;
+        if (enemiesIndex.Count != 4)
+        {
+            for (int i = 0; i < enemiesIndex.Count; ++i)
+            {
+                enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[i], new Vector3(transform.position.x, transform.position.y, 0f), transform.rotation);
+                enemy.GetComponent<EnemyController>().SetRoom(this);
+            }
+        }
+        else
+        {
+            enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[0], new Vector3(transform.position.x + 6, transform.position.y + 5.5f, 0f), transform.rotation);
+            enemy.GetComponent<EnemyController>().SetRoom(this);
+            enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[1], new Vector3(transform.position.x + 6, transform.position.y - 6, 0f), transform.rotation);
+            enemy.GetComponent<EnemyController>().SetRoom(this);
+            enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[2], new Vector3(transform.position.x - 6, transform.position.y - 6, 0f), transform.rotation);
+            enemy.GetComponent<EnemyController>().SetRoom(this);
+            enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[3], new Vector3(transform.position.x - 6, transform.position.y + 5.5f, 0f), transform.rotation);
+            enemy.GetComponent<EnemyController>().SetRoom(this);
+        }
+    }
+
+    public void CheckIfAllEnemiesDead()
+    {
+        enemiesDead++;
+        if(enemiesDead == enemiesIndex.Count)
+        {
+            hasEnemies = false;
+            doorEast.OpenDoorAfterKilling();
+            doorWest.OpenDoorAfterKilling();
+            doorNorth.OpenDoorAfterKilling();
+            doorSouth.OpenDoorAfterKilling();
+        }
+    }
 }

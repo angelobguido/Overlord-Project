@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Follow
   m_EditorClassIdentifier: 
   multiplier: 1.3
+  enemyMovementIndex: 2

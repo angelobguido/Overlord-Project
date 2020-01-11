@@ -29,6 +29,7 @@ namespace EnemyGenerator
         public int parent1;
         public int parent2;
     }
+    public struct ElitePopulation: IComponentData { }
 
     /*public enum WeaponEnum
     {
@@ -38,7 +39,7 @@ namespace EnemyGenerator
         Bow,
         Bomb,
         COUNT
-    }
+    }*/
 
     public enum MovementEnum
     {
@@ -47,5 +48,5 @@ namespace EnemyGenerator
         Follow,
         Flee,
         COUNT
-    }*/
+    }
 }

@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace EnemyGenerator
 {
-    
     public class EnemyMovement : MonoBehaviour
     {
         public static Vector3 MoveRandomly(Vector3 playerPos, Vector3 enemyPos)
@@ -15,12 +14,10 @@ namespace EnemyGenerator
         {
             return new Vector3(0, 0, 0);
         }
-
         public static Vector3 FollowPlayer(Vector3 playerPos, Vector3 enemyPos)
         {
             return playerPos - enemyPos;
         }
-
         public static Vector3 FleeFromPlayer(Vector3 playerPos, Vector3 enemyPos)
         {
             return enemyPos - playerPos;

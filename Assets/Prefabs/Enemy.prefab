@@ -173,9 +173,10 @@ GameObject:
   - component: {fileID: 8771052608593400770}
   - component: {fileID: 8771052608593400774}
   - component: {fileID: 8771052608593400775}
+  - component: {fileID: 3513755637091385208}
   m_Layer: 0
-  m_Name: EnemyTorso
-  m_TagString: Untagged
+  m_Name: Enemy
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -285,7 +286,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &8771052608593400775
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -312,6 +313,28 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.73838186, y: 0.6428704}
   m_EdgeRadius: 0
+--- !u!114 &3513755637091385208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8771052608593400771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e566eb9cb903c064aa74a9a523e3ff74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  restTime: 0
+  activeTime: 0
+  movementSpeed: 0
+  invincibilityTime: 0
+  attackSpeed: 0
+  projectileSpeed: 0
+  playerObj: {fileID: 0}
+  bloodParticle: {fileID: 0}
+  weaponPrefab: {fileID: 0}
+  projectilePrefab: {fileID: 0}
 --- !u!1 &8771052608735145376
 GameObject:
   m_ObjectHideFlags: 0

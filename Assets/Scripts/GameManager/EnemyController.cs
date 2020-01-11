@@ -5,17 +5,21 @@ using EnemyGenerator;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField]
-    protected float restTime, activeTime, health, movementSpeed, damage, invincibilityTime, attackSpeed, projectileSpeed;
+    protected float restTime, activeTime, movementSpeed, invincibilityTime, attackSpeed, projectileSpeed;
+    protected int health, damage;
     [SerializeField]
     protected GameObject playerObj, bloodParticle, weaponPrefab, projectilePrefab;
-    protected MovementType movement;
+    protected MovementTypeSO movement;
     protected BehaviorType behavior;
 
     protected Animator anim;
     protected float waitingTime, walkingTime, walkUntil, waitUntil, invincibilityCount;
-    protected bool isWalking, isInvincible, hasProjectile;
+    protected bool isWalking, isInvincible, hasProjectile, hasFixedMoveDir, hasMoveDirBeenChosen;
     protected Color originalColor, armsColor, headColor, legsColor;
     protected float lastX, lastY;
+    protected Vector3 targetMoveDir;
+    protected RoomBHV room;
+    protected int indexOnEnemyList;
 
     private void Awake()
     {
@@ -25,6 +29,8 @@ public class EnemyController : MonoBehaviour
         waitUntil = 1.5f;
         playerObj = Player.instance.gameObject;
         isInvincible = false;
+        hasFixedMoveDir = false;
+        hasMoveDirBeenChosen = false;
         anim = GetComponent<Animator>();
         SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer>();
         originalColor = sr.color;
@@ -32,7 +38,9 @@ public class EnemyController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-
+        //If the movement needs to be fixed for the whole active time, set the flag here
+        if (movement.enemyMovementIndex == MovementEnum.Random)
+            hasFixedMoveDir = true;
     }
 
     // Update is called once per frame
@@ -59,6 +67,7 @@ public class EnemyController : MonoBehaviour
                 walkingTime = 0.0f;
                 isWalking = false;
                 waitUntil = restTime;
+                hasMoveDirBeenChosen = false;
             }
         }
         else
@@ -76,20 +85,32 @@ public class EnemyController : MonoBehaviour
 
     void Walk()
     {
-        int xOffset, yOffset;
-        Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);
-        target.Normalize();
-        UpdateAnimation(target);
-        if (target.x >= 0)
-            xOffset = 1;
-        else
-            xOffset = -1;
-        if (target.y >= 0)
-            yOffset = 1;
-        else
-            yOffset = -1;
+        if (!hasMoveDirBeenChosen)
+        {
+            int xOffset, yOffset;
+            //Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);
+            targetMoveDir = movement.movementType(playerObj.transform.position, transform.position);
+            targetMoveDir.Normalize();
 
-        transform.position += new Vector3((target.x + xOffset) * movementSpeed * Time.deltaTime, (target.y + yOffset) * movementSpeed * Time.deltaTime, 0f);
+            UpdateAnimation(targetMoveDir);
+            if (targetMoveDir.x > 0)
+                xOffset = 1;
+            else if (targetMoveDir.x < 0)
+                xOffset = -1;
+            else
+                xOffset = 0;
+            if (targetMoveDir.y > 0)
+                yOffset = 1;
+            else if (targetMoveDir.y < 0)
+                yOffset = -1;
+            else
+                yOffset = 0;
+            targetMoveDir = new Vector3((targetMoveDir.x + xOffset), (targetMoveDir.y + yOffset), 0f);
+            if(!hasFixedMoveDir)
+                hasMoveDirBeenChosen = true;
+        }
+        transform.position += new Vector3(targetMoveDir.x * movementSpeed * Time.deltaTime, targetMoveDir.y*movementSpeed*Time.deltaTime, 0f);
+        //transform.position += new Vector3((target.x + xOffset) * movementSpeed * Time.deltaTime, (target.y + yOffset) * movementSpeed * Time.deltaTime, 0f);
         walkingTime += Time.deltaTime;
     }
 
@@ -120,6 +141,7 @@ public class EnemyController : MonoBehaviour
         {
             Debug.Log("Collide with Player");
             collision.gameObject.GetComponent<PlayerController>().ReceiveDamage(damage);
+            PlayerProfile.instance.OnEnemyDoesDamage(indexOnEnemyList);
         }
     }
 
@@ -128,7 +150,8 @@ public class EnemyController : MonoBehaviour
         if (health <= 0f)
         {
             //TODO Audio and Particles
-            Instantiate(bloodParticle, transform.position, Quaternion.identity);
+            //Instantiate(bloodParticle, transform.position, Quaternion.identity);
+            room.CheckIfAllEnemiesDead();
             Destroy(gameObject);
         }
     }
@@ -151,7 +174,7 @@ public class EnemyController : MonoBehaviour
         anim.SetFloat("DirY", movement.y);
     }
 
-    public void LoadEnemyData(EnemySO enemyData)
+    public void LoadEnemyData(EnemySO enemyData, int index)
     {
         health = enemyData.health;
         damage = enemyData.damage;
@@ -161,15 +184,16 @@ public class EnemyController : MonoBehaviour
         attackSpeed = enemyData.attackSpeed;
         projectileSpeed = enemyData.projectileSpeed;
         //projectilePrefab = Instantiate(enemyData.weapon.projectile.projectilePrefab);
-        weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab);
+        //weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab);
         hasProjectile = enemyData.weapon.hasProjectile;
-        if (hasProjectile)
+        /*if (hasProjectile)
             projectilePrefab = enemyData.weapon.projectile.projectilePrefab;
-        else
+        else*/
             projectilePrefab = null;
-        movement = enemyData.movement.enemyMovement;
+        movement = enemyData.movement;
         behavior = enemyData.behavior.enemyBehavior;
         ApplyEnemyColors();
+        indexOnEnemyList = index;
     }
 
     private void ApplyEnemyColors()
@@ -179,6 +203,14 @@ public class EnemyController : MonoBehaviour
         legsColor = new Color(Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 1, 255)/ 255f, 0, 1 - Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 1, 255)/ 255f);
         //TODO change head color according to movement
         headColor = originalColor;
+        gameObject.GetComponent<SpriteRenderer>().color = originalColor;
+        gameObject.transform.Find("EnemyArms").GetComponent<SpriteRenderer>().color = armsColor;
+        gameObject.transform.Find("EnemyLegs").GetComponent<SpriteRenderer>().color = legsColor;
+        gameObject.transform.Find("EnemyHead").GetComponent<SpriteRenderer>().color = headColor;
     }
 
+    public void SetRoom(RoomBHV _room)
+    {
+        room = _room;
+    }
 }

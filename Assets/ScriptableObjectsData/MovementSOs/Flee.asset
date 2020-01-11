@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Flee
   m_EditorClassIdentifier: 
   multiplier: 1.2
+  enemyMovementIndex: 3

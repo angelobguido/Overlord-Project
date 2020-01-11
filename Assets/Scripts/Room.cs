@@ -9,6 +9,7 @@ public class Room {
 	public int[,] tiles = null;
 	public int lockID;
 	public int keyID;
+    public int difficulty;
 
 	public Room(int x, int y){
 		this.x = x;

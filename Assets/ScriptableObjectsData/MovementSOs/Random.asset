@@ -13,3 +13,4 @@ MonoBehaviour:
   m_Name: Random
   m_EditorClassIdentifier: 
   multiplier: 1.1
+  enemyMovementIndex: 1

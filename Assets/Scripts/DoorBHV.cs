@@ -8,7 +8,9 @@ public class DoorBHV : MonoBehaviour
     //public GameManager gm;
     public int keyID;
     public bool isOpen;
+    public bool isClosedByEnemies;
     public Sprite lockedSprite;
+    public Sprite closedSprite;
     public Sprite openedSprite;
     public Transform teleportTransform;
     //	public int moveX;
@@ -42,6 +44,15 @@ public class DoorBHV : MonoBehaviour
             sr.color = Util.colorId[keyID - 1];
             //text.text = keyID.ToString ();
         }
+        if (parentRoom.hasEnemies)
+        {
+            if (keyID == 0 || isOpen)
+            {
+                SpriteRenderer sr = GetComponent<SpriteRenderer>();
+                sr.sprite = closedSprite;
+            }
+            isClosedByEnemies = true;
+        }
         //gm = GameManager.instance;
     }
 
@@ -57,9 +68,12 @@ public class DoorBHV : MonoBehaviour
         {
             if (keyID == 0 || isOpen)
             {
-                audioSrc.PlayOneShot(audioSrc.clip, 0.8f);
-                MovePlayerToNextRoom();
-                GameManager.instance.UpdateRoomGUI(destination.parentRoom.x, destination.parentRoom.y);
+                if (!isClosedByEnemies)
+                {
+                    audioSrc.PlayOneShot(audioSrc.clip, 0.8f);
+                    MovePlayerToNextRoom();
+                    GameManager.instance.UpdateRoomGUI(destination.parentRoom.x, destination.parentRoom.y);
+                }
             }
             else if (Player.instance.keys.Contains(keyID))
             {
@@ -95,7 +109,8 @@ public class DoorBHV : MonoBehaviour
         //Enemy spawning logic here TODO make it better and work with the variable enemies SOs
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         //Debug.Log("Lenght>>>" + enemies.Length);
-        if (enemies.Length == 0)
+        //Legacy: this was used when the doors were not closed when there are enemies in the room
+        /*if (enemies.Length == 0)
         {
             parentRoom.hasEnemies = false;
         }
@@ -105,17 +120,14 @@ public class DoorBHV : MonoBehaviour
             {
                 Destroy(enemy);
             }
-        }
+        }*/
         //The normal room transition
         Player.instance.transform.position = destination.teleportTransform.position;
         RoomBHV parent = destination.parentRoom;
         Player.instance.AdjustCamera(parent.x, parent.y);
-
-
-        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(0, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
-        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(1, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
-        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(2, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
-        GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(3, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
+        if(destination.transform.parent.GetComponent<RoomBHV>().hasEnemies)
+            destination.transform.parent.GetComponent<RoomBHV>().SpawnEnemies();
+        
         //Spawn the enemies TODO make it spawn the variable enemies SOs
         /*if (destination.transform.parent.gameObject.GetComponent<RoomBHV>().hasEnemies)
         {
@@ -130,8 +142,8 @@ public class DoorBHV : MonoBehaviour
             if (parent.hasTower[3])
                 Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
         }*/
-        OnRoomExit();
-        OnRoomEnter();
+        OnRoomExit(Player.instance.GetComponent<PlayerController>().GetHealth());
+        OnRoomEnter(destination.transform.parent.GetComponent<RoomBHV>().hasEnemies, destination.transform.parent.GetComponent<RoomBHV>().enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
     }
 
     public void SetDestination(DoorBHV other)
@@ -145,9 +157,9 @@ public class DoorBHV : MonoBehaviour
         PlayerProfile.instance.OnRoomFailEnter(new Vector2Int(destination.parentRoom.x, destination.parentRoom.y));
     }
 
-    private void OnRoomEnter()
+    private void OnRoomEnter(bool hasEnemies, List<int> enemyList, int playerHealth)
     {
-        PlayerProfile.instance.OnRoomEnter(destination.parentRoom.x, destination.parentRoom.y);
+        PlayerProfile.instance.OnRoomEnter(destination.parentRoom.x, destination.parentRoom.y, hasEnemies, enemyList, playerHealth);
     }
 
     private void OnRoomFailExit()
@@ -155,9 +167,9 @@ public class DoorBHV : MonoBehaviour
         PlayerProfile.instance.OnRoomFailExit(new Vector2Int(parentRoom.x, parentRoom.y));
     }
 
-    private void OnRoomExit()
+    private void OnRoomExit(int playerHealth)
     {
-        PlayerProfile.instance.OnRoomExit(new Vector2Int(parentRoom.x, parentRoom.y));
+        PlayerProfile.instance.OnRoomExit(new Vector2Int(parentRoom.x, parentRoom.y), playerHealth);
     }
 
     private void OnKeyUsed(int id)
@@ -169,5 +181,15 @@ public class DoorBHV : MonoBehaviour
     {
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         sr.sprite = openedSprite;
+    }
+
+    public void OpenDoorAfterKilling()
+    {
+        if (keyID == 0)
+        {
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            sr.sprite = openedSprite;
+        }
+        isClosedByEnemies = false;
     }
 }

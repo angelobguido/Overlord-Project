@@ -5,7 +5,9 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     [SerializeField]
-    protected float speed, shootSpeed, shootCD, shootDmg, maxHealth, invincibilityTime;
+    protected float speed, shootSpeed, shootCD, invincibilityTime;
+    [SerializeField]
+    protected int shootDmg, maxHealth;
     [SerializeField]
     protected GameObject bulletPrefab, bulletSpawn;
 
@@ -14,7 +16,9 @@ public class PlayerController : MonoBehaviour {
     private AudioSource audioSrc;
 
     [SerializeField]
-    private float timeAfterShoot, invincibilityCount, health, rotatedAngle;
+    private float timeAfterShoot, invincibilityCount, rotatedAngle;
+    [SerializeField]
+    private int health;
     private Vector2 shootForce = new Vector2(0f, 0f);
     private bool isInvincible;
     private Color originalColor;
@@ -168,7 +172,7 @@ public class PlayerController : MonoBehaviour {
         audioSrc.PlayOneShot(audioSrc.clip, 1.0f);
     }
 
-    public void ReceiveDamage(float damage)
+    public void ReceiveDamage(int damage)
     {
         if (!isInvincible)
         {
@@ -189,5 +193,10 @@ public class PlayerController : MonoBehaviour {
     public void ResetHealth()
     {
         health = maxHealth;
+    }
+
+    public int GetHealth()
+    {
+        return health;
     }
 }

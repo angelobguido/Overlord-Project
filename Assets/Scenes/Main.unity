@@ -132,6 +132,9 @@ GameObject:
   - component: {fileID: 48615755}
   - component: {fileID: 48615754}
   - component: {fileID: 48615753}
+  - component: {fileID: 48615757}
+  - component: {fileID: 48615758}
+  - component: {fileID: 48615759}
   m_Layer: 0
   m_Name: Game Manager
   m_TagString: Untagged
@@ -274,7 +277,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startButton: {fileID: 0}
   progressText: {fileID: 0}
-  createMaps: 1
+  createMaps: 0
   audioSource: {fileID: 0}
   bgMusic: {fileID: 8300000, guid: 1aa95e0fec72b734ba2baed670245abf, type: 3}
   fanfarreMusic: {fileID: 8300000, guid: 2710e444135703844b1e08e71e2ea0e5, type: 3}
@@ -286,10 +289,12 @@ MonoBehaviour:
   roomsParent: {fileID: 0}
   roomSpacingX: 14
   roomSpacingY: 14
-  readRooms: 1
+  readRooms: 0
   formMenu: {fileID: 0}
   endingScreen: {fileID: 0}
+  createEnemy: 1
   enemyLoader: {fileID: 0}
+  dungeonDifficulty: 0
 --- !u!4 &48615756
 Transform:
   m_ObjectHideFlags: 0
@@ -304,6 +309,59 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &48615757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48615752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48a42bebd58faa0409cee1ae8a8379d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  introScreen: {fileID: 328329802}
+  mainScreen: {fileID: 1659224450}
+  gameOverScreen: {fileID: 0}
+--- !u!114 &48615758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48615752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d338a50bdd1bf6e4f921463ea3ef690b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bestEnemies: []
+  enemyPrefab: {fileID: 8771052608593400771, guid: c49b58d279314d64caaa3c088e8e3e52,
+    type: 3}
+--- !u!114 &48615759
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48615752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96c9df50145a33842ac643226f5f75eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  generationCounter: 0
+  startTime: 0
+  enemyGenerated: 0
+  enemyPrinted: 0
+  enemyReady: 0
+  enemySorted: 0
+  bestIdx: 0
+  projectileSet: {fileID: 11400000, guid: fd434a2423766d64bbde424b0396009a, type: 2}
+  movementSet: {fileID: 11400000, guid: 41a11a660db4ab245943b826556cf0af, type: 2}
+  behaviorSet: {fileID: 11400000, guid: be34bae1919ce2c458128eba2838077a, type: 2}
+  weaponSet: {fileID: 11400000, guid: aa056caad00310f4793208ebc1ee05ec, type: 2}
 --- !u!1 &84423486
 GameObject:
   m_ObjectHideFlags: 0
@@ -1245,7 +1303,7 @@ MonoBehaviour:
     spaceCount: 61
     wordCount: 60
     linkCount: 0
-    lineCount: 5
+    lineCount: 6
     pageCount: 1
     materialCount: 1
   m_isUsingLegacyAnimationComponent: 0
@@ -1758,7 +1816,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 2008118078}
-        m_MethodName: PlayGame
+        m_MethodName: PlayLoadedLevel
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2324,7 +2382,7 @@ MonoBehaviour:
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
-  m_firstOverflowCharacterIndex: 19
+  m_firstOverflowCharacterIndex: 45
   m_linkedTextComponent: {fileID: 0}
   m_isLinkedTextComponent: 0
   m_isTextTruncated: 0

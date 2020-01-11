@@ -44,12 +44,14 @@ public class GameManager : MonoBehaviour {
     //public string roomsFilePath = "Assets/Data/rooms.txt";
     public bool readRooms = true;
     public GameObject formMenu, endingScreen;
-
+    
     public enum LevelPlayState { InProgress, Won, Lost, Skip, Quit }
     public static LevelPlayState state = LevelPlayState.InProgress;
     private static float secondsElapsed = 0;
 
+    public bool createEnemy;
     public EnemyLoader enemyLoader;
+    public int dungeonDifficulty;
 
     void Awake() {
         //Singleton
@@ -57,10 +59,14 @@ public class GameManager : MonoBehaviour {
             instance = this;
 
             generator = new Program();
-
+            enemyLoader = gameObject.GetComponent<EnemyLoader>();
             audioSource = GetComponent<AudioSource>();
 
-            readRooms = false;
+            //TODO Apply selected difficulty in this
+            dungeonDifficulty = 40;
+
+            //readRooms = false;
+            //createEnemy = false;
             DontDestroyOnLoad(gameObject);
             AnalyticsEvent.GameStart();
             Debug.Log("Level Order");
@@ -263,7 +269,7 @@ public class GameManager : MonoBehaviour {
     private void OnStartMap (int id, int batch, Map map)
     {
         PlayerProfile.instance.OnMapStart(id, batch, map.rooms);
-        PlayerProfile.instance.OnRoomEnter(map.startX, map.startY);
+        PlayerProfile.instance.OnRoomEnter(map.startX, map.startY, roomBHVMap[map.startX, map.startY].hasEnemies, roomBHVMap[map.startX, map.startY].enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
         Debug.Log("Started Profiling");
     }
 
@@ -377,15 +383,17 @@ public class GameManager : MonoBehaviour {
             startButton = null;
             isCompleted = false;
 
+            enemyLoader.LoadEnemies();
+
             Player pl = Player.instance;
             pl.cam = Camera.main;
             //Recover health
             pl.gameObject.GetComponent<PlayerController>().ResetHealth();
-            //formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
+            formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
             keyText = GameObject.Find("KeyUIText").GetComponent<TextMeshProUGUI>();
             roomText = GameObject.Find("RoomUI").GetComponent<TextMeshProUGUI>();
             levelText = GameObject.Find("LevelUI").GetComponent<TextMeshProUGUI>();
-            //endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
+            endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
             LoadNewLevel();
         }
     }

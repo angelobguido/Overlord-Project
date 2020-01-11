@@ -10,7 +10,7 @@ public class ProjectileController : MonoBehaviour
     private AudioSource audioSrc;
 
     private bool canDestroy;
-    public float damage;
+    public int damage;
     // Use this for initialization
     void Awake()
     {

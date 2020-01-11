@@ -71,6 +71,7 @@ public class Map {
                         break;
                     default:
                         rooms[x, y].keyID = int.Parse(code);
+                        rooms[x, y].difficulty = GameManager.instance.dungeonDifficulty;
                         break;
                 }
             }
@@ -218,6 +219,7 @@ public class Map {
                         Debug.Log("Something went wrong printing the tree!\n");
                         Debug.Log("This Room type does not exist!\n\n");
                     }
+                    rooms[iPositive * 2, jPositive * 2].difficulty = GameManager.instance.dungeonDifficulty;
                     parent = actualRoom.Parent;
                     if (parent != null)
                     {

@@ -108,20 +108,28 @@ public class EASystem : JobComponentSystem
     [BurstCompile]
     public struct FitnessJob : IJobForEach<EnemyComponent, WeaponComponent>
     {
+        [ReadOnly]
+        public NativeArray<int> projectileMultipliers;
+        [ReadOnly]
+        public NativeArray<float> movementMultipliers;
+        [ReadOnly]
+        public NativeArray<float> weaponMultipliers;
+        [ReadOnly]
+        public NativeArray<bool> weaponHasProjectile;
         public void Execute(ref EnemyComponent enemy, [ReadOnly] ref WeaponComponent weapon)
         {
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
 
             //Depending on each weapon, assign a damage 
-            damageMultiplier = GameManagerTest.instance.weaponMultipliers[enemy.weapon];
+            damageMultiplier = weaponMultipliers[enemy.weapon];
 
             //Depending on movement type, assign a movement multiplier
-            movementMultiplier = GameManagerTest.instance.movementMultipliers[enemy.movement];
+            movementMultiplier = movementMultipliers[enemy.movement];
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            if(GameManagerTest.instance.weaponHasProjectile[enemy.weapon])
-                projectileMultiplier = GameManagerTest.instance.projectileMultipliers[weapon.projectile];
+            if(weaponHasProjectile[enemy.weapon])
+                projectileMultiplier = projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -132,20 +140,28 @@ public class EASystem : JobComponentSystem
     [BurstCompile]
     public struct NewPopFitnessJob : IJobForEach<EnemyComponent, WeaponComponent>
     {
+        [ReadOnly]
+        public NativeArray<int> projectileMultipliers;
+        [ReadOnly]
+        public NativeArray<float> movementMultipliers;
+        [ReadOnly]
+        public NativeArray<float> weaponMultipliers;
+        [ReadOnly]
+        public NativeArray<bool> weaponHasProjectile;
         public void Execute(ref EnemyComponent enemy, [ReadOnly] ref WeaponComponent weapon)
         {
             float damageMultiplier, movementMultiplier;
             int projectileMultiplier = 0;
 
             //Depending on each weapon, assign a damage 
-            damageMultiplier = GameManagerTest.instance.weaponMultipliers[enemy.weapon];
+            damageMultiplier = weaponMultipliers[enemy.weapon];
 
             //Depending on movement type, assign a movement multiplier
-            movementMultiplier = GameManagerTest.instance.movementMultipliers[enemy.movement];
+            movementMultiplier = movementMultipliers[enemy.movement];
 
             //If the weapon throws projectiles, assign a projectile multiplier
-            if (GameManagerTest.instance.weaponHasProjectile[enemy.weapon])
-                projectileMultiplier = GameManagerTest.instance.projectileMultipliers[weapon.projectile];
+            if (weaponHasProjectile[enemy.weapon])
+                projectileMultiplier = projectileMultipliers[weapon.projectile];
 
             enemy.fitness = enemy.damage * damageMultiplier + enemy.health + enemy.movementSpeed * movementMultiplier + 1 / enemy.restTime + enemy.activeTime + projectileMultiplier * ((1 / weapon.attackSpeed) + weapon.projectileSpeed);
         }
@@ -192,7 +208,7 @@ public class EASystem : JobComponentSystem
             }
             else
             {
-                interPop.parent2 = auxIdx1;
+                interPop.parent2 = auxIdx2;
             }
 
         }
@@ -261,10 +277,11 @@ public class EASystem : JobComponentSystem
     struct MutationJob : IJobForEach<EnemyComponent, WeaponComponent, IntermediatePopulation>
     {
         public Unity.Mathematics.Random random;
+        public int projectileLength, weaponLength, movementLength;
         public void Execute(ref EnemyComponent enemy, ref WeaponComponent weapon, [ReadOnly] ref IntermediatePopulation interPop)
         {
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                weapon.projectile = random.NextInt(0, GameManagerTest.instance.projectileMultipliers.Length);
+                weapon.projectile = random.NextInt(0, projectileLength);
                 //weapon.projectile = (WeaponComponent.ProjectileEnum)random.NextInt(0, (int)WeaponComponent.ProjectileEnum.COUNT);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
                 weapon.attackSpeed = random.NextFloat(EnemyUtil.minAtkSpeed, EnemyUtil.maxAtkSpeed);
@@ -281,9 +298,9 @@ public class EASystem : JobComponentSystem
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
                 enemy.restTime = random.NextFloat(EnemyUtil.minResttime, EnemyUtil.maxRestTime);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.weapon = random.NextInt(0, GameManagerTest.instance.weaponMultipliers.Length);
+                enemy.weapon = random.NextInt(0, weaponLength);
             if (random.NextInt(0, 100) < EnemyUtil.mutChance)
-                enemy.movement = random.NextInt(0, GameManagerTest.instance.movementMultipliers.Length);
+                enemy.movement = random.NextInt(0, movementLength);
         }
     }
 
@@ -293,6 +310,7 @@ public class EASystem : JobComponentSystem
     struct FindBestJob : IJobForEachWithEntity<EnemyComponent, WeaponComponent>
     {
         public float bestFitness;
+        public int bestIndex;
         [ReadOnly] public float desiredFitness;
         public void Execute(Entity entity, int index, [ReadOnly]ref EnemyComponent enemy, [ReadOnly]ref WeaponComponent weapon)
         {
@@ -300,7 +318,7 @@ public class EASystem : JobComponentSystem
             if (auxFitness < bestFitness)
             {
                 bestFitness = auxFitness;
-                GameManagerTest.instance.bestIdx = index;
+                bestIndex = index;
             }
         }
     }
@@ -316,122 +334,167 @@ public class EASystem : JobComponentSystem
     protected override JobHandle OnUpdate(JobHandle inputDeps)
     {
         JobHandle handle;
-        /*if (GameManagerTest.instance.generationCounter < EnemyUtil.maxGenerations)
+        if (GameManager.instance.createEnemy)
         {
-            if (GameManagerTest.instance.generationCounter == 0)
+            //Debug.Log("Creating Enemies");
+            if (GameManagerTest.instance.generationCounter < EnemyUtil.maxGenerations)
             {
-                FitnessJob fitJob = new FitnessJob
-                { };
-                //return job.Schedule(this, inputDeps);
-                handle = fitJob.Schedule(this, inputDeps);
-                handle.Complete();
-
-
-                GetFitnessJob getFitnessJob = new GetFitnessJob
+                if (GameManagerTest.instance.generationCounter == 0)
                 {
-                    fitness = GameManagerTest.instance.fitnessArray
+                    FitnessJob fitJob = new FitnessJob
+                    {
+                        projectileMultipliers = GameManagerTest.instance.projectileMultipliers,
+                        movementMultipliers = GameManagerTest.instance.movementMultipliers,
+                        weaponMultipliers = GameManagerTest.instance.weaponMultipliers,
+                        weaponHasProjectile = GameManagerTest.instance.weaponHasProjectile
+                    };
+                    //return job.Schedule(this, inputDeps);
+                    handle = fitJob.Schedule(this, inputDeps);
+                    handle.Complete();
+
+
+                    GetFitnessJob getFitnessJob = new GetFitnessJob
+                    {
+                        fitness = GameManagerTest.instance.fitnessArray
+                    };
+
+                    handle = getFitnessJob.Schedule(this, inputDeps);
+                    handle.Complete();
+
+                    CopyPopulationJob copyPopulation = new CopyPopulationJob
+                    {
+                        enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                        weaponPopulationCopy = GameManagerTest.instance.weaponPop
+                    };
+
+                    handle = copyPopulation.Schedule(this, inputDeps);
+
+                    handle.Complete();
+                }
+
+                var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
+                TournamentJob tournJob = new TournamentJob()
+                {
+                    enemyPopulationFitness = GameManagerTest.instance.fitnessArray,
+                    desiredFitness = EnemyUtil.desiredFitness,
+                    random = random
                 };
 
-                handle = getFitnessJob.Schedule(this, inputDeps);
+                handle = tournJob.Schedule(this, inputDeps);
+
                 handle.Complete();
+
+                //Debug.Log("Elite Gen - " + GameManagerTest.instance.generationCounter);
+                //Elitism
+                /*for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
+                {
+                    GameManagerTest.instance.bestEnemyPop[i] = GameManagerTest.instance.enemyPop[i];
+                    GameManagerTest.instance.bestWeaponPop[i] = GameManagerTest.instance.weaponPop[i];
+                    //Debug.Log("Best - " + i + " Fitness - " + GameManagerTest.instance.bestEnemyPop[i].fitness);
+                }*/
+
+                random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
+                CrossoverJob crossJob = new CrossoverJob
+                {
+                    random = random,
+                    enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                    weaponPopulationCopy = GameManagerTest.instance.weaponPop
+                };
+
+                handle = crossJob.Schedule(this, inputDeps);
+
+                handle.Complete();
+
+                random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
+
+                MutationJob mutJob = new MutationJob
+                {
+                    projectileLength = GameManagerTest.instance.projectileMultipliers.Length,
+                    weaponLength = GameManagerTest.instance.weaponMultipliers.Length,
+                    movementLength = GameManagerTest.instance.movementMultipliers.Length,
+                    random = random,
+                };
+
+                handle = mutJob.Schedule(this, inputDeps);
+
+                handle.Complete();
+
+                NewPopFitnessJob newfitJob = new NewPopFitnessJob
+                {
+                    projectileMultipliers = GameManagerTest.instance.projectileMultipliers,
+                    movementMultipliers = GameManagerTest.instance.movementMultipliers,
+                    weaponMultipliers = GameManagerTest.instance.weaponMultipliers,
+                    weaponHasProjectile = GameManagerTest.instance.weaponHasProjectile
+                };
+                //return job.Schedule(this, inputDeps);
+                handle = newfitJob.Schedule(this, inputDeps);
+
+                handle.Complete();
+
+                CopyIntermediatePopulationJob copyIntermediatePopJob = new CopyIntermediatePopulationJob
+                {
+                    enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                    weaponPopulationCopy = GameManagerTest.instance.weaponPop
+                };
+
+                handle = copyIntermediatePopJob.Schedule(this, inputDeps);
+
+                handle.Complete();
+
+                //Elitism
+                /*for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
+                {
+                    GameManagerTest.instance.enemyPop[i] = GameManagerTest.instance.bestEnemyPop[i];
+                    GameManagerTest.instance.weaponPop[i] = GameManagerTest.instance.bestWeaponPop[i];
+                }*/
+
+               
+                /*TimSortSystem.SortEnemiesJob sortJob = new TimSortSystem.SortEnemiesJob
+                {
+                    enemies = GameManagerTest.instance.enemyPop,
+                    weapons = GameManagerTest.instance.weaponPop,
+                    random = random
+                };
+                //return job.Schedule(this, inputDeps);
+
+                handle = sortJob.Schedule(inputDeps);
+
+                handle.Complete();*/
+
+                ReplacePopulationJob replacePopulation = new ReplacePopulationJob
+                {
+                    enemyPopulationCopy = GameManagerTest.instance.enemyPop,
+                    weaponPopulationCopy = GameManagerTest.instance.weaponPop
+                };
+
+                handle = replacePopulation.Schedule(this, inputDeps);
+
+                handle.Complete();
+
+                GameManagerTest.instance.generationCounter++;
+                return handle;
             }
-
-            var random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
-
-            TournamentJob tournJob = new TournamentJob()
+            else if (GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations)
             {
-                enemyPopulationFitness = GameManagerTest.instance.fitnessArray,
-                desiredFitness = EnemyUtil.desiredFitness,
-                random = random
-            };
+                float bestFitness = Mathf.Infinity;
+                FindBestJob findBest = new FindBestJob
+                {
+                    bestIndex = GameManagerTest.instance.bestIdx,
+                    bestFitness = bestFitness,
+                    desiredFitness = EnemyUtil.desiredFitness
+                };
 
-            handle = tournJob.Schedule(this, inputDeps);
+                handle = findBest.Schedule(this, inputDeps);
+                //Debug.Log(Time.realtimeSinceStartup - GameManagerTest.instance.startTime);
+                GameManagerTest.instance.enemyGenerated = true;
 
-            handle.Complete();
+                handle.Complete();
 
-            
-            CopyPopulationJob copyPopulation = new CopyPopulationJob
-            {
-                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
-                weaponPopulationCopy = GameManagerTest.instance.weaponPop
-            };
-
-            handle = copyPopulation.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
-
-            CrossoverJob crossJob = new CrossoverJob
-            {
-                random = random,
-                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
-                weaponPopulationCopy = GameManagerTest.instance.weaponPop
-            };
-
-            handle = crossJob.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            random = new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, 100000));
-
-            MutationJob mutJob = new MutationJob
-            {
-                random = random,
-            };
-
-            handle = mutJob.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            NewPopFitnessJob newfitJob = new NewPopFitnessJob
-            { };
-            //return job.Schedule(this, inputDeps);
-            handle = newfitJob.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            CopyIntermediatePopulationJob copyIntermediatePopJob = new CopyIntermediatePopulationJob
-            {
-                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
-                weaponPopulationCopy = GameManagerTest.instance.weaponPop
-            };
-
-            handle = copyIntermediatePopJob.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            ReplacePopulationJob replacePopulation = new ReplacePopulationJob
-            {
-                enemyPopulationCopy = GameManagerTest.instance.enemyPop,
-                weaponPopulationCopy = GameManagerTest.instance.weaponPop
-            };
-
-            handle = replacePopulation.Schedule(this, inputDeps);
-
-            handle.Complete();
-
-            GameManagerTest.instance.generationCounter++;
-            return handle;
+                return handle;
+            }
         }
-        else if (GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations)
-        {
-            float bestFitness = Mathf.Infinity;
-            FindBestJob findBest = new FindBestJob
-            {
-                bestFitness = bestFitness,
-                desiredFitness = EnemyUtil.desiredFitness
-            };
-
-            handle = findBest.Schedule(this, inputDeps);
-            Debug.Log(Time.realtimeSinceStartup - GameManagerTest.instance.startTime);
-            GameManagerTest.instance.enemyGenerated = true;
-
-            handle.Complete();
-
-            return handle;
-        }
-        */
         EmptyJob emptyJob = new EmptyJob
         { };
         handle = emptyJob.Schedule();
@@ -444,12 +507,15 @@ public class SignalEAEnding : ComponentSystem
 {
     protected override void OnUpdate()
     {
-        /*if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
+        if (GameManager.instance.createEnemy)
         {
-            Debug.Log("This different update!");
+            if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
+            {
+                Debug.Log("This different update!");
 
-            GameManagerTest.instance.generationCounter++;
-            GameManagerTest.instance.enemyReady = true;
-        }*/
+                GameManagerTest.instance.generationCounter++;
+                GameManagerTest.instance.enemyReady = true;
+            }
+        }
     }
 }
