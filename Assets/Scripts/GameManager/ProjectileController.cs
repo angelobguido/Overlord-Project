@@ -10,7 +10,7 @@ public class ProjectileController : MonoBehaviour
     private AudioSource audioSrc;
 
     private bool canDestroy;
-    public int damage;
+    public int damage, enemyThatShot;
     // Use this for initialization
     void Awake()
     {
@@ -31,20 +31,31 @@ public class ProjectileController : MonoBehaviour
     public void DestroyBullet()
     {
         Debug.Log("Destroying Bullet");
-        //audioSrc.PlayOneShot(popSnd, 0.3f);
+        audioSrc.PlayOneShot(popSnd, 0.3f);
         canDestroy = true;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (tag == "EnemyBullet")
+        if (CompareTag("EnemyBullet"))
         {
-            if (collision.gameObject.tag == "Player")
+            if (collision.gameObject.CompareTag("Player"))
             {
-                Debug.Log("Collide with Player");
-                collision.gameObject.GetComponent<PlayerController>().ReceiveDamage(damage);
-                Destroy(gameObject);
+                collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage, enemyThatShot);
             }
         }
+        else if(CompareTag("Bullet"))
+        {
+            if(collision.gameObject.CompareTag("Enemy"))
+            {
+                collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage);
+            }
+        }
+        DestroyBullet();
+    }
+
+    public void SetEnemyThatShot(int _index)
+    {
+        enemyThatShot = _index;
     }
 }

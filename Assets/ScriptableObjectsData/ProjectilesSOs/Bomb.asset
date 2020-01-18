@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: Bomb
   m_EditorClassIdentifier: 
   multiplier: 1
+  projectilePrefab: {fileID: 1699235863348634, guid: 61dad26ae8334b242b8dab5028cd4237,
+    type: 3}

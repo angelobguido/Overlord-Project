@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
     [SerializeField]
-    protected float speed, shootSpeed, shootCD, invincibilityTime;
+    protected float speed, shootSpeed, shootCD;
     [SerializeField]
     protected int shootDmg, maxHealth;
     [SerializeField]
@@ -16,40 +16,32 @@ public class PlayerController : MonoBehaviour {
     private AudioSource audioSrc;
 
     [SerializeField]
-    private float timeAfterShoot, invincibilityCount, rotatedAngle;
-    [SerializeField]
-    private int health;
+    private float timeAfterShoot, rotatedAngle;
     private Vector2 shootForce = new Vector2(0f, 0f);
-    private bool isInvincible;
     private Color originalColor;
 
+    HealthController healthCtrl;
 
     public void Awake()
     {
-        health = maxHealth;
+        
         anim = GetComponent<Animator>();
-        isInvincible = false;
         timeAfterShoot = 0.0f;
-        invincibilityCount = 0f;
         SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer>();
         originalColor = sr.color;
+        healthCtrl = gameObject.GetComponent<HealthController>();
+        healthCtrl.SetOriginalColor(originalColor);
     }
 
     // Use this for initialization
     void Start () {
+        healthCtrl.SetHealth(maxHealth);
         anim = GetComponent<Animator>();	
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        if (isInvincible)
-            if (invincibilityTime < invincibilityCount)
-            {
-                isInvincible = false;
-                gameObject.GetComponent<SpriteRenderer>().color = originalColor;
-            }
-            else
-                invincibilityCount += Time.deltaTime;
+
     }
 
 	void FixedUpdate(){
@@ -172,31 +164,24 @@ public class PlayerController : MonoBehaviour {
         audioSrc.PlayOneShot(audioSrc.clip, 1.0f);
     }
 
-    public void ReceiveDamage(int damage)
+    public void CheckDeath()
     {
-        if (!isInvincible)
+        if (healthCtrl.GetHealth() <= 0)
         {
-            gameObject.GetComponent<SpriteRenderer>().color = Color.red;
-            health -= damage;
-            if (health <= 0)
-            {
-                //TODO KILL
-                Time.timeScale = 0f;
-                GameManager.instance.GameOver();
-                Debug.Log("RIP");
-            }
-            isInvincible = true;
-            invincibilityCount = 0f;
+            //TODO KILL
+            Time.timeScale = 0f;
+            GameManager.instance.GameOver();
+            Debug.Log("RIP");
         }
     }
 
     public void ResetHealth()
     {
-        health = maxHealth;
+        healthCtrl.SetHealth(maxHealth);
     }
 
     public int GetHealth()
     {
-        return health;
+        return healthCtrl.GetHealth();
     }
 }

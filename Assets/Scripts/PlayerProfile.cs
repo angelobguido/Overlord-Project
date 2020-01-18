@@ -84,7 +84,7 @@ public class PlayerProfile : MonoBehaviour {
         sessionUID = Random.Range(0, 99).ToString("00");
         sessionUID += "_";
         sessionUID += dateTime;
-        damageDoneByEnemy = new List<int>(EnemyUtil.nBestEnemies);
+        damageDoneByEnemy = new int[EnemyUtil.nBestEnemies].ToList();
     }
 	
 	// Update is called once per frame
@@ -280,7 +280,7 @@ public class PlayerProfile : MonoBehaviour {
         return heatMap;
     }
 
-    public void OnEnemyGiveDamage(int index)
+    public void OnEnemyDoesDamage(int index)
     {
         damageDoneByEnemy[index]++;
     }

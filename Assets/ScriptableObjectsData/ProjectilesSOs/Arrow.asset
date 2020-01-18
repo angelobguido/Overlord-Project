@@ -13,3 +13,5 @@ MonoBehaviour:
   m_Name: Arrow
   m_EditorClassIdentifier: 
   multiplier: 1
+  projectilePrefab: {fileID: 1699235863348634, guid: da52802c0295cf84f8ba4c2fee2ba6b4,
+    type: 3}

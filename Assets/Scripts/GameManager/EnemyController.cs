@@ -5,39 +5,44 @@ using EnemyGenerator;
 public class EnemyController : MonoBehaviour
 {
     [SerializeField]
-    protected float restTime, activeTime, movementSpeed, invincibilityTime, attackSpeed, projectileSpeed;
-    protected int health, damage;
+    protected float restTime, activeTime, movementSpeed, attackSpeed, projectileSpeed;
+    protected int damage;
     [SerializeField]
-    protected GameObject playerObj, bloodParticle, weaponPrefab, projectilePrefab;
+    protected GameObject playerObj, bloodParticle, weaponPrefab, projectilePrefab, projectileSpawn;
     protected MovementTypeSO movement;
     protected BehaviorType behavior;
 
     protected Animator anim;
-    protected float waitingTime, walkingTime, walkUntil, waitUntil, invincibilityCount;
-    protected bool isWalking, isInvincible, hasProjectile, hasFixedMoveDir, hasMoveDirBeenChosen;
+    protected float waitingTime, walkingTime, walkUntil, waitUntil, coolDownTime;
+    protected bool isWalking, hasProjectile, hasFixedMoveDir, hasMoveDirBeenChosen, isShooting;
     protected Color originalColor, armsColor, headColor, legsColor;
     protected float lastX, lastY;
     protected Vector3 targetMoveDir;
     protected RoomBHV room;
+    [SerializeField]
     protected int indexOnEnemyList;
+    protected HealthController healthCtrl;
+    protected SpriteRenderer sr;
 
     private void Awake()
     {
         waitingTime = 0.0f;
         walkingTime = 0.0f;
         isWalking = false;
+        isShooting = false;
         waitUntil = 1.5f;
         playerObj = Player.instance.gameObject;
-        isInvincible = false;
         hasFixedMoveDir = false;
         hasMoveDirBeenChosen = false;
         anim = GetComponent<Animator>();
-        SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer>();
+        sr = gameObject.GetComponent<SpriteRenderer>();
+        healthCtrl = gameObject.GetComponent<HealthController>();
         originalColor = sr.color;
     }
     // Use this for initialization
     void Start()
     {
+        healthCtrl.SetOriginalColor(originalColor);
         //If the movement needs to be fixed for the whole active time, set the flag here
         if (movement.enemyMovementIndex == MovementEnum.Random)
             hasFixedMoveDir = true;
@@ -46,18 +51,6 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isInvincible)
-            if (invincibilityTime < invincibilityCount)
-            {
-                isInvincible = false;
-                gameObject.GetComponent<SpriteRenderer>().color = originalColor;
-
-            }
-            else
-            {
-                invincibilityCount += Time.deltaTime;
-            }
-
         if (isWalking)
         {
             if (walkingTime < walkUntil)
@@ -79,6 +72,22 @@ public class EnemyController : MonoBehaviour
                 waitingTime = 0.0f;
                 isWalking = true;
                 walkUntil = activeTime;
+            }
+        }
+        if (isShooting)
+        {
+            Shoot();
+            isShooting = false;
+            coolDownTime = attackSpeed;
+        }
+        else
+        {
+            if (coolDownTime > 0.0f)
+                WaitShotCoolDown();
+            else
+            {
+                waitingTime = 0.0f;
+                isShooting = true;
             }
         }
     }
@@ -120,34 +129,22 @@ public class EnemyController : MonoBehaviour
         waitingTime += Time.deltaTime;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void WaitShotCoolDown()
     {
-        if (collision.tag == "Bullet")
-        {
-            if (!isInvincible)
-            {
-                gameObject.GetComponent<SpriteRenderer>().color = Color.red;
-                health -= collision.GetComponent<ProjectileController>().damage;
-                CheckDeath();
-                isInvincible = true;
-                invincibilityCount = 0f;
-                collision.GetComponent<ProjectileController>().DestroyBullet();
-            }
-        }
+        coolDownTime -= Time.deltaTime;
     }
-    private void OnCollisionEnter2D(Collision2D collision)
+
+    private void OnCollisionStay2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Player")
         {
-            Debug.Log("Collide with Player");
-            collision.gameObject.GetComponent<PlayerController>().ReceiveDamage(damage);
-            PlayerProfile.instance.OnEnemyDoesDamage(indexOnEnemyList);
+            collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage, indexOnEnemyList);
         }
     }
 
-    private void CheckDeath()
+    public void CheckDeath()
     {
-        if (health <= 0f)
+        if (healthCtrl.GetHealth() <= 0f)
         {
             //TODO Audio and Particles
             //Instantiate(bloodParticle, transform.position, Quaternion.identity);
@@ -176,7 +173,7 @@ public class EnemyController : MonoBehaviour
 
     public void LoadEnemyData(EnemySO enemyData, int index)
     {
-        health = enemyData.health;
+        healthCtrl.SetHealth(enemyData.health);
         damage = enemyData.damage;
         movementSpeed = enemyData.movementSpeed;
         restTime = enemyData.restTime;
@@ -198,12 +195,12 @@ public class EnemyController : MonoBehaviour
 
     private void ApplyEnemyColors()
     {
-        originalColor = new Color(Util.LogNormalization(health, EnemyUtil.minHealth, EnemyUtil.maxHealth, 1, 255)/255f, 0, 1 - Util.LogNormalization(health, EnemyUtil.minHealth, EnemyUtil.maxHealth, 1, 255)/255f);
-        armsColor = new Color(Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 1, 255)/ 255f, 0, 1 - Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 1, 255)/ 255f);
-        legsColor = new Color(Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 1, 255)/ 255f, 0, 1 - Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 1, 255)/ 255f);
+        originalColor = new Color(Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 30, 225)/225f, 0, 1 - Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 30, 225)/225f);
+        armsColor = new Color(Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f);
+        legsColor = new Color(Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f);
         //TODO change head color according to movement
         headColor = originalColor;
-        gameObject.GetComponent<SpriteRenderer>().color = originalColor;
+        sr.color = originalColor;
         gameObject.transform.Find("EnemyArms").GetComponent<SpriteRenderer>().color = armsColor;
         gameObject.transform.Find("EnemyLegs").GetComponent<SpriteRenderer>().color = legsColor;
         gameObject.transform.Find("EnemyHead").GetComponent<SpriteRenderer>().color = headColor;
@@ -213,4 +210,19 @@ public class EnemyController : MonoBehaviour
     {
         room = _room;
     }
+
+    protected void Shoot()
+    {
+        Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);
+        target.Normalize();
+        target *= projectileSpeed;
+
+
+        GameObject bullet = Instantiate(projectilePrefab, projectileSpawn.transform.position, projectileSpawn.transform.rotation);
+        bullet.GetComponent<Rigidbody2D>().AddForce(target, ForceMode2D.Impulse);
+        bullet.GetComponent<ProjectileController>().damage = damage;
+        bullet.GetComponent<ProjectileController>().SetEnemyThatShot(indexOnEnemyList);
+    }
+
+    //TODO method to shoot a bomb
 }

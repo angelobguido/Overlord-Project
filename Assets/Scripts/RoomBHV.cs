@@ -16,9 +16,6 @@ public class RoomBHV : MonoBehaviour {
 	public bool isEnd = false;
 
     public bool hasEnemies;
-    //TODO change this for the variable SO enemies
-    public bool[] hasTower;
-    public int nSlimes;
     public int difficultyLevel;
     public List<int> enemiesIndex;
     private int enemiesDead;
@@ -31,9 +28,6 @@ public class RoomBHV : MonoBehaviour {
 	public KeyBHV keyPrefab;
     public TriforceBHV triPrefab;
 
-    //TODO change this for the SO enemies prefabs
-    public GameObject enemyPrefab, towerPrefab;
-
 
     public Collider2D colNorth;
 	public Collider2D colSouth;
@@ -43,25 +37,11 @@ public class RoomBHV : MonoBehaviour {
 	public TileBHV tilePrefab;
     public BlockBHV blockPrefab;
 
-    //TODO change for SO enemies
     private void Awake()
     {
         hasEnemies = true;
         enemiesIndex = new List<int>();
         enemiesDead = 0;
-        /*nSlimes = Random.Range(0, 5);
-        hasTower = new bool[4];
-        for (int i = 0; i < 4; ++i)
-        {
-            if (Random.Range(0, 99) > 49)
-            {
-                hasTower[i] = true;
-            }
-            else
-            {
-                hasTower[i] = false;
-            }
-        }*/
     }
 
     // Use this for initialization

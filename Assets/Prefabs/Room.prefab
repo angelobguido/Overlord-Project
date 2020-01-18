@@ -124,6 +124,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: 0
   isOpen: 0
+  isClosedByEnemies: 0
   lockedSprite: {fileID: -396035294860175646, guid: b92c1c44f604d074595ba5ee0e831239,
     type: 3}
   closedSprite: {fileID: -7967309640338825673, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -240,6 +241,7 @@ GameObject:
   - component: {fileID: 4414742417240294}
   - component: {fileID: 61203995201430082}
   - component: {fileID: 212714350820061636}
+  - component: {fileID: 2044934116862390792}
   m_Layer: 0
   m_Name: ColliderWest
   m_TagString: Untagged
@@ -336,6 +338,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &2044934116862390792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172683271766520}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9157a861b71d09c47b2cd9c6717a9b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1246085064750406
 GameObject:
   m_ObjectHideFlags: 0
@@ -490,6 +504,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: 0
   isOpen: 0
+  isClosedByEnemies: 0
   lockedSprite: {fileID: -4815885190406460031, guid: b92c1c44f604d074595ba5ee0e831239,
     type: 3}
   closedSprite: {fileID: -4827537604736492380, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -719,6 +734,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: 0
   isOpen: 0
+  isClosedByEnemies: 0
   lockedSprite: {fileID: 7477116942032994148, guid: b92c1c44f604d074595ba5ee0e831239,
     type: 3}
   closedSprite: {fileID: 4021183171127385890, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -865,6 +881,7 @@ GameObject:
   - component: {fileID: 4575418308165454}
   - component: {fileID: 61780886207372558}
   - component: {fileID: 212245732048463976}
+  - component: {fileID: 4458536150693454417}
   m_Layer: 0
   m_Name: ColliderSouth
   m_TagString: Untagged
@@ -961,6 +978,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4458536150693454417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1566697841167548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9157a861b71d09c47b2cd9c6717a9b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1575281655601774
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,6 +1144,7 @@ GameObject:
   - component: {fileID: 4237344187619836}
   - component: {fileID: 61238966288715422}
   - component: {fileID: 212718876013252408}
+  - component: {fileID: 4277018265884172853}
   m_Layer: 0
   m_Name: ColliderNorth
   m_TagString: Untagged
@@ -1211,6 +1241,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4277018265884172853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1697231599815676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9157a861b71d09c47b2cd9c6717a9b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1703066610696464
 GameObject:
   m_ObjectHideFlags: 0
@@ -1335,6 +1377,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   keyID: 0
   isOpen: 0
+  isClosedByEnemies: 0
   lockedSprite: {fileID: -3627264120405484348, guid: b92c1c44f604d074595ba5ee0e831239,
     type: 3}
   closedSprite: {fileID: -4272949958406870782, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -1562,6 +1605,7 @@ GameObject:
   - component: {fileID: 4529366669167700}
   - component: {fileID: 61785919300248960}
   - component: {fileID: 212305178769760132}
+  - component: {fileID: 348182752799350861}
   m_Layer: 0
   m_Name: ColliderEast
   m_TagString: Untagged
@@ -1658,3 +1702,15 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &348182752799350861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1978864901181190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9157a861b71d09c47b2cd9c6717a9b14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

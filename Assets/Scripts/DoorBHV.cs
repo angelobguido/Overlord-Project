@@ -128,20 +128,7 @@ public class DoorBHV : MonoBehaviour
         if(destination.transform.parent.GetComponent<RoomBHV>().hasEnemies)
             destination.transform.parent.GetComponent<RoomBHV>().SpawnEnemies();
         
-        //Spawn the enemies TODO make it spawn the variable enemies SOs
-        /*if (destination.transform.parent.gameObject.GetComponent<RoomBHV>().hasEnemies)
-        {
-            for (int i = 0; i < parent.nSlimes; ++i)
-                Instantiate(enemyPrefab, new Vector3(destination.transform.parent.position.x + 0.1f * i, destination.transform.parent.position.y + 0.1f * i, 0f), destination.transform.parent.rotation);
-            if (parent.hasTower[0])
-                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
-            if (parent.hasTower[1])
-                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x + 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
-            if (parent.hasTower[2])
-                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y - 6, 0f), destination.transform.parent.rotation);
-            if (parent.hasTower[3])
-                Instantiate(towerPrefab, new Vector3(destination.transform.parent.position.x - 6, destination.transform.parent.position.y + 5.5f, 0f), destination.transform.parent.rotation);
-        }*/
+
         OnRoomExit(Player.instance.GetComponent<PlayerController>().GetHealth());
         OnRoomEnter(destination.transform.parent.GetComponent<RoomBHV>().hasEnemies, destination.transform.parent.GetComponent<RoomBHV>().enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
     }

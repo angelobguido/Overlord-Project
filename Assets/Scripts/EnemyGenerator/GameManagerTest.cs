@@ -156,20 +156,6 @@ public class GameManagerTest : MonoBehaviour
                     fitness = Mathf.Infinity
                 }
             );
-            //We are not using this right now...
-            //TODO: decide if we will use the translation from the ECS or the MonoBehavior, that is easier to handle
-            entityManager.SetComponentData(entity,
-                new Translation
-                {
-                    Value = new float3(UnityEngine.Random.Range(-8, 8f), UnityEngine.Random.Range(-5, 5f), 0)
-                }
-            );
-
-            /*entityManager.SetSharedComponentData(entity, new RenderMesh
-            {
-                mesh = mesh,
-                material = material,
-            });*/
         }
 
         //Kill the temporary arrays to free memory

@@ -43,15 +43,16 @@ public class GameManager : MonoBehaviour {
     //public string mapFilePath = "Assets/Data/map.txt"; //Path to load map data from
     //public string roomsFilePath = "Assets/Data/rooms.txt";
     public bool readRooms = true;
-    public GameObject formMenu, endingScreen;
+    public GameObject formMenu, endingScreen, gameOverScreen;
+    //public MainMenu mainMenu;
     
     public enum LevelPlayState { InProgress, Won, Lost, Skip, Quit }
     public static LevelPlayState state = LevelPlayState.InProgress;
     private static float secondsElapsed = 0;
 
-    public bool createEnemy;
+    public bool createEnemy, survivalMode;
     public EnemyLoader enemyLoader;
-    public int dungeonDifficulty;
+    public int dungeonDifficulty, chosenDifficulty;
 
     void Awake() {
         //Singleton
@@ -61,6 +62,7 @@ public class GameManager : MonoBehaviour {
             generator = new Program();
             enemyLoader = gameObject.GetComponent<EnemyLoader>();
             audioSource = GetComponent<AudioSource>();
+            //mainMenu = GetComponent<MainMenu>();
 
             //TODO Apply selected difficulty in this
             dungeonDifficulty = 40;
@@ -81,12 +83,16 @@ public class GameManager : MonoBehaviour {
                 randomLevelList.Add(aux);
                 Debug.Log(aux);
             }
-            maps.Add(Resources.Load<TextAsset>("Batch0/Lizard"));
+            //Used for the level generator experiments
+            /*maps.Add(Resources.Load<TextAsset>("Batch0/Lizard"));
             maps.Add(Resources.Load<TextAsset>("Batch0/MyMoon"));
             maps.Add(Resources.Load<TextAsset>("Batch0/MyLizard"));
             maps.Add(Resources.Load<TextAsset>("Batch0/Dragon"));
             maps.Add(Resources.Load<TextAsset>("Batch0/MyDragon"));
-            maps.Add(Resources.Load<TextAsset>("Batch0/Moon"));
+            maps.Add(Resources.Load<TextAsset>("Batch0/Moon"));*/
+            maps.Add(Resources.Load<TextAsset>("Levels/Easy"));
+            maps.Add(Resources.Load<TextAsset>("Levels/Medium"));
+            maps.Add(Resources.Load<TextAsset>("Levels/Hard"));
         } else if (instance != this) {
             Destroy(gameObject);
         }
@@ -266,6 +272,31 @@ public class GameManager : MonoBehaviour {
         OnStartMap(randomLevelList[currentMapId], currentTestBatchId, map);
     }
 
+    public void LoadNewLevel(int mapIndex)
+    {
+        Time.timeScale = 1f;
+        ChangeMusic(bgMusic);
+        AnalyticsEvent.LevelStart(mapIndex);
+        //Loads map from data
+        LoadMap(mapIndex);
+        roomBHVMap = new RoomBHV[Map.sizeX, Map.sizeY];
+        for (int x = 0; x < Map.sizeX; x++)
+        {
+            for (int y = 0; y < Map.sizeY; y++)
+            {
+                roomBHVMap[x, y] = null;
+            }
+        }
+        InstantiateRooms();
+        Player.instance.keys.Clear();
+        Player.instance.usedKeys.Clear();
+        Player.instance.AdjustCamera(map.startX, map.startY);
+        Player.instance.SetRoom(map.startX, map.startY);
+        UpdateLevelGUI();
+        UpdateRoomGUI(map.startX, map.startY);
+        OnStartMap(mapIndex, currentTestBatchId, map);
+    }
+
     private void OnStartMap (int id, int batch, Map map)
     {
         PlayerProfile.instance.OnMapStart(id, batch, map.rooms);
@@ -297,7 +328,7 @@ public class GameManager : MonoBehaviour {
         customParams.Add("keys", Player.instance.keys.Count);
         customParams.Add("locks", Player.instance.usedKeys.Count);
 
-        if (!createMaps)
+        if (!createMaps && !survivalMode)
             LoadForm();
         else
             CheckEndOfBatch();
@@ -325,7 +356,7 @@ public class GameManager : MonoBehaviour {
     public void CheckEndOfBatch()
     {
         PlayerProfile.instance.OnMapComplete();
-        if (!createMaps)
+        if (!createMaps && survivalMode)
         {
             if (currentMapId < (maps.Count - 1))
             {
@@ -365,8 +396,11 @@ public class GameManager : MonoBehaviour {
         Debug.Log(mode);
         if(scene.name == "Level" || scene.name == "LevelGenerator" || scene.name == "LevelWithEnemies")
         {
-            coroutine = generator.CreateDungeonParallel(progressText);
-            StartCoroutine(coroutine);
+            if (createMaps && survivalMode)
+            {
+                coroutine = generator.CreateDungeonParallel(progressText);
+                StartCoroutine(coroutine);
+            }
         }
 
         if(scene.name == "LevelGenerator")
@@ -394,7 +428,8 @@ public class GameManager : MonoBehaviour {
             roomText = GameObject.Find("RoomUI").GetComponent<TextMeshProUGUI>();
             levelText = GameObject.Find("LevelUI").GetComponent<TextMeshProUGUI>();
             endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
-            LoadNewLevel();
+            gameOverScreen = GameObject.Find("Canvas").transform.Find("GameOverPanel").gameObject;
+            LoadNewLevel(chosenDifficulty);
         }
     }
 
@@ -406,6 +441,7 @@ public class GameManager : MonoBehaviour {
     {
         Time.timeScale = 0f;
         //Open a GUI here
+        gameOverScreen.SetActive(false);
         formMenu.SetActive(true);
         //TODO: Should check if there is a new batch, if not, set as inactive the continue button.
     }
@@ -491,11 +527,30 @@ public class GameManager : MonoBehaviour {
     //TODO display something about the player losing and call a continue screen os something like this.
     public void GameOver()
     {
-
+        Time.timeScale = 0f;
+        gameOverScreen.SetActive(true);
     }
 
     public void RestartGame()
     {
-        SceneManager.LoadScene("Level");
+        SceneManager.LoadScene("LevelWithEnemies");
+    }
+
+    public void EasyMode()
+    {
+        chosenDifficulty = 0;
+        SceneManager.LoadScene("LevelWithEnemies");
+    }
+
+    public void MediumMode()
+    {
+        chosenDifficulty = 1;
+        SceneManager.LoadScene("LevelWithEnemies");
+    }
+
+    public void HardMode()
+    {
+        chosenDifficulty = 2;
+        SceneManager.LoadScene("LevelWithEnemies");
     }
 }
