@@ -8,27 +8,40 @@ public class EnemyLoader : MonoBehaviour
 {
     [SerializeField]
     public EnemySO[] bestEnemies;
-    public GameObject enemyPrefab;
+    public GameObject enemyPrefab, bomberEnemyPrefab;
 
     void Start()
     {
     }
 
-    public void LoadEnemies()
+    public void LoadEnemies(int difficulty)
     {
-        bestEnemies = Resources.LoadAll("Enemies", typeof(EnemySO)).Cast<EnemySO>().ToArray();
+        string foldername = "Enemies/";
+        switch (difficulty)
+        {
+            case 0:
+                foldername += "Easy/";
+                break;
+            case 1:
+                foldername += "Medium/";
+                break;
+            case 2:
+                foldername += "Hard/";
+                break;
+        }
+        bestEnemies = Resources.LoadAll(foldername, typeof(EnemySO)).Cast<EnemySO>().ToArray();
         ApplyDelegates();
     }
 
     public GameObject InstantiateEnemyWithIndex(int index, Vector3 position, Quaternion rotation)
     {
-        Debug.Log("Begin instantiating");
+        //Debug.Log("Begin instantiating");
         GameObject enemy;
-
-        enemy = Instantiate(enemyPrefab, position, rotation);
-
+        if(bestEnemies[index].weapon.name == "BombThrower")
+            enemy = Instantiate(bomberEnemyPrefab, position, rotation);
+        else
+            enemy = Instantiate(enemyPrefab, position, rotation);
         enemy.GetComponent<EnemyController>().LoadEnemyData(bestEnemies[index], index);
-
         return enemy;
     }
     private void ApplyDelegates()
@@ -50,6 +63,12 @@ public class EnemyLoader : MonoBehaviour
                 return EnemyMovement.FleeFromPlayer;
             case MovementEnum.Follow:
                 return EnemyMovement.FollowPlayer;
+            case MovementEnum.Follow1D:
+                return EnemyMovement.FollowPlayer1D;
+            case MovementEnum.Random1D:
+                return EnemyMovement.MoveRandomly1D;
+            case MovementEnum.Flee1D:
+                return EnemyMovement.FleeFromPlayer1D;
             default:
                 Debug.Log("No Movement Attached to Enemy");
                 return null;

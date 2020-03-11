@@ -11,7 +11,7 @@ public class BombController : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
 
-    private bool canDestroy, hasBeenThrown, hasTimerBeenSet;
+    private bool canDestroy, hasBeenThrown, hasTimerBeenSet, isExploding;
     public int damage, enemyThatShot;
     [SerializeField]
     protected float bombLifetime;
@@ -19,10 +19,11 @@ public class BombController : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        bombLifetime = 3.0f;
+        bombLifetime = 2.0f;
         canDestroy = false;
         hasBeenThrown = false;
         hasTimerBeenSet = false;
+        isExploding = false;
         audioSrc = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
@@ -36,7 +37,7 @@ public class BombController : MonoBehaviour
             bombCountdown = bombLifetime;
             hasTimerBeenSet = true;
         }
-        if(hasTimerBeenSet)
+        if(hasTimerBeenSet && !isExploding)
         {
             if (bombCountdown >= 0.01f)
                 bombCountdown -= Time.deltaTime;
@@ -45,15 +46,14 @@ public class BombController : MonoBehaviour
         }
         if (!audioSrc.isPlaying && canDestroy)
         {
-            Debug.Log("Stopped playing");
+            //Debug.Log("Stopped playing");
             Destroy(gameObject);
         }
     }
 
     public void DestroyBomb()
     {
-        Debug.Log("Destroying Bullet");
-        audioSrc.PlayOneShot(popSnd, 0.3f);
+        //Debug.Log("Destroying Bomb");
         canDestroy = true;
     }
 
@@ -62,15 +62,15 @@ public class BombController : MonoBehaviour
         enemyThatShot = _index;
     }
 
-    public void ThrowBomb(float throwForce, Vector2 facingDirection)
+    public void Shoot(Vector2 facingDirection)
     {
-        rb.AddForce(new Vector2(facingDirection.x * throwForce, facingDirection.y * throwForce));
+        rb.AddForce(facingDirection, ForceMode2D.Impulse);
         hasBeenThrown = true;
     }
 
     private bool CheckIfStopped()
     {
-        if(Mathf.Approximately(rb.velocity.magnitude, 0))
+        if(rb.velocity.magnitude < 5f)
         {
             return true;
         }
@@ -80,6 +80,8 @@ public class BombController : MonoBehaviour
     private void ExplodeBomb()
     {
         animator.SetTrigger("Explode");
+        audioSrc.PlayOneShot(popSnd, 0.3f);
+        isExploding = true;
         Collider2D[] objectsInRange = Physics2D.OverlapCircleAll(new Vector2 (rb.position.x, rb.position.y), 0.45f);
         foreach (Collider2D col in objectsInRange)
         {

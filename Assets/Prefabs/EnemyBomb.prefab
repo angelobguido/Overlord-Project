@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 8552762383516956843}
   m_Layer: 0
   m_Name: EnemyBomb
-  m_TagString: EnemyBullet
+  m_TagString: Bomb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -98,7 +98,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
+  m_LinearDrag: 1
   m_AngularDrag: 0
   m_GravityScale: 0
   m_Material: {fileID: 0}
@@ -215,9 +215,9 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: 0.012}
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.2
 --- !u!95 &-5885182124584491887
 Animator:
   serializedVersion: 3
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d74168320c42fe45aeac7a06b6b85ab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  popSnd: {fileID: 8300000, guid: 1c006977890cd4141ad0f1f7df1ab40f, type: 3}
+  popSnd: {fileID: 8300000, guid: c50e84c9999ec5641ade4d9ff4ec8b46, type: 3}
   damage: 0
   enemyThatShot: 0
   bombLifetime: 3

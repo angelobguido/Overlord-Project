@@ -8,6 +8,7 @@ using Unity.Jobs;
 using UnityEngine;
 using Unity.Mathematics;
 
+#if UNITY_EDITOR
 public class TimSort : MonoBehaviour
 {
     public const int RUN = 32;
@@ -138,7 +139,7 @@ public class TimSort : MonoBehaviour
             {
                 // find ending point of left sub array 
                 // mid+1 is starting point of right sub array 
-                int mid = Mathf.Min((left + size - 1), n-1);
+                int mid = Mathf.Min((left + size - 1), n - 1);
                 int right = Mathf.Min((left + 2 * size - 1), (n - 1));
 
                 // merge sub array arr[left.....mid] & 
@@ -214,3 +215,4 @@ public class TimSortSystem : JobComponentSystem
         return handle;
     }
 }
+#endif

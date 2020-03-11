@@ -5,6 +5,7 @@ using Unity.Entities;
 
 namespace EnemyGenerator
 {
+#if UNITY_EDITOR
     //The enemy component with all its attributes
     public struct EnemyComponent : IComponentData
     {
@@ -25,11 +26,12 @@ namespace EnemyGenerator
 
     //Differentiates population from the intermediate one
     public struct Population : IComponentData { }
-    public struct IntermediatePopulation : IComponentData {
+    public struct IntermediatePopulation : IComponentData
+    {
         public int parent1;
         public int parent2;
     }
-    public struct ElitePopulation: IComponentData { }
+    public struct ElitePopulation : IComponentData { }
 
     /*public enum WeaponEnum
     {
@@ -40,6 +42,7 @@ namespace EnemyGenerator
         Bomb,
         COUNT
     }*/
+#endif
 
     public enum MovementEnum
     {
@@ -47,6 +50,10 @@ namespace EnemyGenerator
         Random,
         Follow,
         Flee,
+        Random1D,
+        Follow1D,
+        Flee1D,
         COUNT
     }
+
 }

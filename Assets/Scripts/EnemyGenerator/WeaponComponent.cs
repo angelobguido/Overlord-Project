@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 
+#if UNITY_EDITOR
 namespace EnemyGenerator
 {
     public struct WeaponComponent : IComponentData
@@ -20,3 +21,4 @@ namespace EnemyGenerator
     }
 
 }
+#endif

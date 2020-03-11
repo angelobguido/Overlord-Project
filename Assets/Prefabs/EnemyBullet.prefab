@@ -118,9 +118,9 @@ CircleCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.03, y: 0}
+  m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.1
+  m_Radius: 0.16306013
 --- !u!114 &114258646414248300
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,6 +135,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   popSnd: {fileID: 8300000, guid: 776373312396ba9468bf1f19f5915c4e, type: 3}
   damage: 0
+  enemyThatShot: 0
 --- !u!82 &82741360109366586
 AudioSource:
   m_ObjectHideFlags: 0

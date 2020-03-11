@@ -37,6 +37,10 @@ public class RoomBHV : MonoBehaviour {
 	public TileBHV tilePrefab;
     public BlockBHV blockPrefab;
 
+    public GameObject minimapIcon;
+
+    public List<Vector3> spawnPoints;
+
     private void Awake()
     {
         hasEnemies = true;
@@ -70,6 +74,7 @@ public class RoomBHV : MonoBehaviour {
         {
             SelectEnemies();
         }
+        minimapIcon.transform.localScale = new Vector3(Room.sizeX, Room.sizeY, 1);
     }
 
     // Update is called once per frame
@@ -125,7 +130,47 @@ public class RoomBHV : MonoBehaviour {
 				tileObj.y = iy;
 			}
 		}
-	}
+        int margin = Util.distFromBorder;
+        float xOffset = transform.position.x;
+        float yOffset = transform.position.y;
+
+        int lowerHalfVer = (Room.sizeY / Util.nSpawnPointsHor);
+        int upperHalfVer = (3*Room.sizeY / Util.nSpawnPointsHor);
+        int lowerHalfHor = (Room.sizeX / Util.nSpawnPointsVer);
+        int upperHalfHor = (3*Room.sizeX / Util.nSpawnPointsVer);
+        int topHor = (margin + (Room.sizeX * (Util.nSpawnPointsVer - 1) / Util.nSpawnPointsVer));
+        int topVer = (margin + (Room.sizeY * (Util.nSpawnPointsHor - 1) / Util.nSpawnPointsHor));
+
+        //Create spawn points avoiding the points close to doors.
+        for (int ix = margin; ix < (Room.sizeX - margin); ix+= (Room.sizeX/Util.nSpawnPointsVer))
+        {
+            for (int iy = margin; iy < (Room.sizeY - margin); iy += (Room.sizeY / Util.nSpawnPointsHor))
+            {
+                if ((ix <= margin) || (ix >= topHor))
+                {
+                    if (iy < lowerHalfVer || iy > upperHalfVer)
+                        spawnPoints.Add(new Vector3(ix - centerX + xOffset, Room.sizeY - 1 - iy - centerY + yOffset, 0));
+                }
+                else if ((iy <= margin) || (iy >= topVer))
+                {
+                    if (ix < lowerHalfHor || ix > upperHalfHor)
+                        spawnPoints.Add(new Vector3(ix - centerX + xOffset, Room.sizeY - 1 - iy - centerY + yOffset, 0));
+                }
+                else
+                    spawnPoints.Add(new Vector3(ix - centerX + xOffset, Room.sizeY - 1 - iy - centerY + yOffset, 0));
+            }
+        }
+        
+    }
+
+    /*private void OnDrawGizmos()
+    {
+        foreach (Vector3 spawnPoint in spawnPoints)
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(spawnPoint, 1);
+        }
+    }*/
 
     private void SelectEnemies()
     {
@@ -143,7 +188,26 @@ public class RoomBHV : MonoBehaviour {
     public void SpawnEnemies()
     {
         GameObject enemy;
-        if (enemiesIndex.Count != 4)
+        List<int> selectedSpawnPoints = new List<int>();
+        int actualSpawn;
+        for (int i = 0; i < enemiesIndex.Count; ++i)
+        {
+            if (enemiesIndex.Count >= spawnPoints.Count)
+            {
+                actualSpawn = Random.Range(0, spawnPoints.Count);
+            }
+            else
+            {
+                do
+                {
+                    actualSpawn = Random.Range(0, spawnPoints.Count);
+                } while (selectedSpawnPoints.Contains(actualSpawn));
+            }
+            enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[i], new Vector3(spawnPoints[actualSpawn].x, spawnPoints[actualSpawn].y, 0f), transform.rotation);
+            enemy.GetComponent<EnemyController>().SetRoom(this);
+            selectedSpawnPoints.Add(actualSpawn);
+        }
+        /*if (enemiesIndex.Count != 4)
         {
             for (int i = 0; i < enemiesIndex.Count; ++i)
             {
@@ -161,9 +225,14 @@ public class RoomBHV : MonoBehaviour {
             enemy.GetComponent<EnemyController>().SetRoom(this);
             enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[3], new Vector3(transform.position.x - 6, transform.position.y + 5.5f, 0f), transform.rotation);
             enemy.GetComponent<EnemyController>().SetRoom(this);
-        }
-    }
+        }*/
 
+        OnRoomEnter(hasEnemies, enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
+    }
+    private void OnRoomEnter(bool hasEnemies, List<int> enemyList, int playerHealth)
+    {
+        PlayerProfile.instance.OnRoomEnter(x, y, hasEnemies, enemyList, playerHealth);
+    }
     public void CheckIfAllEnemiesDead()
     {
         enemiesDead++;

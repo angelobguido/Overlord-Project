@@ -18,10 +18,10 @@ public class WallBHV : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collider)
     {
-        Debug.Log("CollidedWithSomething");
+        //Debug.Log("CollidedWithSomething");
         if (collider.CompareTag("Bullet") || collider.CompareTag("EnemyBullet"))
         {
-            Debug.Log("CollidedWithBullet");
+            //Debug.Log("CollidedWithBullet");
             collider.GetComponent<ProjectileController>().DestroyBullet();
         }
     }

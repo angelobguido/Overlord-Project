@@ -15,8 +15,7 @@ public class Map {
 	public int endX, endY;
 
     // Valores para gerar salas sem o arquivo de definição interna
-    public static int defaultRoomSizeX = 14;
-    public static int defaultRoomSizeY = 14;
+    
     public static int defaultTileID = 2;
 
 	public Map(string text, string roomsFilePath = null){
@@ -122,8 +121,8 @@ public class Map {
     //Cria salas vazias no tamanho padrão
     private void BuildDefaultRooms ()
     {
-        Room.sizeX = defaultRoomSizeX;
-        Room.sizeY = defaultRoomSizeY;
+        Room.sizeX = Util.defaultRoomSizeX;
+        Room.sizeY = Util.defaultRoomSizeY;
         for (int roomX = 0; roomX < sizeX; roomX+=2)
         {
             for (int roomY = 0; roomY < sizeY; roomY+=2)

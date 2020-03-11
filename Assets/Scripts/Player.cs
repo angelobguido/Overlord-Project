@@ -10,6 +10,7 @@ public class Player : PlaceableRoomObject {
 	public int x { private set;  get;}
 	public int y { private set;  get;}
 	public Camera cam;
+	public Camera minimap;
     private AudioSource audioSrc;
 
 	void Awake(){
@@ -27,7 +28,6 @@ public class Player : PlaceableRoomObject {
 	// Use this for initialization
 	void Start () {
         cam = Camera.main;
-
     }
 	
 	// Update is called once per frame
@@ -43,7 +43,8 @@ public class Player : PlaceableRoomObject {
 	public void AdjustCamera(int x, int y){
 		GameManager gm = GameManager.instance;
 		Transform roomTransf = gm.roomBHVMap [x, y].transform;
-		cam.transform.position = new Vector3 (roomTransf.position.x, roomTransf.position.y, -10f);
+		cam.transform.position = new Vector3 (roomTransf.position.x + Room.sizeX/2.5f, roomTransf.position.y, -5f);
+		//minimap.transform.position = new Vector3(roomTransf.position.x, roomTransf.position.y, -5f);
 	}
 		
 }

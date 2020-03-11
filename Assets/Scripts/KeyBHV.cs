@@ -31,5 +31,6 @@ public class KeyBHV : PlaceableRoomObject {
     private void OnGetKey ()
     {
         PlayerProfile.instance.OnGetKey(keyID);
+		GameManager.instance.keyUI.CreateKeyImage();
     }
 }

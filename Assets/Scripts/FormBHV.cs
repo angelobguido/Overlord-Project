@@ -11,8 +11,9 @@ public class FormBHV : MonoBehaviour {
     public float extraQuestionsPanelHeight = 100;
     private List<FormQuestionBHV> questions = new List<FormQuestionBHV>();
 
-	// Use this for initialization
-	void Start () {
+    
+    // Use this for initialization
+    void Start () {
 		foreach (FormQuestionData q in questionsData.questions)
         {
             GameObject g = (GameObject)Instantiate(questionPrefab);
@@ -34,6 +35,7 @@ public class FormBHV : MonoBehaviour {
 
     public void Submit ()
     {
+        
         bool isAnswered = true;
         foreach (FormQuestionBHV q in questions)
         {
@@ -52,7 +54,13 @@ public class FormBHV : MonoBehaviour {
                 // e criar um novo método em player profile para receber essa adição e fazer o post
                 PlayerProfile.instance.OnFormAnswered(answer);
             }
-            GameManager.instance.CheckEndOfBatch();
+            GameManager.instance.EndGame();
+
+            
+
+            
         }
     }
+
+
 }

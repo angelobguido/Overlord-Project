@@ -8,6 +8,7 @@ public class ProjectileController : MonoBehaviour
     [SerializeField]
     private AudioClip popSnd;
     private AudioSource audioSrc;
+    private Rigidbody2D rb;
 
     private bool canDestroy;
     public int damage, enemyThatShot;
@@ -16,6 +17,7 @@ public class ProjectileController : MonoBehaviour
     {
         canDestroy = false;
         audioSrc = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
@@ -23,16 +25,17 @@ public class ProjectileController : MonoBehaviour
     {
         if (!audioSrc.isPlaying && canDestroy)
         {
-            Debug.Log("Stopped playing");
             Destroy(gameObject);
         }
     }
 
     public void DestroyBullet()
     {
-        Debug.Log("Destroying Bullet");
-        audioSrc.PlayOneShot(popSnd, 0.3f);
+        //Debug.Log("Destroying Bullet");
+        audioSrc.PlayOneShot(popSnd, 0.15f);
         canDestroy = true;
+        GetComponent<Collider2D>().enabled = false;
+        GetComponent<SpriteRenderer>().enabled = false;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -42,6 +45,7 @@ public class ProjectileController : MonoBehaviour
             if (collision.gameObject.CompareTag("Player"))
             {
                 collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage, enemyThatShot);
+                DestroyBullet();
             }
         }
         else if(CompareTag("Bullet"))
@@ -49,13 +53,26 @@ public class ProjectileController : MonoBehaviour
             if(collision.gameObject.CompareTag("Enemy"))
             {
                 collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage);
+                DestroyBullet();
+            }
+            if (collision.gameObject.CompareTag("Shield"))
+            {
+                DestroyBullet();
             }
         }
-        DestroyBullet();
+        if (collision.gameObject.CompareTag("Block"))
+        {
+            DestroyBullet();
+        }
     }
 
     public void SetEnemyThatShot(int _index)
     {
         enemyThatShot = _index;
+    }
+
+    public void Shoot(Vector2 facingDirection)
+    {
+        rb.AddForce(facingDirection, ForceMode2D.Impulse);
     }
 }

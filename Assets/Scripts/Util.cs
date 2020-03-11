@@ -10,4 +10,11 @@ public static class Util
     {
         return (Mathf.Log(value - minValue) / Mathf.Log(maxValue - minValue)) * (maxNormalized - minNormalized);
     }
+
+    public const int nSpawnPointsVer = 4;
+    public const int nSpawnPointsHor = 4;
+    public const int distFromBorder = 1;
+
+    public const int defaultRoomSizeX = 19;
+    public const int defaultRoomSizeY = 19;
 }

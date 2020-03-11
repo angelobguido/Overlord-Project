@@ -7,6 +7,11 @@ TagManager:
   - Bullet
   - Enemy
   - EnemyBullet
+  - Bomb
+  - Sword
+  - Shield
+  - Collectible
+  - Block
   layers:
   - Default
   - TransparentFX
@@ -16,7 +21,7 @@ TagManager:
   - UI
   - 
   - 
-  - 
+  - Minimap
   - 
   - 
   - 

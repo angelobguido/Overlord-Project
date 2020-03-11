@@ -19,6 +19,7 @@ public class PlayerController : MonoBehaviour {
     private float timeAfterShoot, rotatedAngle;
     private Vector2 shootForce = new Vector2(0f, 0f);
     private Color originalColor;
+    protected Rigidbody2D rb;
 
     HealthController healthCtrl;
 
@@ -31,6 +32,7 @@ public class PlayerController : MonoBehaviour {
         originalColor = sr.color;
         healthCtrl = gameObject.GetComponent<HealthController>();
         healthCtrl.SetOriginalColor(originalColor);
+        rb = gameObject.GetComponent<Rigidbody2D>();
     }
 
     // Use this for initialization
@@ -61,7 +63,7 @@ public class PlayerController : MonoBehaviour {
         {
 
             Shoot(shootDir, movement);
-            timeAfterShoot = 0f;
+            
         }
         else
             timeAfterShoot += Time.fixedDeltaTime;
@@ -69,7 +71,10 @@ public class PlayerController : MonoBehaviour {
 
     protected void Move(Vector2 movement, Vector2 shoot)
     {
-        transform.position += (Vector3)movement * speed;
+        if (movement.magnitude > 0.01f)
+            transform.position += (Vector3)movement * speed * Time.fixedDeltaTime;
+        else
+            rb.velocity = Vector3.zero;
         UpdateMoveAnimation(movement, shoot);
         /*if(movement != Vector2.zero){
 			movement.x *= 100000; //favorece olhar na horizontal (elimina olhar diagonal)
@@ -113,6 +118,7 @@ public class PlayerController : MonoBehaviour {
             bullet.GetComponent<Rigidbody2D>().AddForce(shootForce + movementDir, ForceMode2D.Impulse);
             bullet.GetComponent<ProjectileController>().damage = this.shootDmg;
             bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, -rotatedAngle);
+            timeAfterShoot = 0.0f;
         }
     }
 
@@ -124,7 +130,7 @@ public class PlayerController : MonoBehaviour {
         {
             anim.SetFloat("LastDirX", lastX);
             anim.SetFloat("LastDirY", lastY);
-            Debug.Log("Shooting Direction");
+            //Debug.Log("Shooting Direction");
             directionToFace = shoot;
         }
         //Else, will face the movement direction
@@ -171,7 +177,8 @@ public class PlayerController : MonoBehaviour {
             //TODO KILL
             Time.timeScale = 0f;
             GameManager.instance.GameOver();
-            Debug.Log("RIP");
+            PlayerProfile.instance.OnDeath();
+            //Debug.Log("RIP");
         }
     }
 
@@ -183,5 +190,10 @@ public class PlayerController : MonoBehaviour {
     public int GetHealth()
     {
         return healthCtrl.GetHealth();
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
     }
 }

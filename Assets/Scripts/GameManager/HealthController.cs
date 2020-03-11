@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class HealthController : MonoBehaviour
 {
-
+    [SerializeField]
     int health;
     bool isInvincible;
     float invincibilityTime, invincibilityCount;
@@ -14,11 +14,12 @@ public class HealthController : MonoBehaviour
     {
         isInvincible = false;
         invincibilityCount = 0f;
+        invincibilityTime = 0.2f;
     }
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -47,9 +48,8 @@ public class HealthController : MonoBehaviour
             if(gameObject.CompareTag("Player"))
             {
                 if (enemyIndex > -1)
-                    PlayerProfile.instance.OnEnemyDoesDamage(enemyIndex);
-                else
-                    Debug.LogError("Something's wrong with the enemy index that gave this damage!");
+                    PlayerProfile.instance.OnEnemyDoesDamage(enemyIndex, damage);
+                GameManager.instance.healthUI.OnDamage(health);
                 gameObject.GetComponent<PlayerController>().CheckDeath();
             }
             else if(gameObject.CompareTag("Enemy"))

@@ -11,6 +11,13 @@ using UnityEditor;
 
 public class GameManagerTest : MonoBehaviour
 {
+    public enum DifficultyEnum
+    {
+        easy,
+        medium,
+        hard
+    };
+
     //singleton
     public static GameManagerTest instance = null;
 
@@ -25,13 +32,17 @@ public class GameManagerTest : MonoBehaviour
 
     public float startTime;
 
+    public DifficultyEnum difficulty = DifficultyEnum.easy;
+
     public bool enemyGenerated, enemyPrinted, enemyReady, enemySorted;
 
 
+#if UNITY_EDITOR
     public NativeArray<EnemyComponent> enemyPop;
     public NativeArray<EnemyComponent> bestEnemyPop;
     public NativeArray<WeaponComponent> weaponPop;
     public NativeArray<WeaponComponent> bestWeaponPop;
+#endif
     public int bestIdx;
 
     public ProjectileTypeRuntimeSetSO projectileSet;
@@ -51,10 +62,12 @@ public class GameManagerTest : MonoBehaviour
         {
             instance = this;
             fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
+#if UNITY_EDITOR
             enemyPop = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
             weaponPop = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
             bestEnemyPop = new NativeArray<EnemyComponent>(EnemyUtil.nBestEnemies, Allocator.Persistent);
             bestWeaponPop = new NativeArray<WeaponComponent>(EnemyUtil.nBestEnemies, Allocator.Persistent);
+#endif
             generationCounter = 0;
             startTime = Time.realtimeSinceStartup;
             enemyGenerated = false;
@@ -66,6 +79,21 @@ public class GameManagerTest : MonoBehaviour
             behaviorMultipliers = new NativeArray<float>(behaviorSet.Items.Count, Allocator.Persistent);
             weaponMultipliers = new NativeArray<float>(weaponSet.Items.Count, Allocator.Persistent);
             weaponHasProjectile = new NativeArray<bool>(weaponSet.Items.Count, Allocator.Persistent);
+            switch (difficulty)
+            {
+                case DifficultyEnum.easy:
+                    EnemyUtil.desiredFitness = EnemyUtil.easyFitness;
+                    break;
+                case DifficultyEnum.medium:
+                    EnemyUtil.desiredFitness = EnemyUtil.mediumFitness;
+                    break;
+                case DifficultyEnum.hard:
+                    EnemyUtil.desiredFitness = EnemyUtil.hardFitness;
+                    break;
+                default:
+                    EnemyUtil.desiredFitness = EnemyUtil.mediumFitness;
+                    break;
+            }
         }
         else if (instance != this)
         {
@@ -97,10 +125,10 @@ public class GameManagerTest : MonoBehaviour
         //This one is for the population of enemies itself, having a "population" tag to differentiate it from the intermediate population
         //Also it has the enemy and its weapon component and, 
         //as we may use this entity for the game (or not, and just handle the gameplay with the monobehaviour stuff), it also has a translation
+#if UNITY_EDITOR
         EntityArchetype enemyArchetype = entityManager.CreateArchetype(
             typeof(Population),
             typeof(EnemyComponent),
-            typeof(Translation),
             typeof(WeaponComponent)
         );
 
@@ -117,6 +145,7 @@ public class GameManagerTest : MonoBehaviour
             typeof(EnemyComponent),
             typeof(WeaponComponent)
         );
+#endif
 
         //Instantiate "Population Size" individuals for both populations using a native array
         enemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
@@ -124,6 +153,7 @@ public class GameManagerTest : MonoBehaviour
 
 
         //Create the entities themselves in the memory
+#if UNITY_EDITOR
         entityManager.CreateEntity(enemyArchetype, enemyPopulationArray);
         entityManager.CreateEntity(intermediateEnemyArchetype, intermediateEnemyPopulationArray);
 
@@ -157,6 +187,7 @@ public class GameManagerTest : MonoBehaviour
                 }
             );
         }
+#endif
 
         //Kill the temporary arrays to free memory
         //enemyPopulationArray.Dispose();
@@ -178,42 +209,67 @@ public class GameManagerTest : MonoBehaviour
                 Debug.Log("movementspeed: " + enemyPop[bestIdx].movementSpeed);
                 Debug.Log("resttime: " + enemyPop[bestIdx].restTime);*/
                 enemyPrinted = true;
+#if UNITY_EDITOR
                 CreateSOBestEnemies();
+#endif
+                enemyPopulationArray.Dispose();
+                intermediateEnemyPopulationArray.Dispose();
+                fitnessArray.Dispose();
+#if UNITY_EDITOR
+                enemyPop.Dispose();
+                weaponPop.Dispose();
+                bestEnemyPop.Dispose();
+                bestWeaponPop.Dispose();
+#endif
+                projectileMultipliers.Dispose();
+                movementMultipliers.Dispose();
+                behaviorMultipliers.Dispose();
+                weaponMultipliers.Dispose();
+                weaponHasProjectile.Dispose();
             }
         }
     }
 
     protected void OnApplicationQuit()
     {
-        enemyPopulationArray.Dispose();
-        intermediateEnemyPopulationArray.Dispose();
-        fitnessArray.Dispose();
-        enemyPop.Dispose();
-        weaponPop.Dispose();
-        bestEnemyPop.Dispose();
-        bestWeaponPop.Dispose();
-        projectileMultipliers.Dispose();
-        movementMultipliers.Dispose();
-        behaviorMultipliers.Dispose();
-        weaponMultipliers.Dispose();
-        weaponHasProjectile.Dispose();
+        
     }
 
+#if UNITY_EDITOR
     public void CreateSOBestEnemies()
     {
         EnemySO[] bestEnemies = new EnemySO [EnemyUtil.nBestEnemies];
         int shift = 0, i = 0;
-
-        while(i < EnemyUtil.nBestEnemies)
+        string filename = "Assets/Resources/Enemies/";
+        switch(difficulty)
+        {
+            case DifficultyEnum.easy:
+                filename += "Easy/";
+                break;
+            case DifficultyEnum.medium:
+                filename += "Medium/";
+                break;
+            case DifficultyEnum.hard:
+                filename += "Hard/";
+                break;
+            default:
+                Debug.LogError("Difficulty to Create Enemies not Chosen");
+                break;
+        }
+        while (i < EnemyUtil.nBestEnemies)
         {
             if (IsEnemyDifferent(i + shift))
             {
                 bestEnemies[i] = ScriptableObject.CreateInstance<EnemySO>();
-                AssetDatabase.DeleteAsset("Assets/Resources/Enemies/" + "Enemy" + i + ".asset");
+#if UNITY_EDITOR
+                AssetDatabase.DeleteAsset(filename + "Enemy" + i + ".asset");
+#endif
                 bestEnemies[i].Init(enemyPop[i + shift].health, enemyPop[i + shift].damage, enemyPop[i + shift].movementSpeed, enemyPop[i + shift].activeTime,
                     enemyPop[i + shift].restTime, enemyPop[i + shift].weapon, enemyPop[i + shift].movement, enemyPop[i + shift].behavior, enemyPop[i + shift].fitness,
                     weaponPop[i + shift].attackSpeed, weaponPop[i + shift].projectileSpeed);
-                AssetDatabase.CreateAsset(bestEnemies[i], "Assets/Resources/Enemies/" + "Enemy" + i + ".asset");
+#if UNITY_EDITOR
+                AssetDatabase.CreateAsset(bestEnemies[i], filename + "Enemy" + i + ".asset");
+#endif
                 ++i;
             }
             else
@@ -239,4 +295,5 @@ public class GameManagerTest : MonoBehaviour
                                                 return false;
         return true;
     }
+#endif
 }

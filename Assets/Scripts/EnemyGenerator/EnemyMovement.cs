@@ -22,5 +22,34 @@ namespace EnemyGenerator
         {
             return enemyPos - playerPos;
         }
+
+        public static Vector3 FollowPlayer1D(Vector3 playerPos, Vector3 enemyPos)
+        {
+            Vector3 movementDir = playerPos - enemyPos;
+            if (Random.value < 0.5f)
+                movementDir.x = 0;
+            else
+                movementDir.y = 0;
+            return movementDir;
+        }
+        public static Vector3 FleeFromPlayer1D(Vector3 playerPos, Vector3 enemyPos)
+        {
+            Vector3 movementDir = enemyPos - playerPos;
+            if (Random.value < 0.5f)
+                movementDir.x = 0;
+            else
+                movementDir.y = 0;
+            return movementDir;
+        }
+
+        public static Vector3 MoveRandomly1D(Vector3 playerPos, Vector3 enemyPos)
+        {
+            Vector3 movementDir = new Vector3(Random.Range(-10, 11), Random.Range(-10, 11), 0);
+            if (Random.value < 0.5f)
+                movementDir.x = 0;
+            else
+                movementDir.y = 0;
+            return movementDir;
+        }
     }
 }

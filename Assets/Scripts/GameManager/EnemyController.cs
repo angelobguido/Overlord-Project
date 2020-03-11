@@ -2,92 +2,97 @@
 using System.Collections.Generic;
 using UnityEngine;
 using EnemyGenerator;
+using System;
+
 public class EnemyController : MonoBehaviour
 {
     [SerializeField]
     protected float restTime, activeTime, movementSpeed, attackSpeed, projectileSpeed;
     protected int damage;
     [SerializeField]
-    protected GameObject playerObj, bloodParticle, weaponPrefab, projectilePrefab, projectileSpawn;
+    protected GameObject playerObj, bloodParticle, weaponPrefab, projectilePrefab, projectileSpawn, weaponSpawn, shieldSpawn;
+    [SerializeField]
     protected MovementTypeSO movement;
     protected BehaviorType behavior;
 
     protected Animator anim;
-    protected float waitingTime, walkingTime, walkUntil, waitUntil, coolDownTime;
-    protected bool isWalking, hasProjectile, hasFixedMoveDir, hasMoveDirBeenChosen, isShooting;
+    [SerializeField]
+    protected float walkUntil, waitUntil, coolDownTime;
+    protected bool isWalking, hasProjectile, isShooting;
+    [SerializeField]
+    protected bool hasMoveDirBeenChosen, hasFixedMoveDir, dataHasBeenLoaded;
     protected Color originalColor, armsColor, headColor, legsColor;
     protected float lastX, lastY;
+    [SerializeField]
     protected Vector3 targetMoveDir;
     protected RoomBHV room;
     [SerializeField]
     protected int indexOnEnemyList;
     protected HealthController healthCtrl;
     protected SpriteRenderer sr;
+    protected Rigidbody2D rb;
 
     private void Awake()
     {
-        waitingTime = 0.0f;
-        walkingTime = 0.0f;
-        isWalking = false;
-        isShooting = false;
-        waitUntil = 1.5f;
+
+        dataHasBeenLoaded = false;
         playerObj = Player.instance.gameObject;
-        hasFixedMoveDir = false;
-        hasMoveDirBeenChosen = false;
         anim = GetComponent<Animator>();
         sr = gameObject.GetComponent<SpriteRenderer>();
         healthCtrl = gameObject.GetComponent<HealthController>();
-        originalColor = sr.color;
+        rb = gameObject.GetComponent<Rigidbody2D>();
     }
     // Use this for initialization
     void Start()
     {
-        healthCtrl.SetOriginalColor(originalColor);
-        //If the movement needs to be fixed for the whole active time, set the flag here
-        if (movement.enemyMovementIndex == MovementEnum.Random)
-            hasFixedMoveDir = true;
+        
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        if (isWalking)
+        if (dataHasBeenLoaded)
         {
-            if (walkingTime < walkUntil)
-                Walk();
-            else
+            if (isWalking)
             {
-                walkingTime = 0.0f;
-                isWalking = false;
-                waitUntil = restTime;
-                hasMoveDirBeenChosen = false;
+                if (walkUntil > 0)
+                    Walk();
+                else
+                {
+                    walkUntil = 0.0f;
+                    isWalking = false;
+                    waitUntil = restTime;
+                    hasMoveDirBeenChosen = false;
+                }
             }
-        }
-        else
-        {
-            if (waitingTime < waitUntil)
-                Wait();
             else
             {
-                waitingTime = 0.0f;
-                isWalking = true;
-                walkUntil = activeTime;
+                if (waitUntil > 0f)
+                    Wait();
+                else
+                {
+                    waitUntil = 0;
+                    isWalking = true;
+                    walkUntil = activeTime;
+                }
             }
-        }
-        if (isShooting)
-        {
-            Shoot();
-            isShooting = false;
-            coolDownTime = attackSpeed;
-        }
-        else
-        {
-            if (coolDownTime > 0.0f)
-                WaitShotCoolDown();
-            else
+            if (hasProjectile)
             {
-                waitingTime = 0.0f;
-                isShooting = true;
+                if (isShooting)
+                {
+                    Shoot();
+                    isShooting = false;
+                    coolDownTime = 1.0f / attackSpeed;
+                }
+                else
+                {
+                    if (coolDownTime > 0.0f)
+                        WaitShotCoolDown();
+                    else
+                    {
+                        isShooting = true;
+                    }
+                }
             }
         }
     }
@@ -98,10 +103,12 @@ public class EnemyController : MonoBehaviour
         {
             int xOffset, yOffset;
             //Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);
-            targetMoveDir = movement.movementType(playerObj.transform.position, transform.position);
+            if (movement.movementType == null)
+                Debug.LogError("NO MOVEMENT FUNCTION!");
+            targetMoveDir = movement.movementType(playerObj.transform.position, gameObject.transform.position);
             targetMoveDir.Normalize();
-
-            UpdateAnimation(targetMoveDir);
+            //TODO Animate the enemy
+            //UpdateAnimation(targetMoveDir);
             if (targetMoveDir.x > 0)
                 xOffset = 1;
             else if (targetMoveDir.x < 0)
@@ -115,18 +122,19 @@ public class EnemyController : MonoBehaviour
             else
                 yOffset = 0;
             targetMoveDir = new Vector3((targetMoveDir.x + xOffset), (targetMoveDir.y + yOffset), 0f);
-            if(!hasFixedMoveDir)
+            if(hasFixedMoveDir)
                 hasMoveDirBeenChosen = true;
         }
-        transform.position += new Vector3(targetMoveDir.x * movementSpeed * Time.deltaTime, targetMoveDir.y*movementSpeed*Time.deltaTime, 0f);
+        transform.position += new Vector3(targetMoveDir.x * movementSpeed * Time.fixedDeltaTime, targetMoveDir.y * movementSpeed * Time.fixedDeltaTime, 0f);
         //transform.position += new Vector3((target.x + xOffset) * movementSpeed * Time.deltaTime, (target.y + yOffset) * movementSpeed * Time.deltaTime, 0f);
-        walkingTime += Time.deltaTime;
+        walkUntil -= Time.deltaTime;
     }
 
     void Wait()
     {
         //TODO Scream
-        waitingTime += Time.deltaTime;
+        rb.velocity = Vector3.zero;
+        waitUntil -= Time.deltaTime;
     }
 
     void WaitShotCoolDown()
@@ -179,25 +187,49 @@ public class EnemyController : MonoBehaviour
         restTime = enemyData.restTime;
         activeTime = enemyData.activeTime;
         attackSpeed = enemyData.attackSpeed;
-        projectileSpeed = enemyData.projectileSpeed;
-        //projectilePrefab = Instantiate(enemyData.weapon.projectile.projectilePrefab);
-        //weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab);
+        projectileSpeed = enemyData.projectileSpeed*4;
+        projectilePrefab = enemyData.weapon.projectile.projectilePrefab;
+        
+        if(enemyData.weapon.name == "Shield")
+            weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab, shieldSpawn.transform);
+        else if(enemyData.weapon.name != "None")
+            weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab, weaponSpawn.transform);
         hasProjectile = enemyData.weapon.hasProjectile;
-        /*if (hasProjectile)
+        if (hasProjectile)
             projectilePrefab = enemyData.weapon.projectile.projectilePrefab;
-        else*/
+        else
             projectilePrefab = null;
         movement = enemyData.movement;
         behavior = enemyData.behavior.enemyBehavior;
         ApplyEnemyColors();
         indexOnEnemyList = index;
+        hasMoveDirBeenChosen = false;
+        originalColor = sr.color;
+        healthCtrl.SetOriginalColor(originalColor);
+        if (hasProjectile)
+            if (projectilePrefab.name == "EnemyBomb")
+                attackSpeed /= 2;
+        //If the movement needs to be fixed for the whole active time, set the flag here
+        if (movement.enemyMovementIndex == MovementEnum.Random || movement.enemyMovementIndex == MovementEnum.Random1D || movement.enemyMovementIndex == MovementEnum.Flee1D || movement.enemyMovementIndex == MovementEnum.Follow1D)
+            hasFixedMoveDir = true;
+        else
+            hasFixedMoveDir = false;
+        isWalking = false;
+        isShooting = false;
+        waitUntil = 0.5f;
+        coolDownTime = 0.5f;
+        dataHasBeenLoaded = true;
     }
 
     private void ApplyEnemyColors()
     {
-        originalColor = new Color(Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 30, 225)/225f, 0, 1 - Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 30, 225)/225f);
-        armsColor = new Color(Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f);
-        legsColor = new Color(Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f);
+        
+        originalColor = Color.HSVToRGB(0.0f, Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 0, 1.0f) / 1.0f, 1.0f);
+        //originalColor = new Color(, 0, 1 - Util.LogNormalization(healthCtrl.GetHealth(), EnemyUtil.minHealth, EnemyUtil.maxHealth, 30, 225)/225f);
+        armsColor = Color.HSVToRGB(0.0f, Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 0, 1.0f) / 1.0f, 1.0f);
+        legsColor = Color.HSVToRGB(0.0f, Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 0, 1.0f) / 1.0f, 1.0f);
+        //armsColor = new Color(Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(damage, EnemyUtil.minDamage, EnemyUtil.maxDamage, 30, 225)/ 225f);
+        //legsColor = new Color(Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f, 0, 1 - Util.LogNormalization(movementSpeed, EnemyUtil.minMoveSpeed, EnemyUtil.maxMoveSpeed, 30, 225)/ 225f);
         //TODO change head color according to movement
         headColor = originalColor;
         sr.color = originalColor;
@@ -219,9 +251,20 @@ public class EnemyController : MonoBehaviour
 
 
         GameObject bullet = Instantiate(projectilePrefab, projectileSpawn.transform.position, projectileSpawn.transform.rotation);
-        bullet.GetComponent<Rigidbody2D>().AddForce(target, ForceMode2D.Impulse);
-        bullet.GetComponent<ProjectileController>().damage = damage;
-        bullet.GetComponent<ProjectileController>().SetEnemyThatShot(indexOnEnemyList);
+        //bullet.GetComponent<Rigidbody2D>().AddForce(target, ForceMode2D.Impulse);
+        if (projectilePrefab.name == "EnemyBomb")
+        {
+            //Debug.Log("It's a bomb");
+            bullet.GetComponent<BombController>().damage = damage;
+            bullet.GetComponent<BombController>().SetEnemyThatShot(indexOnEnemyList);
+            
+        }
+        else
+        {
+            bullet.GetComponent<ProjectileController>().damage = damage;
+            bullet.GetComponent<ProjectileController>().SetEnemyThatShot(indexOnEnemyList);
+        }
+        bullet.SendMessage("Shoot", target);
     }
 
     //TODO method to shoot a bomb
