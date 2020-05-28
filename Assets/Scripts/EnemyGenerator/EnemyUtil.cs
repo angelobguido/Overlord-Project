@@ -7,10 +7,10 @@ namespace EnemyGenerator
     public static class EnemyUtil
     {
         //The population size of the EA
-        public const int popSize = 10000;
+        public static int popSize = 10000;
         public const int crossChance = 99;
         public const int mutChance = 10;
-        public const int maxGenerations = 30;
+        public static int maxGenerations = 30;
         public static float desiredFitness;
         public const float easyFitness = 14f;
         public const float mediumFitness = 17.5f;

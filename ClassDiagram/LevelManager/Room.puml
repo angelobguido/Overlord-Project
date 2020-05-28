@@ -1,0 +1,16 @@
+@startuml
+class Room {
+    + x : int
+    + y : int
+    + {static} sizeX : int
+    + {static} sizeY : int
+    + {static} tiled : bool = false
+    + tiles : int[,] = null
+    + lockID : int
+    + keyID : int
+    + difficulty : int
+    + Room(x:int, y:int)
+    + IsRoom() : bool
+    + InitializeTiles() : void
+}
+@enduml

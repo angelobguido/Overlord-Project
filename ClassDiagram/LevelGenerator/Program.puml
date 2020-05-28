@@ -1,0 +1,18 @@
+@startuml
+class Program {
+    - <<readonly>> crossoverLock : object
+    - <<readonly>> addChildLock : object
+    - <<readonly>> fitnessLock : object
+    - <<readonly>> minFitnessLock : object
+    min : double
+    actual : double
+    + hasFinished : bool
+    watch : System.Diagnostics.Stopwatch
+    - gaObj : GA
+    dungeons : List<Dungeon>
+    + aux : Dungeon
+    + Program()
+    + CreateDungeon(progressText:TextMeshProUGUI) : IEnumerator
+    + CreateDungeonParallel(progressText:TextMeshProUGUI) : IEnumerator
+}
+@enduml

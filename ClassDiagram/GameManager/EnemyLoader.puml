@@ -1,0 +1,13 @@
+@startuml
+class EnemyLoader {
+    + bestEnemies : EnemySO[]
+    + enemyPrefab : GameObject
+    + bomberEnemyPrefab : GameObject
+    Start() : void
+    + LoadEnemies(difficulty:int) : void
+    + InstantiateEnemyWithIndex(index:int, position:Vector3, rotation:Quaternion) : GameObject
+    - ApplyDelegates() : void
+    + GetMovementType(moveTypeEnum:MovementEnum) : MovementType
+}
+MonoBehaviour <|-- EnemyLoader
+@enduml

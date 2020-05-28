@@ -1,0 +1,25 @@
+@startuml
+class CSVManager {
+    {static} createCSV(filename:String) : void
+    + {static} SaveCSVLevel(id:int, nkeys:int, nlocks:int, nrooms:int, lc:float, openlocks:int, openRooms:float, fitness:double, time:long, filename:string) : void
+}
+class CsvRow {
+    + LineText : string <<get>> <<set>>
+}
+class CsvFileWriter {
+    + CsvFileWriter(stream:Stream)
+    + CsvFileWriter(filename:string, append:bool)
+    + WriteRow(row:CsvRow) : void
+}
+class CsvFileReader {
+    + CsvFileReader(stream:Stream)
+    + CsvFileReader(filename:string)
+    + ReadRow(row:CsvRow) : bool
+}
+CSVManager +-- CsvRow
+"List`1" "<string>" <|-- CsvRow
+CSVManager +-- CsvFileWriter
+StreamWriter <|-- CsvFileWriter
+CSVManager +-- CsvFileReader
+StreamReader <|-- CsvFileReader
+@enduml

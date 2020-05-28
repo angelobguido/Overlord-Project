@@ -1,0 +1,7 @@
+@startuml
+class DFS {
+    + DFS(dun:Dungeon)
+    + FindRoute() : int
+}
+PathFinding <|-- DFS
+@enduml

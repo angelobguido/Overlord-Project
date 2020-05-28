@@ -1,0 +1,9 @@
+@startuml
+class EnemyBehavior {
+    + {static} IndifferentBehavior(playerPos:Vector3, enemyPos:Vector3, otherEnemiesPos:Vector3[]) : Vector3
+    + {static} LoneWolfBehavior(playerPos:Vector3, enemyPos:Vector3, otherEnemiesPos:Vector3[]) : Vector3
+    + {static} SwarmBehavior(playerPos:Vector3, enemyPos:Vector3, otherEnemiesPos:Vector3[]) : Vector3
+    + {static} PincerBehavior(playerPos:Vector3, enemyPos:Vector3, otherEnemiesPos:Vector3[]) : Vector3
+}
+MonoBehaviour <|-- EnemyBehavior
+@enduml

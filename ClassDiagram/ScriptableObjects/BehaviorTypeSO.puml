@@ -1,0 +1,7 @@
+@startuml
+class BehaviorTypeSO {
+    + multiplier : float
+    + enemyBehavior : BehaviorType
+}
+ScriptableObject <|-- BehaviorTypeSO
+@enduml

@@ -1,0 +1,17 @@
+@startuml
+class EnemySO {
+    + health : int
+    + damage : int
+    + movementSpeed : float
+    + activeTime : float
+    + restTime : float
+    + weapon : WeaponTypeSO
+    + movement : MovementTypeSO
+    + behavior : BehaviorTypeSO
+    + fitness : float
+    + attackSpeed : float
+    + projectileSpeed : float
+    + Init(_health:int, _damage:int, _movementSpeed:float, _activeTime:float, _restTime:float, weaponIndex:int, movementIndex:int, behaviorIndex:int, _fitness:float, _attackSpeed:float, _projectileSpeed:float) : void
+}
+ScriptableObject <|-- EnemySO
+@enduml

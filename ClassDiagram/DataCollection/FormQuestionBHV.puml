@@ -1,0 +1,15 @@
+@startuml
+class FormQuestionBHV {
+    + value : int
+    + toggles : Toggle[]
+    + questionText : Text
+    + descriptionText : Text
+    - questionData : FormQuestionData
+    Awake() : void
+    Start() : void
+    Update() : void
+    + ChangeValue(selected:Toggle) : void
+    + LoadData(q:FormQuestionData) : void
+}
+MonoBehaviour <|-- FormQuestionBHV
+@enduml

@@ -1,0 +1,8 @@
+@startuml
+class BlockBHV {
+    Start() : void
+    Update() : void
+    - OnCollisionEnter2D(collision:Collision2D) : void
+}
+TileBHV <|-- BlockBHV
+@enduml

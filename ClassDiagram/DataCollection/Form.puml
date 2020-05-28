@@ -1,0 +1,8 @@
+@startuml
+class Form {
+    + GoToForm() : void
+    + Continue() : void
+    + Quit() : void
+}
+MonoBehaviour <|-- Form
+@enduml

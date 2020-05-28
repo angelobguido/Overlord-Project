@@ -397,7 +397,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 48615752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b4a0fda8bf7f2fe4ebfacf8606a2dbc8, type: 3}
+  m_Script: {fileID: 11500000, guid: b8b56930cb38f844c9fcca9370788a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   sessionUID: 
@@ -423,7 +423,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 48615752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c5ea0c8007858143b10d104e7490d19, type: 3}
+  m_Script: {fileID: 11500000, guid: bbae3eaaeceb47740b8516d1233ce73f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   startButton: {fileID: 0}
@@ -445,13 +445,15 @@ MonoBehaviour:
   endingScreen: {fileID: 0}
   gameOverScreen: {fileID: 0}
   mainMenu: {fileID: 0}
-  createEnemy: 0
+  createEnemy: 1
   survivalMode: 0
   enemyLoader: {fileID: 0}
   dungeonDifficulty: 50
   chosenDifficulty: 0
   healthUI: {fileID: 0}
   keyUI: {fileID: 0}
+  nExecutions: 0
+  nBatches: 0
 --- !u!4 &48615756
 Transform:
   m_ObjectHideFlags: 0
@@ -475,12 +477,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 48615752}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a42bebd58faa0409cee1ae8a8379d1, type: 3}
+  m_Script: {fileID: 11500000, guid: f0592ccd823f27c4fa3dfd4935060fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   introScreen: {fileID: 328329802}
   introScreen2: {fileID: 0}
-  mainScreen: {fileID: 1659224450}
+  mainScreen: {fileID: 585940015}
   gameOverScreen: {fileID: 1506669477}
   difficultySelect: {fileID: 42983676}
 --- !u!114 &48615758
@@ -524,6 +526,13 @@ MonoBehaviour:
   movementSet: {fileID: 11400000, guid: 41a11a660db4ab245943b826556cf0af, type: 2}
   behaviorSet: {fileID: 11400000, guid: be34bae1919ce2c458128eba2838077a, type: 2}
   weaponSet: {fileID: 11400000, guid: aa056caad00310f4793208ebc1ee05ec, type: 2}
+  timeToConverge: 0
+  timeAfterSort: 0
+  bestFitness: 0
+  averageNBestFitness: 0
+  averageFitness: 0
+  stdDevNBestFitness: 0
+  stdDevFitness: 0
 --- !u!1 &58085687
 GameObject:
   m_ObjectHideFlags: 0
@@ -1682,7 +1691,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 249583933}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a42bebd58faa0409cee1ae8a8379d1, type: 3}
+  m_Script: {fileID: 11500000, guid: f0592ccd823f27c4fa3dfd4935060fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   introScreen: {fileID: 0}
@@ -3025,7 +3034,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 551210159}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a42bebd58faa0409cee1ae8a8379d1, type: 3}
+  m_Script: {fileID: 11500000, guid: f0592ccd823f27c4fa3dfd4935060fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   introScreen: {fileID: 0}
@@ -7446,7 +7455,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2008118073}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48a42bebd58faa0409cee1ae8a8379d1, type: 3}
+  m_Script: {fileID: 11500000, guid: f0592ccd823f27c4fa3dfd4935060fd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   introScreen: {fileID: 328329802}

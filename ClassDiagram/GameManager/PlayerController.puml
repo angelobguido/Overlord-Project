@@ -1,0 +1,34 @@
+@startuml
+class PlayerController {
+    # speed : float
+    # shootSpeed : float
+    # shootCD : float
+    # shootDmg : int
+    # maxHealth : int
+    # bulletPrefab : GameObject
+    # bulletSpawn : GameObject
+    anim : Animator
+    lastX : float
+    lastY : float
+    - audioSrc : AudioSource
+    - timeAfterShoot : float
+    - rotatedAngle : float
+    - shootForce : Vector2
+    - originalColor : Color
+    # rb : Rigidbody2D
+    healthCtrl : HealthController
+    + Awake() : void
+    Start() : void
+    Update() : void
+    FixedUpdate() : void
+    # Move(movement:Vector2, shoot:Vector2) : void
+    # Shoot(shootDir:Vector2, movementDir:Vector2) : void
+    # UpdateMoveAnimation(movement:Vector2, shoot:Vector2) : void
+    + PlayGetkey() : void
+    + CheckDeath() : void
+    + ResetHealth() : void
+    + GetHealth() : int
+    + GetMaxHealth() : int
+}
+MonoBehaviour <|-- PlayerController
+@enduml

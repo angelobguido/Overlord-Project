@@ -1,0 +1,9 @@
+@startuml
+class WeaponTypeSO {
+    + multiplier : float
+    + hasProjectile : bool
+    + projectile : ProjectileTypeSO
+    + weaponPrefab : GameObject
+}
+ScriptableObject <|-- WeaponTypeSO
+@enduml

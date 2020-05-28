@@ -1,0 +1,13 @@
+@startuml
+class KeyUI {
+    - keyList : List<Image>
+    # keySprite : Sprite
+    playerKeys : List<int>
+    - Awake() : void
+    Start() : void
+    Update() : void
+    + CreateKeyImage() : void
+    + ResetKeyGUI() : void
+}
+MonoBehaviour <|-- KeyUI
+@enduml

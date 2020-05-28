@@ -1,0 +1,8 @@
+@startuml
+class Interface {
+    + {static} PrintTree(root:Room) : void
+    + {static} PrintGrid(grid:RoomGrid) : void
+    + {static} PrintGridWithConnections(grid:RoomGrid) : void
+    + {static} PrintNumericalGridWithConnections(dun:Dungeon) : void
+}
+@enduml

@@ -1,0 +1,9 @@
+@startuml
+class TriforceBHV {
+    gm : GameManager
+    - Start() : void
+    OnTriggerEnter2D(other:Collider2D) : void
+    - OnMapComplete() : void
+}
+PlaceableRoomObject <|-- TriforceBHV
+@enduml

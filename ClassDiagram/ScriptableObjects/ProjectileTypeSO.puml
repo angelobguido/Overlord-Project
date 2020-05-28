@@ -1,0 +1,7 @@
+@startuml
+class ProjectileTypeSO {
+    + multiplier : int
+    + projectilePrefab : GameObject
+}
+ScriptableObject <|-- ProjectileTypeSO
+@enduml

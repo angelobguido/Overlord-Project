@@ -1,0 +1,5 @@
+@startuml
+class MovementTypeRuntimeSetSO {
+}
+"RuntimeSetSO`1" "<MovementTypeSO>" <|-- MovementTypeRuntimeSetSO
+@enduml

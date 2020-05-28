@@ -1,0 +1,41 @@
+@startuml
+class PathFinding {
+    - nVisitedRooms : int = 0
+    - neededLocks : int = 0
+    # dun : Dungeon
+    # path : List<Location>
+    # current : Location = null
+    # start : Location = null
+    # target : Location = null
+    # locksLocation : List<Location>
+    # allLocksLocation : List<Location>
+    # actualRoom : Room
+    # parent : Room
+    # grid : RoomGrid
+    # type : Type
+    # x : int
+    # y : int
+    # iPositive : int
+    # jPositive : int
+    # lockedRooms : List<int>
+    # keys : List<int>
+    # openList : List<Location>
+    - closedList : List<Location>
+    # minX : int
+    # minY : int
+    # maxX : int
+    # maxY : int
+    # sizeX : int
+    # sizeY : int
+    # map : int[,]
+    + ClosedList : List<Location> <<get>> <<set>>
+    + NVisitedRooms : int <<get>> <<set>>
+    + NeededLocks : int <<get>> <<set>>
+    + PathFinding(_dun:Dungeon)
+    + {static} GetWalkableAdjacentSquares(x:int, y:int, sizeX:int, sizeY:int, map:int[,]) : List<Location>
+    + validateKeyRoom(current:Location) : void
+    + {static} PrintPathFinding(path:List<Location>, time:int) : void
+    + {static} PrintPathFound(current:Location, time:int) : void
+    - initiatePathFinding() : void
+}
+@enduml

@@ -1,0 +1,5 @@
+@startuml
+class BehaviorTypeRuntimeSetSO {
+}
+"RuntimeSetSO`1" "<BehaviorTypeSO>" <|-- BehaviorTypeRuntimeSetSO
+@enduml

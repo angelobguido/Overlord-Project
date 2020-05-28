@@ -1,0 +1,29 @@
+@startuml
+class Dungeon {
+    + nKeys : int
+    + nLocks : int
+    + neededLocks : int
+    + neededRooms : float
+    - desiredKeys : int
+    - avgChildren : float
+    + toVisit : Queue
+    - roomList : List<Room>
+    + roomGrid : RoomGrid
+    + RoomList : List<Room> <<get>> <<set>>
+    + DesiredKeys : int <<get>> <<set>>
+    + AvgChildren : float <<get>> <<set>>
+    + fitness : float
+    + Dungeon()
+    + Copy() : Dungeon
+    + CalcAvgChildren() : void
+    + InstantiateRoom(child:Room, actualRoom:Room, dir:Util.Direction) : void
+    + RemoveFromGrid(cut:Room) : void
+    + RefreshGrid(newRoom:Room) : void
+    + GenerateRooms() : void
+    + FixRoomList() : void
+    + FixIndividual() : void
+    + AddLockAndKey() : void
+    + RemoveLockAndKey() : void
+    + SetFitness(fitness_:float) : void
+}
+@enduml

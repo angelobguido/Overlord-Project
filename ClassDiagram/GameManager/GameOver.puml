@@ -1,0 +1,10 @@
+@startuml
+class GameOver {
+    Start() : void
+    Update() : void
+    + QuitButton() : void
+    + RestartButton() : void
+    + MainMenuButton() : void
+}
+MonoBehaviour <|-- GameOver
+@enduml

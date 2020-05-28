@@ -1,0 +1,7 @@
+@startuml
+class DestroyParticle {
+    Start() : void
+    Update() : void
+}
+MonoBehaviour <|-- DestroyParticle
+@enduml

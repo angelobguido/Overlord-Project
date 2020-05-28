@@ -1,0 +1,55 @@
+@startuml
+class EnemyController {
+    # restTime : float
+    # activeTime : float
+    # movementSpeed : float
+    # attackSpeed : float
+    # projectileSpeed : float
+    # damage : int
+    # playerObj : GameObject
+    # bloodParticle : GameObject
+    # weaponPrefab : GameObject
+    # projectilePrefab : GameObject
+    # projectileSpawn : GameObject
+    # weaponSpawn : GameObject
+    # shieldSpawn : GameObject
+    # movement : MovementTypeSO
+    # behavior : BehaviorType
+    # anim : Animator
+    # walkUntil : float
+    # waitUntil : float
+    # coolDownTime : float
+    # isWalking : bool
+    # hasProjectile : bool
+    # isShooting : bool
+    # hasMoveDirBeenChosen : bool
+    # hasFixedMoveDir : bool
+    # dataHasBeenLoaded : bool
+    # originalColor : Color
+    # armsColor : Color
+    # headColor : Color
+    # legsColor : Color
+    # lastX : float
+    # lastY : float
+    # targetMoveDir : Vector3
+    # room : RoomBHV
+    # indexOnEnemyList : int
+    # healthCtrl : HealthController
+    # sr : SpriteRenderer
+    # rb : Rigidbody2D
+    - Awake() : void
+    Start() : void
+    FixedUpdate() : void
+    Walk() : void
+    Wait() : void
+    WaitShotCoolDown() : void
+    - OnCollisionStay2D(collision:Collision2D) : void
+    + CheckDeath() : void
+    # UpdateAnimation(movement:Vector2) : void
+    + LoadEnemyData(enemyData:EnemySO, index:int) : void
+    - ApplyEnemyColors() : void
+    + SetRoom(_room:RoomBHV) : void
+    # Shoot() : void
+}
+MonoBehaviour <|-- EnemyController
+@enduml

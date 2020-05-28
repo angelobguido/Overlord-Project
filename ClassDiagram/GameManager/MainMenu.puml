@@ -1,0 +1,22 @@
+@startuml
+class MainMenu {
+    + introScreen : GameObject
+    + introScreen2 : GameObject
+    + mainScreen : GameObject
+    + gameOverScreen : GameObject
+    + difficultySelect : GameObject
+    + IntroScreen() : void
+    + PlayGame() : void
+    + CreateLevels() : void
+    + QuitGame() : void
+    + GameOver() : void
+    + PlayLoadedLevel() : void
+    + RetryLevel() : void
+    + DifficultySelect() : void
+    + EasyButton() : void
+    + MediumButton() : void
+    + HardButton() : void
+    + SecondIntro() : void
+}
+MonoBehaviour <|-- MainMenu
+@enduml

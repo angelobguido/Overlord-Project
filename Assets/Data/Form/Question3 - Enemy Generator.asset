@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4068174cc70451645822970fb5470d6c, type: 3}
+  m_Script: {fileID: 11500000, guid: ec0b414e77cfb7743be47f4ba69b1e76, type: 3}
   m_Name: Question3 - Enemy Generator
   m_EditorClassIdentifier: 
-  question: "Qual \xE9 a dificuldade na qual geralmente voc\xEA costuma jogar seus
-    jogos?\n(existem diversas nomenclaturas nos jogos. Tente escolher a que para voc\xEA
-    pare\xE7a mais adequada na escala usada)"
-  description: "1 = Muito F\xE1cil       <->      5 = Muito Dif\xEDcil (Imposs\xEDvel,
+  question: "Qual \xE9 dificuldade na qual geralmente voc\xEA costuma jogar seus jogos?\n(existem
+    diversas nomenclaturas nos jogos. Tente escolher a que para voc\xEA \xE9 a mais
+    adequada na escala usada)"
+  description: "1 = Muito F\xE1cil       <->      5 = Muito Dif\uF8E9\xEDcil (Imposs\uFDE5l,
     etc.)"

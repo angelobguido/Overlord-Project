@@ -1,0 +1,11 @@
+@startuml
+class TileBHV {
+    + x : int
+    + y : int
+    + id : int
+    Start() : void
+    Update() : void
+    + SetPosition(x:int, y:int, centerX:float, centerY:float) : void
+}
+MonoBehaviour <|-- TileBHV
+@enduml

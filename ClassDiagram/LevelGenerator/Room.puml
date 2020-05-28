@@ -1,0 +1,41 @@
+@startuml
+enum Type {
+    normal= 1 << 0,
+    key= 1 << 1,
+    locked= 1 << 2,
+}
+class Room {
+    - leftChild : Room = null
+    - rightChild : Room = null
+    - bottomChild : Room = null
+    - roomId : int
+    - keyToOpen : int
+    - type : Type
+    - x : int = 0
+    - y : int = 0
+    - depth : int = 0
+    - rotation : int = 0
+    - parent : Room = null
+    - parentDirection : Util.Direction
+    + Room(roomType:Type, keyToOpen:int, id:int)
+    + Copy() : Room
+    + FixBranch(specialRooms:List<int>) : void
+    + ValidateChild(dir:Util.Direction, roomGrid:RoomGrid) : bool
+    + InsertChild(dir:Util.Direction, child:Room, roomGrid:RoomGrid) : void
+    + SetParent(parent:Room) : void
+    + FindChildren(roomList:List<Room>) : void
+    + GetChildByDirection(dir:Util.Direction) : Room
+    + Depth : int <<get>> <<set>>
+    + X : int <<get>> <<set>>
+    + Y : int <<get>> <<set>>
+    + RoomId : int <<get>> <<set>>
+    + Parent : Room <<get>> <<set>>
+    + LeftChild : Room <<get>> <<set>>
+    + RightChild : Room <<get>> <<set>>
+    + BottomChild : Room <<get>> <<set>>
+    + ParentDirection : Util.Direction <<get>> <<set>>
+    + Rotation : int <<get>> <<set>>
+    + Type : Type <<get>> <<set>>
+    + KeyToOpen : int <<get>> <<set>>
+}
+@enduml

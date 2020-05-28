@@ -1,0 +1,18 @@
+@startuml
+class Map {
+    + {static} sizeX : int
+    + {static} sizeY : int
+    + {static} index : int
+    + rooms : Room[,]
+    + startX : int
+    + startY : int
+    + endX : int
+    + endY : int
+    + {static} defaultTileID : int = 2
+    + Map(text:string, roomsFilePath:string)
+    - ReadMapFile(text:string) : void
+    - ReadRoomsFile(text:string) : void
+    - BuildDefaultRooms() : void
+    + Map(dun:Dungeon)
+}
+@enduml

@@ -1,0 +1,36 @@
+@startuml
+class GameManagerTest {
+    + {static} instance : GameManagerTest = null
+    + enemyPopulationArray : NativeArray<Entity>
+    + intermediateEnemyPopulationArray : NativeArray<Entity>
+    + fitnessArray : NativeArray<float>
+    + generationCounter : int
+    + startTime : float
+    + difficulty : DifficultyEnum
+    + enemyGenerated : bool
+    + enemyPrinted : bool
+    + enemyReady : bool
+    + enemySorted : bool
+    + bestIdx : int
+    + projectileSet : ProjectileTypeRuntimeSetSO
+    + movementSet : MovementTypeRuntimeSetSO
+    + behaviorSet : BehaviorTypeRuntimeSetSO
+    + weaponSet : WeaponTypeRuntimeSetSO
+    + projectileMultipliers : NativeArray<int>
+    + movementMultipliers : NativeArray<float>
+    + behaviorMultipliers : NativeArray<float>
+    + weaponMultipliers : NativeArray<float>
+    + weaponHasProjectile : NativeArray<bool>
+    Awake() : void
+    - Start() : void
+    + Update() : void
+    # OnApplicationQuit() : void
+}
+enum DifficultyEnum {
+    easy,
+    medium,
+    hard,
+}
+MonoBehaviour <|-- GameManagerTest
+GameManagerTest +-- DifficultyEnum
+@enduml

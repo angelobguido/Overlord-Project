@@ -1,0 +1,6 @@
+@startuml
+class FormQuestionsData {
+    + questions : List<FormQuestionData>
+}
+ScriptableObject <|-- FormQuestionsData
+@enduml

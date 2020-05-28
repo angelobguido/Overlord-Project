@@ -1,0 +1,42 @@
+@startuml
+class Util <<static>> {
+    + {static} rnd : Random
+    - {static} ID : int = 0
+    + {static} getNextId() : int
+    + {static} IsValidUri(uri:string) : bool
+    + {static} OpenUri(uri:string) : bool
+}
+class Constants <<static>> {
+    + <<const>> MAX_CHILDREN : int = 3
+    + <<const>> PROB_HAS_CHILD : float = 100f
+    + {static} <<readonly>> CHILD_PROB : float[]
+    + <<const>> PROB_1_CHILD : float
+    + <<const>> PROB_2_CHILD : float
+    + <<const>> PROB_3_CHILD : float
+    + <<const>> PROB_CHILD : float
+    + <<const>> PROB_NORMAL_ROOM : float = 70f
+    + <<const>> PROB_KEY_ROOM : float = 15f
+    + <<const>> PROB_LOCKER_ROOM : float = 15f
+    + <<const>> MAX_DEPTH : int = 20
+    + <<const>> NEIGHBORINGFACTOR : float = 0.7f
+    + <<const>> CROSSOVER_RATE : float = 90f
+    + <<const>> MUTATION_RATE : float = 5f
+    + <<const>> MUTATION0_RATE : float = 50f
+    + <<const>> MUTATION1_RATE : float = 50f
+    + <<const>> POP_SIZE : int = 50
+    + <<const>> GENERATIONS : int = 30
+    + <<const>> PROB_SHORTCUT : int = 0
+    + <<const>> MATRIXOFFSET : int = 150
+    + <<const>> RESULTSFILE : string = "RESULTS"
+    + <<const>> nV : int = 30
+    + <<const>> nK : int = 4
+    + <<const>> nL : int = 4
+    + <<const>> lCoef : float = 1.5f
+}
+enum Direction {
+    right= 0,
+    down= 1,
+    left= 2,
+}
+Util +-- Direction
+@enduml

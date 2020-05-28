@@ -1,0 +1,8 @@
+@startuml
+class WallBHV {
+    Start() : void
+    Update() : void
+    - OnTriggerEnter2D(collider:Collider2D) : void
+}
+MonoBehaviour <|-- WallBHV
+@enduml

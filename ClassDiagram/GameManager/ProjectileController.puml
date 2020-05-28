@@ -1,0 +1,17 @@
+@startuml
+class ProjectileController {
+    - popSnd : AudioClip
+    - audioSrc : AudioSource
+    - rb : Rigidbody2D
+    - canDestroy : bool
+    + damage : int
+    + enemyThatShot : int
+    Awake() : void
+    Update() : void
+    + DestroyBullet() : void
+    - OnTriggerEnter2D(collision:Collider2D) : void
+    + SetEnemyThatShot(_index:int) : void
+    + Shoot(facingDirection:Vector2) : void
+}
+MonoBehaviour <|-- ProjectileController
+@enduml

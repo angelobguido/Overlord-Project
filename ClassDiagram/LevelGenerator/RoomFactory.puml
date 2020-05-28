@@ -1,0 +1,11 @@
+@startuml
+class RoomFactory {
+    - {static} availableLockId : List<int>
+    - {static} usedLockId : List<int>
+    + {static} AvailableLockId : List<int> <<get>> <<set>>
+    + {static} UsedLockId : List<int> <<get>> <<set>>
+    + {static} CreateRoot() : Room
+    + {static} CreateRoom() : Room
+    + {static} RecreateRoom(room:Room, desiredKeys:int) : void
+}
+@enduml

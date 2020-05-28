@@ -1,0 +1,10 @@
+@startuml
+class KeyBHV {
+    + keyID : int
+    Start() : void
+    Update() : void
+    OnTriggerEnter2D(other:Collider2D) : void
+    - OnGetKey() : void
+}
+PlaceableRoomObject <|-- KeyBHV
+@enduml

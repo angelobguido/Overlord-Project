@@ -1,0 +1,18 @@
+@startuml
+class Player {
+    + {static} instance : Player = null
+    + keys : List<int>
+    + usedKeys : List<int>
+    + x : int <<get>>
+    + y : int <<get>>
+    + cam : Camera
+    + minimap : Camera
+    - audioSrc : AudioSource
+    Awake() : void
+    Start() : void
+    Update() : void
+    + GetKey(keyID:int) : void
+    + AdjustCamera(x:int, y:int) : void
+}
+PlaceableRoomObject <|-- Player
+@enduml

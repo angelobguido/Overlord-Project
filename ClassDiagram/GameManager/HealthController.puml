@@ -1,0 +1,17 @@
+@startuml
+class HealthController {
+    health : int
+    isInvincible : bool
+    invincibilityTime : float
+    invincibilityCount : float
+    originalColor : Color
+    - Awake() : void
+    Start() : void
+    Update() : void
+    + ApplyDamage(damage:int, enemyIndex:int) : void
+    + SetHealth(_health:int) : void
+    + GetHealth() : int
+    + SetOriginalColor(_color:Color) : void
+}
+MonoBehaviour <|-- HealthController
+@enduml

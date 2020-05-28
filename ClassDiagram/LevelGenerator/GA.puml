@@ -1,0 +1,17 @@
+@startuml
+class GA {
+    - <<readonly>> dfsLock : object
+    - <<readonly>> avgRoomLock : object
+    {static} - FindNKLR(nRooms:int, specialRooms:List<int>, root:Room) : void
+    {static} + ChangeChildren(cut1:Room, cut2:Room) : void
+    {static} + Crossover(indOriginal1:Dungeon, indOriginal2:Dungeon) : void
+    + {static} Mutation(individual:Dungeon) : void
+    {static} + Tournament(pop:List<Dungeon>, parent1:int, parent2:int) : void
+    + Fitness(ind:Dungeon, nV:int, nK:int, nL:int, lCoef:float, matrixOffset:int) : float
+}
+enum MutationOp {
+    insertChild= 0,
+    removeLeaf= 1,
+}
+GA +-- MutationOp
+@enduml

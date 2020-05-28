@@ -525,6 +525,7 @@ public class EASystem : JobComponentSystem
                 };
 
                 handle = findBest.Schedule(this, inputDeps);
+                GameManagerTest.instance.timeToConverge = Time.realtimeSinceStartup - GameManagerTest.instance.startTime;
                 //Debug.Log(Time.realtimeSinceStartup - GameManagerTest.instance.startTime);
                 GameManagerTest.instance.enemyGenerated = true;
 
@@ -551,7 +552,7 @@ public class SignalEAEnding : ComponentSystem
         {
             if ((GameManagerTest.instance.generationCounter == EnemyUtil.maxGenerations) && GameManagerTest.instance.enemyGenerated)
             {
-                Debug.Log("This different update!");
+                //Debug.Log("This different update!");
 
                 GameManagerTest.instance.generationCounter++;
                 GameManagerTest.instance.enemyReady = true;

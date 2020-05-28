@@ -1,6 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+
 
 public class ProjectileController : MonoBehaviour
 {
@@ -12,6 +15,10 @@ public class ProjectileController : MonoBehaviour
 
     private bool canDestroy;
     public int damage, enemyThatShot;
+
+    public delegate void HitEnemyEvent();
+    public static event HitEnemyEvent hitEnemyEvent;
+
     // Use this for initialization
     void Awake()
     {
@@ -38,6 +45,11 @@ public class ProjectileController : MonoBehaviour
         GetComponent<SpriteRenderer>().enabled = false;
     }
 
+    protected virtual void OnHit()
+    {
+        hitEnemyEvent(); //?. é o operador null-conditional
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (CompareTag("EnemyBullet"))
@@ -52,6 +64,7 @@ public class ProjectileController : MonoBehaviour
         {
             if(collision.gameObject.CompareTag("Enemy"))
             {
+                OnHit();
                 collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage);
                 DestroyBullet();
             }

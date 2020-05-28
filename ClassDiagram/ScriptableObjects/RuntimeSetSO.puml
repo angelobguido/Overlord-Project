@@ -1,0 +1,8 @@
+@startuml
+class "RuntimeSetSO`1"<T> {
+    + Items : List<T>
+    + Add(thing:T) : void
+    + Remove(thing:T) : void
+}
+ScriptableObject <|-- "RuntimeSetSO`1"
+@enduml

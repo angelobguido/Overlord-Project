@@ -1,0 +1,12 @@
+@startuml
+class EnemyMovement {
+    + {static} MoveRandomly(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} NoMovement(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} FollowPlayer(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} FleeFromPlayer(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} FollowPlayer1D(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} FleeFromPlayer1D(playerPos:Vector3, enemyPos:Vector3) : Vector3
+    + {static} MoveRandomly1D(playerPos:Vector3, enemyPos:Vector3) : Vector3
+}
+MonoBehaviour <|-- EnemyMovement
+@enduml

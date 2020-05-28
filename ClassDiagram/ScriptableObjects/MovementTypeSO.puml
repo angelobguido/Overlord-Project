@@ -1,0 +1,8 @@
+@startuml
+class MovementTypeSO {
+    + multiplier : float
+    + enemyMovementIndex : MovementEnum
+    + movementType : MovementType
+}
+ScriptableObject <|-- MovementTypeSO
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+class RoomBHV {
+    + x : int
+    + y : int
+    + northDoor : int
+    + southDoor : int
+    + eastDoor : int
+    + westDoor : int
+    + availableKeyID : int = 0
+    + isStart : bool = false
+    + isEnd : bool = false
+    + hasEnemies : bool
+    + difficultyLevel : int
+    + enemiesIndex : List<int>
+    - enemiesDead : int
+    + doorNorth : DoorBHV
+    + doorSouth : DoorBHV
+    + doorEast : DoorBHV
+    + doorWest : DoorBHV
+    + keyPrefab : KeyBHV
+    + triPrefab : TriforceBHV
+    + colNorth : Collider2D
+    + colSouth : Collider2D
+    + colEast : Collider2D
+    + colWest : Collider2D
+    + tilePrefab : TileBHV
+    + blockPrefab : BlockBHV
+    + minimapIcon : GameObject
+    + spawnPoints : List<Vector3>
+    - Awake() : void
+    Start() : void
+    Update() : void
+    SetLayout() : void
+    - SelectEnemies() : void
+    + SpawnEnemies() : void
+    - OnRoomEnter(hasEnemies:bool, enemyList:List<int>, playerHealth:int) : void
+    + CheckIfAllEnemiesDead() : void
+}
+MonoBehaviour <|-- RoomBHV
+@enduml

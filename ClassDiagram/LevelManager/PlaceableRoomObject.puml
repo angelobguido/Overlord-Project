@@ -1,0 +1,8 @@
+@startuml
+class PlaceableRoomObject {
+    Start() : void
+    Update() : void
+    + SetRoom(x:int, y:int) : void
+}
+MonoBehaviour <|-- PlaceableRoomObject
+@enduml

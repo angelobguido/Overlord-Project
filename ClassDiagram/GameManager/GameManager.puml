@@ -1,0 +1,86 @@
+@startuml
+class GameManager {
+    generator : Program
+    + createdDungeon : Dungeon
+    startButton : Button
+    progressText : TextMeshProUGUI
+    - coroutine : IEnumerator
+    - isCompleted : bool
+    - isInGame : bool
+    + {static} instance : GameManager = null
+    - maps : List<TextAsset>
+    - rooms : List<TextAsset>
+    - randomLevelList : List<int>
+    - map : Map = null
+    + createMaps : bool = true
+    + audioSource : AudioSource
+    + bgMusic : AudioClip
+    + fanfarreMusic : AudioClip
+    + keyText : TextMeshProUGUI
+    + roomText : TextMeshProUGUI
+    + levelText : TextMeshProUGUI
+    + roomPrefab : RoomBHV
+    + roomsParent : Transform
+    + roomBHVMap : RoomBHV[,]
+    + roomSpacingX : float = 30f
+    + roomSpacingY : float = 20f
+    - mapDirectory : string
+    - currentMapId : int = 0
+    - currentTestBatchId : int = 0
+    + readRooms : bool = true
+    + formMenu : GameObject
+    + endingScreen : GameObject
+    + gameOverScreen : GameObject
+    + mainMenu : MainMenu
+    + {static} state : LevelPlayState
+    - {static} secondsElapsed : float = 0
+    + createEnemy : bool
+    + survivalMode : bool
+    + enemyLoader : EnemyLoader
+    + dungeonDifficulty : int
+    + chosenDifficulty : int
+    + healthUI : HealthUI
+    + keyUI : KeyUI
+    Awake() : void
+    + {static} ProcessDirectory(targetDirectory:string, search:string, files:string[]) : void
+    Start() : void
+    InstantiateRooms() : void
+    Update() : void
+    LoadMap(mapId:int) : void
+    + GetMap() : Map
+    InstantiateRoom(x:int, y:int) : void
+    + LoadNewLevel() : void
+    + LoadNewLevel(mapIndex:int) : void
+    - OnStartMap(id:int, batch:int, map:Map) : void
+    OnApplicationQuit() : void
+    + SetLevelPlayState(newState:LevelPlayState) : void
+    + LevelComplete() : void
+    + CheckEndOfBatch() : void
+    + EndGame() : void
+    OnEnable() : void
+    OnDisable() : void
+    OnLevelFinishedLoading(scene:Scene, mode:LoadSceneMode) : void
+    OnDestroy() : void
+    + LoadForm() : void
+    + LoadNewBatch() : void
+    + UpdateKeyGUI() : void
+    + UpdateRoomGUI(x:int, y:int) : void
+    + UpdateLevelGUI() : void
+    + ChangeMusic(music:AudioClip) : void
+    + GameOver() : void
+    + RestartGame() : void
+    + MainMenu() : void
+    + EasyMode() : void
+    + MediumMode() : void
+    + HardMode() : void
+}
+enum LevelPlayState {
+    InProgress,
+    Won,
+    Lost,
+    Skip,
+    Quit,
+}
+MonoBehaviour <|-- GameManager
+GameManager +-- LevelPlayState
+@enduml

@@ -31,7 +31,9 @@ public class EnemyController : MonoBehaviour
     protected HealthController healthCtrl;
     protected SpriteRenderer sr;
     protected Rigidbody2D rb;
-
+    /// <summary>
+    /// Awakes this instance.
+    /// </summary>
     private void Awake()
     {
 
@@ -42,12 +44,17 @@ public class EnemyController : MonoBehaviour
         healthCtrl = gameObject.GetComponent<HealthController>();
         rb = gameObject.GetComponent<Rigidbody2D>();
     }
-    // Use this for initialization
+    // Use this for initialization    
+    /// <summary>
+    /// Starts this instance.
+    /// </summary>
     void Start()
     {
         
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
     // Update is called once per frame
     void FixedUpdate()
     {
@@ -178,7 +185,11 @@ public class EnemyController : MonoBehaviour
         anim.SetFloat("DirX", movement.x);
         anim.SetFloat("DirY", movement.y);
     }
-
+    /// <summary>
+    /// Loads the enemy data.
+    /// </summary>
+    /// <param name="enemyData">The enemy data.</param>
+    /// <param name="index">The index.</param>
     public void LoadEnemyData(EnemySO enemyData, int index)
     {
         healthCtrl.SetHealth(enemyData.health);
@@ -238,11 +249,17 @@ public class EnemyController : MonoBehaviour
         gameObject.transform.Find("EnemyHead").GetComponent<SpriteRenderer>().color = headColor;
     }
 
+    /// <summary>
+    /// Sets the room.
+    /// </summary>
+    /// <param name="_room">The room.</param>
     public void SetRoom(RoomBHV _room)
     {
         room = _room;
     }
-
+    /// <summary>
+    /// Shoots this instance.
+    /// </summary>
     protected void Shoot()
     {
         Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);

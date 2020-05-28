@@ -1,0 +1,5 @@
+@startuml
+class WeaponTypeRuntimeSetSO {
+}
+"RuntimeSetSO`1" "<WeaponTypeSO>" <|-- WeaponTypeRuntimeSetSO
+@enduml

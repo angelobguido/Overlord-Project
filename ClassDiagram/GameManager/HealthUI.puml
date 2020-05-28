@@ -1,0 +1,13 @@
+@startuml
+class HealthUI {
+    - heartList : List<Image>
+    # fullheartSprite : Sprite
+    # emptyheartSprite : Sprite
+    - Awake() : void
+    Start() : void
+    Update() : void
+    + CreateHeartImage() : void
+    + OnDamage(health:int) : void
+}
+MonoBehaviour <|-- HealthUI
+@enduml

@@ -1,0 +1,24 @@
+@startuml
+class BombController {
+    - popSnd : AudioClip
+    - audioSrc : AudioSource
+    - rb : Rigidbody2D
+    - animator : Animator
+    - canDestroy : bool
+    - hasBeenThrown : bool
+    - hasTimerBeenSet : bool
+    - isExploding : bool
+    + damage : int
+    + enemyThatShot : int
+    # bombLifetime : float
+    # bombCountdown : float
+    Awake() : void
+    Update() : void
+    + DestroyBomb() : void
+    + SetEnemyThatShot(_index:int) : void
+    + Shoot(facingDirection:Vector2) : void
+    - CheckIfStopped() : bool
+    - ExplodeBomb() : void
+}
+MonoBehaviour <|-- BombController
+@enduml

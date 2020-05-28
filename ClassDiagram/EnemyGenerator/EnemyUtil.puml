@@ -1,0 +1,27 @@
+@startuml
+class EnemyUtil <<static>> {
+    + <<const>> popSize : int = 10000
+    + <<const>> crossChance : int = 99
+    + <<const>> mutChance : int = 10
+    + <<const>> maxGenerations : int = 30
+    + {static} desiredFitness : float
+    + <<const>> easyFitness : float = 14f
+    + <<const>> mediumFitness : float = 17.5f
+    + <<const>> hardFitness : float = 22.5f
+    + <<const>> nBestEnemies : int = 20
+    + <<const>> minDamage : int = 1
+    + <<const>> maxDamage : int = 4
+    + <<const>> minHealth : int = 1
+    + <<const>> maxHealth : int = 5
+    + <<const>> minAtkSpeed : float = 0.75f
+    + <<const>> maxAtkSpeed : float = 4.0f
+    + <<const>> minMoveSpeed : float = 0.8f
+    + <<const>> maxMoveSpeed : float = 3.2f
+    + <<const>> minActivetime : float = 1.5f
+    + <<const>> maxActiveTime : float = 10
+    + <<const>> minResttime : float = 0.3f
+    + <<const>> maxRestTime : float = 1.5f
+    + <<const>> minProjectileSpeed : float = 1
+    + <<const>> maxProjectileSpeed : float = 4
+}
+@enduml

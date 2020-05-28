@@ -1,0 +1,14 @@
+@startuml
+class FormBHV {
+    + questionsData : FormQuestionsData
+    + questionPrefab : GameObject
+    + questionsPanel : RectTransform
+    + submitButton : RectTransform
+    + extraQuestionsPanelHeight : float = 100
+    - questions : List<FormQuestionBHV>
+    Start() : void
+    Update() : void
+    + Submit() : void
+}
+MonoBehaviour <|-- FormBHV
+@enduml

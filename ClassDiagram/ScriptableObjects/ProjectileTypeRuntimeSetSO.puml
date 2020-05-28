@@ -1,0 +1,5 @@
+@startuml
+class ProjectileTypeRuntimeSetSO {
+}
+"RuntimeSetSO`1" "<ProjectileTypeSO>" <|-- ProjectileTypeRuntimeSetSO
+@enduml

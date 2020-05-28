@@ -1,0 +1,64 @@
+@startuml
+class CombatRoomInfo <<struct>> {
+    + roomId : int
+    + hasEnemies : bool
+    + nEnemies : int
+    + enemiesIndex : List<int>
+    + playerInitHealth : int
+    + playerFinalHealth : int
+    + timeToExit : int
+}
+class PlayerProfile {
+    + {static} instance : PlayerProfile = null
+    - roomID : int = 0
+    - <<const>> PostDataURL : string = "http://damicore.icmc.usp.br/pag/data/upload.php?"
+    - attemptNumber : int = 1
+    + sessionUID : string
+    - profileString : string
+    - heatMapString : string
+    - enemyString : string
+    - mapCount : int = 0
+    - curMapId : int
+    - curBatchId : int
+    - visitedRooms : List<Vector2Int>
+    - mapVisitedCount : int = 0
+    - mapVisitedCountUnique : int = 0
+    - keysTaken : int = 0
+    - keysUsed : int = 0
+    - formAnswers : List<int>
+    - secondsToFinish : int = 0
+    stopWatch : System.Diagnostics.Stopwatch
+    - heatMap : int[,]
+    # combatInfoList : List<CombatRoomInfo>
+    # difficultyLevel : int
+    # damageDoneByEnemy : List<int>
+    # timesPlayerDied : int
+    # hasFinished : bool
+    # actualRoomInfo : CombatRoomInfo
+    - result : string
+    Awake() : void
+    Start() : void
+    Update() : void
+    + OnGameStart() : void
+    + OnRoomFailEnter(offset:Vector2Int) : void
+    + OnRoomEnter(x:int, y:int, hasEnemies:bool, enemyList:List<int>, playerHealth:int) : void
+    + OnRoomFailExit(offset:Vector2Int) : void
+    + OnRoomExit(offset:Vector2Int, playerHealth:int) : void
+    + OnKeyUsed(id:int) : void
+    + OnMapStart(id:int, batch:int, rooms:Room[,]) : void
+    - OnApplicationQuit() : void
+    + OnMapComplete(victory:bool) : void
+    + OnGetKey(id:int) : void
+    + OnFormAnswered(answer:int) : void
+    - WrapProfileToString() : void
+    - WrapEnemyProfileToString() : void
+    - WrapHeatMapToString() : void
+    - SendProfileToServer() : void
+    PostData(name:string, stringData:string, heatMapData:string, enemyData:string) : IEnumerator
+    + CreateHeatMap(rooms:Room[,]) : int[,]
+    + OnEnemyDoesDamage(index:int, damage:int) : void
+    + OnDeath() : void
+    + OnRetry() : void
+}
+MonoBehaviour <|-- PlayerProfile
+@enduml

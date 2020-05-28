@@ -1,0 +1,17 @@
+@startuml
+class Location {
+    + X : int
+    + Y : int
+    + F : int
+    + G : int
+    + H : int
+    + Parent : Location
+}
+class AStar {
+    {static} sizeX : int
+    {static} sizeY : int
+    + FindRoute(dun:Dungeon, matrixOffset:int) : int
+    {static} GetWalkableAdjacentSquares(x:int, y:int, map:int[,]) : List<Location>
+    {static} ComputeHScore(x:int, y:int, targetX:int, targetY:int) : int
+}
+@enduml

@@ -1,0 +1,11 @@
+@startuml
+class Util <<static>> {
+    + {static} colorId : Color[]
+    + {static} LogNormalization(value:float, minValue:float, maxValue:float, minNormalized:float, maxNormalized:float) : float
+    + <<const>> nSpawnPointsVer : int = 4
+    + <<const>> nSpawnPointsHor : int = 4
+    + <<const>> distFromBorder : int = 1
+    + <<const>> defaultRoomSizeX : int = 19
+    + <<const>> defaultRoomSizeY : int = 19
+}
+@enduml

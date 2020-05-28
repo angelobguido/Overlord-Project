@@ -1,0 +1,28 @@
+@startuml
+class DoorBHV {
+    + keyID : int
+    + isOpen : bool
+    + isClosedByEnemies : bool
+    + lockedSprite : Sprite
+    + closedSprite : Sprite
+    + openedSprite : Sprite
+    + teleportTransform : Transform
+    - destination : DoorBHV
+    - parentRoom : RoomBHV
+    - unlockSnd : AudioClip
+    - audioSrc : AudioSource
+    - Awake() : void
+    Start() : void
+    Update() : void
+    OnTriggerEnter2D(other:Collider2D) : void
+    - MovePlayerToNextRoom() : void
+    + SetDestination(other:DoorBHV) : void
+    - OnRoomFailEnter() : void
+    - OnRoomFailExit() : void
+    - OnRoomExit(playerHealth:int) : void
+    - OnKeyUsed(id:int) : void
+    + OpenDoor() : void
+    + OpenDoorAfterKilling() : void
+}
+MonoBehaviour <|-- DoorBHV
+@enduml
