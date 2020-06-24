@@ -10,6 +10,9 @@ public class HealthUI : MonoBehaviour
 
     [SerializeField] 
     protected Sprite fullheartSprite, emptyheartSprite;
+    protected float multiplier = 1.7f;
+    protected int scale = 3;
+    protected int delta = 35;
 
       
     private void Awake()
@@ -23,7 +26,6 @@ public class HealthUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
 
 
@@ -36,7 +38,7 @@ public class HealthUI : MonoBehaviour
 
         heartList = new List<Image>();
 
-        float rowColSize = fullheartSprite.rect.size.x*1.1f;
+        float rowColSize = fullheartSprite.rect.size.x* multiplier;
         int actualHealth = Player.instance.GetComponent<HealthController>().GetHealth();
 
         for (int i = 0; i < Player.instance.GetComponent<PlayerController>().GetMaxHealth(); i++)
@@ -47,13 +49,13 @@ public class HealthUI : MonoBehaviour
             GameObject heartGameObject = new GameObject("Heart", typeof(Image));
 
             // Set as child of this transform
-            heartGameObject.transform.parent = transform;
+            heartGameObject.transform.SetParent(transform, false);
             heartGameObject.transform.localPosition = Vector3.zero;
-            heartGameObject.transform.localScale = new Vector3(2, 2, 1);
+            heartGameObject.transform.localScale = new Vector3(scale, scale, 1);
 
             // Locate and Size heart
             heartGameObject.GetComponent<RectTransform>().anchoredPosition = heartAnchoredPosition;
-            heartGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(35, 35);
+            heartGameObject.GetComponent<RectTransform>().sizeDelta = new Vector2(delta, delta);
 
             // Set heart sprite
             Image heartImageUI = heartGameObject.GetComponent<Image>();

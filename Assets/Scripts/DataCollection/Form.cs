@@ -14,14 +14,14 @@ public class Form : MonoBehaviour {
         Debug.Log("Open Form in Browser");
         Application.OpenURL("http://unity3d.com/");
     }
-    public void Continue()
+    /*public void Continue()
     {
 
         Debug.Log("Load New Batch");
         
         GameManager gm = GameManager.instance;
         gm.LoadNewBatch();
-    }
+    }*/
     public void Quit()
     {
         Application.Quit();

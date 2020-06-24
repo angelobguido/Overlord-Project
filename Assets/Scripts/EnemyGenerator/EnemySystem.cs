@@ -16,12 +16,6 @@ public class EnemySystem : ComponentSystem
     protected override void OnUpdate()
     {
 
-        /*Entities.ForEach((ref Translation translation, ref EnemyComponent enemyComponent) => {
-            Vector3 _playerPos = GameManagerTest.instance.GetPlayerPos();
-            MovementType enemyMovement = GetMovementType(enemyComponent.movement);
-            translation.Value += (float3)(enemyComponent.movementSpeed * enemyMovement(_playerPos, translation.Value) * Time.deltaTime);
-        });*/
-
     }
 
     //Returns the type of movement the enemy has

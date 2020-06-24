@@ -16,7 +16,8 @@ public class GameManagerTest : MonoBehaviour
     {
         easy,
         medium,
-        hard
+        hard,
+        veryhard
     };
 
     //singleton
@@ -113,6 +114,9 @@ public class GameManagerTest : MonoBehaviour
             case DifficultyEnum.hard:
                 EnemyUtil.desiredFitness = EnemyUtil.hardFitness;
                 break;
+            case DifficultyEnum.veryhard:
+                EnemyUtil.desiredFitness = EnemyUtil.veryHardFitness;
+                break;
             default:
                 EnemyUtil.desiredFitness = EnemyUtil.mediumFitness;
                 break;
@@ -204,7 +208,7 @@ public class GameManagerTest : MonoBehaviour
             );
         }
 #endif
-        GameManager.instance.createEnemy = true;
+        //GameManager.instance.createEnemy = true;
         //Kill the temporary arrays to free memory
         //enemyPopulationArray.Dispose();
         //intermediateEnemyPopulationArray.Dispose();
@@ -217,7 +221,7 @@ public class GameManagerTest : MonoBehaviour
             timeAfterSort = Time.realtimeSinceStartup - startTime;
             if (!enemyPrinted)
             {
-                SaveTests();
+                
                 /*Debug.Log("Fitness: " + enemyPop[bestIdx].fitness);
                 Debug.Log("Health: " + enemyPop[bestIdx].health);
                 Debug.Log("damage: " + enemyPop[bestIdx].damage);
@@ -227,8 +231,9 @@ public class GameManagerTest : MonoBehaviour
                 Debug.Log("resttime: " + enemyPop[bestIdx].restTime);*/
                 enemyPrinted = true;
 #if UNITY_EDITOR
+                SaveTests();
                 //REMOVE THE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                //CreateSOBestEnemies();
+                CreateSOBestEnemies();
                 GameManager.instance.createEnemy = false;
 #endif
                 entityManager.DestroyEntity(enemyPopulationArray);
@@ -257,6 +262,7 @@ public class GameManagerTest : MonoBehaviour
 
     }
 
+#if UNITY_EDITOR
     public void SaveTests()
     {
         bestFitness = enemyPop[0].fitness;
@@ -311,28 +317,42 @@ public class GameManagerTest : MonoBehaviour
         }
         return math.sqrt(stdDevFitness / n);
     }
+#endif
 
 #if UNITY_EDITOR
     public void CreateSOBestEnemies()
     {
         EnemySO[] bestEnemies = new EnemySO[EnemyUtil.nBestEnemies];
         int shift = 0, i = 0;
-        string filename = "Assets/Resources/Enemies/";
+        string foldername = "Assets/Resources/Enemies";
+        string subfoldername;
+        string filename;
         switch (difficulty)
         {
             case DifficultyEnum.easy:
-                filename += "Easy/";
+                subfoldername = "Easy";
                 break;
             case DifficultyEnum.medium:
-                filename += "Medium/";
+                subfoldername = "Medium";
                 break;
             case DifficultyEnum.hard:
-                filename += "Hard/";
+                subfoldername = "Hard";
+                break;
+            case DifficultyEnum.veryhard:
+                subfoldername = "VeryHard";
                 break;
             default:
+                subfoldername = "Unknown";
                 Debug.LogError("Difficulty to Create Enemies not Chosen");
                 break;
         }
+        filename = foldername + "/" + subfoldername + "/";
+        if (!AssetDatabase.IsValidFolder(filename))
+        {
+            Debug.Log("Creating new Folder");
+            AssetDatabase.CreateFolder(foldername, subfoldername);
+        }
+        
         while (i < EnemyUtil.nBestEnemies)
         {
             if (IsEnemyDifferent(i + shift))

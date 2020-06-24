@@ -15,4 +15,4 @@ MonoBehaviour:
   question: "Como voc\xEA melhor classificaria sua experi\xEAncia (conhecimento, tempo
     de jogo, habilidades, etc.) com jogos do g\xEAnero a\xE7\xE3o-aventura (ex: The
     Legend of Zelda, The Binding of Isaac, Darksiders, Uncharted, etc.)?"
-  description: "1 = Muito Pouco Experi\uBBE3ia       <->      5 = Muito Experiente"
+  description: 1 = Muito Pouco Experiente       <->      5 = Muito Experiente

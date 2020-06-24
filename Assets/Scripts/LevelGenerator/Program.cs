@@ -43,7 +43,7 @@ namespace LevelGenerator
             aux = dungeons[0];
         }
 
-        public IEnumerator CreateDungeon(TextMeshProUGUI progressText = null)
+        public void CreateDungeon(TextMeshProUGUI progressText = null)
         {
             int matrixOffset = Constants.MATRIXOFFSET;
             hasFinished = false;
@@ -81,7 +81,7 @@ namespace LevelGenerator
                     dun.fitness = gaObj.Fitness(dun, Constants.nV, Constants.nK, Constants.nL, Constants.lCoef, matrixOffset);
                     //Console.ReadKey();
                     //Console.Clear();
-                    yield return null;
+                    //yield return null;
                 }
 
                 //Elitism
@@ -135,7 +135,7 @@ namespace LevelGenerator
                     {
                         Debug.Log(e.Message);
                         Util.OpenUri("https://stackoverflow.com/search?q=" + e.Message);
-                        yield break;
+                        //yield break;
                     }
                     //Calculate the average number of children from the rooms in each children
                     parent1.CalcAvgChildren();
@@ -145,7 +145,7 @@ namespace LevelGenerator
                     childPop.Add(parent1);
                     childPop.Add(parent2);
                     //Console.WriteLine("Added");
-                    yield return null;
+                    //yield return null;
                 }
 
                 //Elitism
@@ -153,7 +153,7 @@ namespace LevelGenerator
                 dungeons = childPop;
                 //Console.WriteLine("Elit");
                 //Console.WriteLine("GEN "+gen+" COMPLETED!");
-                yield return null;
+                //yield return null;
             }
             /*
             for (int i = 0; i < dungeons.Count; ++i)
@@ -165,7 +165,7 @@ namespace LevelGenerator
             aux = dungeons[0];
             foreach (Dungeon dun in dungeons)
             {
-                gaObj.Fitness(dun, Constants.nV, Constants.nK, Constants.nL, Constants.lCoef, matrixOffset);
+                dun.fitness = gaObj.Fitness(dun, Constants.nV, Constants.nK, Constants.nL, Constants.lCoef, matrixOffset);
                 actual = dun.fitness;
                 if (min > actual)
                 {
@@ -183,13 +183,14 @@ namespace LevelGenerator
             hasFinished = true;
 
             //CSVManager.SaveCSVLevel(id, aux.nKeys, aux.nLocks, aux.RoomList.Count, aux.AvgChildren, aux.neededLocks, aux.neededRooms, min, time, Constants.RESULTSFILE+"-"+Constants.nV+"-" + Constants.nK + "-" + Constants.nL + "-" + Constants.lCoef + ".csv");
-            Debug.Log("Finished");
-            
+            Debug.Log("Finished - fitnes:" + aux.fitness);
+            Debug.Log("R:"+ aux.RoomList.Count+"-K:" + aux.nKeys + "-L:"+ aux.nLocks + "-Lin:"+aux.AvgChildren +"-nL:"+aux.neededLocks+"-nR:"+aux.neededRooms);
+            Debug.Log("nRdelta:"+System.Math.Abs(aux.RoomList.Count * 0.8f - aux.neededRooms)+"-80p:"+ aux.RoomList.Count * 0.8f);
 
             //Console.WriteLine("Saved!");
             //Console.WriteLine("AVGChildren: " + aux.AvgChildren + "Fitness: " + min);
             //Console.WriteLine("Locks: " + aux.nLocks + "Needed: " + aux.neededLocks);
-            //Interface.PrintNumericalGridWithConnections(aux);
+            Interface.PrintNumericalGridWithConnections(aux);
             //Console.WriteLine("OVER!");
             //Console.ReadLine();
             //AStar.FindRoute(aux);

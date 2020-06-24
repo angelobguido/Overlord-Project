@@ -34,7 +34,9 @@ public class PlayerProfile : MonoBehaviour {
     [SerializeField]
     private int mapCount = 0;
     [SerializeField]
-    private int curMapId, curBatchId;
+    private int curBatchId;
+    [SerializeField]
+    private string curMapName;
 
     [SerializeField]
     private List<Vector2Int> visitedRooms = new List<Vector2Int>();
@@ -54,6 +56,9 @@ public class PlayerProfile : MonoBehaviour {
     [SerializeField]
     private int[,] heatMap;
 
+    protected int actualCombo, maxCombo;
+    protected int treasureCollected;
+
     //Enemy Generator Data
     protected List<CombatRoomInfo> combatInfoList;
     protected int difficultyLevel;
@@ -71,6 +76,9 @@ public class PlayerProfile : MonoBehaviour {
         {
             instance = this;
             combatInfoList = new List<CombatRoomInfo>();
+            actualCombo = 0;
+            maxCombo = 0;
+            treasureCollected = 0;
         }
         else if (instance != this)
         {
@@ -84,6 +92,8 @@ public class PlayerProfile : MonoBehaviour {
         // FIXME: utilizar uma ID única corretamente
         string dateTime = System.DateTime.Now.ToString();
         dateTime = dateTime.Replace("/", "-");
+        dateTime = dateTime.Replace(" ", "-");
+        dateTime = dateTime.Replace(":", "-");
         sessionUID = Random.Range(0, 9999).ToString("00");
         sessionUID += "_";
         sessionUID += dateTime;
@@ -96,6 +106,28 @@ public class PlayerProfile : MonoBehaviour {
 		
 	}
 
+    protected void OnEnable()
+    {
+        ProjectileController.hitEnemyEvent += IncrementCombo;
+        ProjectileController.hitPlayerEvent += ResetCombo;
+        TreasureController.collectTreasureEvent += GetTreasure;
+    }
+    public void IncrementCombo()
+    {
+        actualCombo++;
+    }
+
+    public void ResetCombo()
+    {
+        if (actualCombo > maxCombo)
+            maxCombo = actualCombo;
+        actualCombo = 0;
+    }
+
+    public void GetTreasure(int value)
+    {
+        treasureCollected += value;
+    }
     public void OnGameStart()
     {
         profileString = "";
@@ -110,11 +142,12 @@ public class PlayerProfile : MonoBehaviour {
         formAnswers = new List<int>();
         secondsToFinish = 0;
         stopWatch = new System.Diagnostics.Stopwatch();
-
+        actualCombo = 0;
+        treasureCollected = 0;
+        maxCombo = 0;
         //Enemy Generator Data
         combatInfoList = new List<CombatRoomInfo>();
         difficultyLevel = -1;
-        damageDoneByEnemy = new int[EnemyUtil.nBestEnemies].ToList();
         timesPlayerDied = 0;
         hasFinished = false; //0 if player gave up, 1 if he completed the stage 
     }
@@ -176,17 +209,17 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From GameManager
-    public void OnMapStart (int id, int batch, Room[,] rooms)
+    public void OnMapStart (string name, int batch, Room[,] rooms, int difficulty)
     {
         mapCount++;
-        curMapId = id;
+        curMapName = name;
         curBatchId = batch;
         stopWatch.Start();
         heatMap = CreateHeatMap(rooms);
         combatInfoList = new List<CombatRoomInfo>();
         attemptNumber++;
-
-        difficultyLevel = id;
+        damageDoneByEnemy = new int[EnemyUtil.nBestEnemies].ToList();
+        difficultyLevel = difficulty;
         //Log
         //Mais métricas - organiza em TAD
     }
@@ -208,6 +241,7 @@ public class PlayerProfile : MonoBehaviour {
         //visitedRooms = visitedRooms.Distinct();
         mapVisitedCount = visitedRooms.Count;
         mapVisitedCountUnique = visitedRooms.Distinct().Count();
+        ResetCombo();
 
         hasFinished = victory;
         //Save to remote file
@@ -218,6 +252,10 @@ public class PlayerProfile : MonoBehaviour {
         keysTaken = 0;
         keysUsed = 0;
         profileString = "";
+        maxCombo = 0;
+        actualCombo = 0;
+        treasureCollected = 0;
+        damageDoneByEnemy.Clear();
     }
 
     //From KeyBHV
@@ -238,7 +276,10 @@ public class PlayerProfile : MonoBehaviour {
     private void WrapProfileToString ()
     {
         profileString = "";
-        profileString += "\nmapCount,"+mapVisitedCount + ",uniquemap," + mapVisitedCountUnique + ",keys," + keysTaken + ",locks," + keysUsed + ",time,"+ secondsToFinish;
+        profileString += "\nmapCount,"+mapVisitedCount + ",uniquemap," + 
+            mapVisitedCountUnique + ",keys," + keysTaken + 
+            ",locks," + keysUsed + ",time,"+ secondsToFinish + ",maxCombo,"+
+            maxCombo+",treasure,"+treasureCollected;
 
     }
 
@@ -303,10 +344,38 @@ public class PlayerProfile : MonoBehaviour {
         WrapProfileToString();
         WrapHeatMapToString();
         WrapEnemyProfileToString();
-        StartCoroutine(PostData("Batch"+curBatchId.ToString() +"Map" + curMapId.ToString(), profileString, heatMapString, enemyString)); //TODO: verificar corretamente como serão salvos os arquivos
-
+        //StartCoroutine(PostData("Batch"+curBatchId.ToString() +"Map" + curMapName, profileString, heatMapString, enemyString)); //TODO: verificar corretamente como serão salvos os arquivos
+        saveToLocalFile("Batch" + curBatchId.ToString() + "Map" + curMapName, profileString, heatMapString, enemyString);
         string UploadFilePath = PlayerProfile.instance.sessionUID;
 
+
+    }
+
+    void saveToLocalFile(string name, string stringData, string heatMapData, string enemyData)
+    {
+        stringData = sessionUID + "," + stringData;
+        if (!Directory.Exists(Application.streamingAssetsPath+"/PlayerData"))
+            Directory.CreateDirectory(Application.streamingAssetsPath + "/PlayerData");
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        {
+            writer.Write(stringData);
+            writer.Flush();
+            writer.Close();
+        }
+
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "HM" + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        {
+            writer.Write(heatMapData);
+            writer.Flush();
+            writer.Close();
+        }
+
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "Enemy" + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        {
+            writer.Write(enemyData);
+            writer.Flush();
+            writer.Close();
+        }
 
     }
 
@@ -325,7 +394,6 @@ public class PlayerProfile : MonoBehaviour {
         form.AddBinaryData("data", data, name + "_Attempt" + attemptNumber + ".csv", "text/csv");
         form.AddBinaryData("heatmap", heatMapBinary, "HM"+name + "_Attempt" + attemptNumber + ".csv", "text/csv");
         form.AddBinaryData("enemy", enemyBinary, "Enemy" + name + "_Attempt" + attemptNumber + ".csv", "text/csv");
-
 
         // Post the URL to the site and create a download object to get the result.
         WWW data_post = new WWW(post_url, form);

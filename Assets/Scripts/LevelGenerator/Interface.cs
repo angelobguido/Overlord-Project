@@ -1,9 +1,11 @@
 ﻿using LevelGenerator;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using UnityEditor;
 
 namespace LevelGenerator
 {
@@ -223,10 +225,10 @@ namespace LevelGenerator
             RoomGrid grid = dun.roomGrid;
             Type type;
             int x, y, iPositive, jPositive;
-            string filename = "..\\data.txt";
-            string filenameRG = "..\\dataRoomGenerator.txt";
+            string foldername = "Assets/Resources/Levels/";
+            string filename, dungeonData = "";
             bool isRoom;
-
+            filename = "R" + Constants.nV + "-K" + Constants.nK + "-L" + Constants.nL + "-L" + Constants.lCoef;
             List<int> lockedRooms = new List<int>();
             List<int> keys = new List<int>();
             int minX, minY, maxX, maxY;
@@ -255,12 +257,13 @@ namespace LevelGenerator
             int sizeX = maxX - minX + 1;
             int sizeY = maxY - minY + 1;
             int[,] map = new int[2 * sizeX, 2 * sizeY];
-
+            dungeonData += 2*sizeX + "\n";
+            dungeonData += 2*sizeY + "\n";
             for (int i = 0; i < 2 * sizeX; ++i)
             {
                 for (int j = 0; j < 2 * sizeY; ++j)
                 {
-                    map[i, j] = 101;
+                    map[i, j] = Util.RoomType.NOTHING;
                 }
             }
 
@@ -282,7 +285,10 @@ namespace LevelGenerator
                         type = actualRoom.Type;
                         if (type == Type.normal)
                         {
-                            map[iPositive * 2, jPositive * 2] = 0;
+                            if(actualRoom.IsLeafNode())
+                                map[iPositive * 2, jPositive * 2] = Util.RoomType.TREASURE;
+                            else
+                                map[iPositive * 2, jPositive * 2] = Util.RoomType.EMPTY;
                         }
                         else if (type == Type.key)
                         {
@@ -291,9 +297,9 @@ namespace LevelGenerator
                         else if (type == Type.locked)
                         {
                             if (lockedRooms.IndexOf(actualRoom.KeyToOpen) == lockedRooms.Count - 1)
-                                map[iPositive * 2, jPositive * 2] = 102;
+                                map[iPositive * 2, jPositive * 2] = Util.RoomType.BOSS;
                             else
-                                map[iPositive * 2, jPositive * 2] = 0;
+                                map[iPositive * 2, jPositive * 2] = Util.RoomType.EMPTY;
                         }
                         else
                         {
@@ -309,7 +315,7 @@ namespace LevelGenerator
                             if (type == Type.locked)
                                 map[x, y] = -(keys.IndexOf(actualRoom.KeyToOpen) + 1);
                             else
-                                map[x, y] = 100;
+                                map[x, y] = Util.RoomType.CORRIDOR;
                         }
                     }
                     else
@@ -318,154 +324,175 @@ namespace LevelGenerator
                     }
                 }
             }
-            using (StreamWriter writer = new StreamWriter(filename, false, Encoding.UTF8))
+
+            for (int i = 0; i < sizeX * 2; ++i)
             {
-                using (StreamWriter writerRG = new StreamWriter(filenameRG, false, Encoding.UTF8))
+                for (int j = 0; j < sizeY * 2; ++j)
                 {
-                    writer.WriteLine(sizeX * 2);
-                    writer.WriteLine(sizeY * 2);
-                    writerRG.WriteLine(sizeX * 2);
-                    writerRG.WriteLine(sizeY * 2);
-                    for (int i = 0; i < sizeX * 2; ++i)
+                    isRoom = false;
+                    if (map[i, j] == Util.RoomType.EMPTY)
                     {
-                        for (int j = 0; j < sizeY * 2; ++j)
+                        Console.ForegroundColor = ConsoleColor.DarkCyan;
+
+                    }
+                    else if (map[i, j] == Util.RoomType.CORRIDOR)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                    }
+                    else if (map[i, j] == 7)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
+                    else if (map[i, j] == Util.RoomType.NOTHING)
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    else if (map[i, j] == Util.RoomType.BOSS)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
+                    else if (map[i, j] > 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    }
+                    else if (map[i, j] < 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                    }
+
+
+                    if (map[i, j] == Util.RoomType.NOTHING)
+                    {
+                        Console.Write("  ");
+                        //writer.WriteLine(" ");
+                    }
+                    else
+                    {
+                        dungeonData += i + "\n";
+                        dungeonData += j + "\n";
+                        //writerRG.WriteLine(i);
+                        //writerRG.WriteLine(j);
+                        if (i + minX * 2 == 0 && j + minY * 2 == 0)
                         {
-                            isRoom = false;
-                            if (map[i, j] == 0)
-                            {
-                                Console.ForegroundColor = ConsoleColor.DarkCyan;
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write(" s");
+                            dungeonData += "s\n";
+                            //writerRG.WriteLine("s");
+                            isRoom = true;
+                        }
+                        else if (map[i, j] == Util.RoomType.CORRIDOR)
+                        {
+                            Console.Write(" c");
+                            dungeonData += "c\n";
+                            //writerRG.WriteLine("c");
+                        }
+                        else if (map[i, j] == Util.RoomType.BOSS)
+                        {
+                            Console.Write(" B");
+                            dungeonData += "B\n";
+                            //writerRG.WriteLine("B");
+                            isRoom = true;
+                        }
+                        else if (map[i, j] < 0)
+                        {
+                            Console.Write("{0,2}", map[i, j]);
+                            dungeonData += map[i, j] + "\n";
+                            //writerRG.WriteLine(map[i, j]);
+                        }
+                        else if (map[i, j] == Util.RoomType.TREASURE)
+                        {
+                            Console.Write("{0,2}", map[i, j]);
+                            dungeonData += "T\n";
+                            //writerRG.WriteLine("T");
+                            isRoom = true;
+                        }
+                        else if (map[i, j] > 0)
+                        {
+                            Console.Write("{0,2}", map[i, j]);
+                            dungeonData += map[i, j] + "\n";
+                            //writerRG.WriteLine(map[i, j]);
+                            isRoom = true;
+                        }
+                        else
+                        {
+                            Console.Write("{0,2}", map[i, j]);
+                            dungeonData += map[i, j] + "\n";
+                            //writerRG.WriteLine(map[i, j]);
+                            isRoom = true;
+                        }
 
-                            }
-                            else if (map[i, j] == 100)
+                        /*if (isRoom)
+                        {
+                            if (j > 0)
                             {
-                                Console.ForegroundColor = ConsoleColor.Magenta;
-                            }
-                            else if (map[i, j] == 7)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                            }
-                            else if (map[i, j] == 101)
-                            {
-                                Console.ForegroundColor = ConsoleColor.White;
-                            }
-                            else if (map[i, j] == 102)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Yellow;
-                            }
-                            else if (map[i, j] > 0)
-                            {
-                                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                            }
-                            else if (map[i, j] < 0)
-                            {
-                                Console.ForegroundColor = ConsoleColor.DarkRed;
-                            }
-
-
-                            if (map[i, j] == 101)
-                            {
-                                Console.Write("  ");
-                                //writer.WriteLine(" ");
+                                if (map[i, j - 1] < 0 || map[i, j - 1] == Util.RoomType.CORRIDOR)
+                                    writerRG.WriteLine(1);
+                                else
+                                    writerRG.WriteLine(0);
                             }
                             else
+                                writerRG.WriteLine(0);
+                            if (i < sizeX * 2 - 1)
                             {
-                                writer.WriteLine(i);
-                                writer.WriteLine(j);
-                                writerRG.WriteLine(i);
-                                writerRG.WriteLine(j);
-                                if (i + minX * 2 == 0 && j + minY * 2 == 0)
-                                {
-                                    Console.ForegroundColor = ConsoleColor.Cyan;
-                                    Console.Write(" s");
-                                    writer.WriteLine("s");
-                                    writerRG.WriteLine("s");
-                                    isRoom = true;
-                                }
-                                else if (map[i, j] == 100)
-                                {
-                                    Console.Write(" c");
-                                    writer.WriteLine("c");
-                                    writerRG.WriteLine("c");
-                                }
-                                else if (map[i, j] == 102)
-                                {
-                                    Console.Write(" B");
-                                    writer.WriteLine("B");
-                                    writerRG.WriteLine("B");
-                                    isRoom = true;
-                                }
-                                else if (map[i, j] < 0)
-                                {
-                                    Console.Write("{0,2}", map[i, j]);
-                                    writer.WriteLine(map[i, j]);
-                                    writerRG.WriteLine(map[i, j]);
-                                }
-                                else if (map[i, j] > 0)
-                                {
-                                    Console.Write("{0,2}", map[i, j]);
-                                    writer.WriteLine(map[i, j]);
-                                    writerRG.WriteLine(map[i, j]);
-                                    isRoom = true;
-                                }
+                                if (map[i + 1, j] < 0 || map[i + 1, j] == Util.RoomType.CORRIDOR)
+                                    writerRG.WriteLine(1);
                                 else
-                                {
-                                    Console.Write("{0,2}", map[i, j]);
-                                    writer.WriteLine(map[i, j]);
-                                    writerRG.WriteLine(map[i, j]);
-                                    isRoom = true;
-                                }
-
-                                if (isRoom)
-                                {
-                                    if (j > 0)
-                                    {
-                                        if (map[i, j - 1] < 0 || map[i, j - 1] == 100)
-                                            writerRG.WriteLine(1);
-                                        else
-                                            writerRG.WriteLine(0);
-                                    }
-                                    else
-                                        writerRG.WriteLine(0);
-                                    if (i < sizeX * 2 - 1)
-                                    {
-                                        if (map[i + 1, j] < 0 || map[i + 1, j] == 100)
-                                            writerRG.WriteLine(1);
-                                        else
-                                            writerRG.WriteLine(0);
-                                    }
-                                    else
-                                        writerRG.WriteLine(0);
-                                    if (j < sizeY * 2 - 1)
-                                    {
-                                        if (map[i, j + 1] < 0 || map[i, j + 1] == 100)
-                                            writerRG.WriteLine(1);
-                                        else
-                                            writerRG.WriteLine(0);
-                                    }
-                                    else
-                                        writerRG.WriteLine(0);
-                                    if (i > 0)
-                                    {
-                                        if (map[i - 1, j] < 0 || map[i - 1, j] == 100)
-                                            writerRG.WriteLine(1);
-                                        else
-                                            writerRG.WriteLine(0);
-                                    }
-                                    else
-                                        writerRG.WriteLine(0);
-                                }
+                                    writerRG.WriteLine(0);
                             }
-                        }
-                        Console.Write("\n");
-                        //writer.Write("\r\n");
+                            else
+                                writerRG.WriteLine(0);
+                            if (j < sizeY * 2 - 1)
+                            {
+                                if (map[i, j + 1] < 0 || map[i, j + 1] == Util.RoomType.CORRIDOR)
+                                    writerRG.WriteLine(1);
+                                else
+                                    writerRG.WriteLine(0);
+                            }
+                            else
+                                writerRG.WriteLine(0);
+                            if (i > 0)
+                            {
+                                if (map[i - 1, j] < 0 || map[i - 1, j] == Util.RoomType.CORRIDOR)
+                                    writerRG.WriteLine(1);
+                                else
+                                    writerRG.WriteLine(0);
+                            }
+                            else
+                                writerRG.WriteLine(0);
+                        }*/
                     }
+                }
+                Console.Write("\n");
+                //writer.Write("\r\n");
+            }
+            int count = 0;
+            string path;
+#if UNITY_EDITOR
+            path = AssetDatabase.AssetPathToGUID(foldername + filename + ".txt");
+            while (path != "")
+            {
+                count++;
+                path = AssetDatabase.AssetPathToGUID(foldername + filename + count + ".txt");
+            }
+#endif
+            if (count > 0)
+                filename += count;
+            filename = foldername + filename + ".txt";
+            UnityEngine.Debug.Log("Filename: " + filename);
+            using (StreamWriter writer = new StreamWriter(filename, false, Encoding.UTF8))
+            {
+                UnityEngine.Debug.Log("Writing dungeon data");
+                //using (StreamWriter writerRG = new StreamWriter(filenameRG, false, Encoding.UTF8))
+                //{
+                    writer.Write(dungeonData);
                     writer.Flush();
                     writer.Close();
-                    writerRG.Flush();
-                    writerRG.Close();
+                    //writerRG.Flush();
+                    //writerRG.Close();
                     Console.Write("\n");
-                }
+                //}
             }
+            UnityEngine.Debug.Log("Finished Writing dungeon data");
         }
     }
 }

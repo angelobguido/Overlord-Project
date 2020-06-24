@@ -15,3 +15,10 @@ MonoBehaviour:
   multiplier: 1
   projectilePrefab: {fileID: 1699235863348634, guid: da52802c0295cf84f8ba4c2fee2ba6b4,
     type: 3}
+  damage: 1
+  atkSpeed: 0.5
+  moveSpeed: 10
+  projectileBehaviorIndex: 0
+  projectileName: 
+  description: "Atira um proj\xE9til \xE0 sua frente."
+  color: {r: 0, g: 0, b: 0, a: 0}

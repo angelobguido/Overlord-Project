@@ -7,11 +7,12 @@ public class RoomBHV : MonoBehaviour {
 
 	public int x;
 	public int y;
-	public int northDoor = -1; //-1 for non-existant
-	public int southDoor = -1;
-	public int eastDoor = -1;
-	public int westDoor = -1;
+	public List<int> northDoor; 
+	public List<int> southDoor;
+	public List<int> eastDoor;
+	public List<int> westDoor;
 	public int availableKeyID = 0;
+    public int treasureID = -1;
 	public bool isStart = false;
 	public bool isEnd = false;
 
@@ -27,7 +28,7 @@ public class RoomBHV : MonoBehaviour {
 
 	public KeyBHV keyPrefab;
     public TriforceBHV triPrefab;
-
+    public TreasureController treasurePrefab;
 
     public Collider2D colNorth;
 	public Collider2D colSouth;
@@ -45,6 +46,11 @@ public class RoomBHV : MonoBehaviour {
     {
         hasEnemies = true;
         enemiesIndex = new List<int>();
+        //null for non-existant
+        northDoor = new List<int>();
+        southDoor = new List<int>();
+        eastDoor = new List<int>();
+        westDoor = new List<int>();
         enemiesDead = 0;
     }
 
@@ -58,6 +64,13 @@ public class RoomBHV : MonoBehaviour {
 			//Debug.Log ("KeyID: " + key.keyID);
 			key.SetRoom (x, y);
 		}
+        if(treasureID > -1)
+        {
+            Debug.Log("This Room has a treasure. Instantiate!");
+            TreasureController treasure = Instantiate(treasurePrefab, transform);
+            treasure.Treasure = GameManager.instance.treasureSet.Items[treasureID];
+            treasure.SetRoom(x, y);
+        }
 		if (isStart){
 			//Algum efeito
 			transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.green;
@@ -72,7 +85,10 @@ public class RoomBHV : MonoBehaviour {
         }
         else
         {
-            SelectEnemies();
+            if (GameManager.instance.enemyMode)
+                SelectEnemies();
+            else
+                hasEnemies = false;
         }
         minimapIcon.transform.localScale = new Vector3(Room.sizeX, Room.sizeY, 1);
     }
@@ -87,7 +103,8 @@ public class RoomBHV : MonoBehaviour {
 		doorSouth.keyID = southDoor;
 		doorEast.keyID = eastDoor;
 		doorWest.keyID = westDoor;
-		float centerX = Room.sizeX / 2.0f - 0.5f;
+
+        float centerX = Room.sizeX / 2.0f - 0.5f;
 		float centerY = Room.sizeY / 2.0f - 0.5f;
 		const float delta = 0.0f; //para que os colisores das portas e das paredes não se sobreponham completamente
 		//Posiciona as portas - são somados/subtraídos 1 para que as portas e colisores estejam periféricos à sala

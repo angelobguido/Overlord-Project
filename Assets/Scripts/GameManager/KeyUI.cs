@@ -32,12 +32,12 @@ public class KeyUI : MonoBehaviour
     {
         int row = 0;
         int col = 0;
-        int colMax = 10;
+        int colMax = 1;
 
 
         keyList = new List<Image>();
-        
-        float rowColSize = keySprite.rect.size.x*1.1f;
+
+        float rowColSize = keySprite.rect.size.x * 2.0f;
 
         foreach(int key in Player.instance.GetComponent<Player>().keys)
         {
@@ -55,9 +55,9 @@ public class KeyUI : MonoBehaviour
             GameObject keyGameObject = new GameObject("Key", typeof(Image));
 
             // Set as child of this transform
-            keyGameObject.transform.parent = transform;
+            keyGameObject.transform.SetParent(transform, false);
             keyGameObject.transform.localPosition = Vector3.zero;
-            keyGameObject.transform.localScale = new Vector3(2, 2, 1);
+            keyGameObject.transform.localScale = new Vector3(3, 3, 1);
 
             // Locate and Size heart
             keyGameObject.GetComponent<RectTransform>().anchoredPosition = keyAnchoredPosition;

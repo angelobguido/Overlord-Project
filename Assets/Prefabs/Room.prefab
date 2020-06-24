@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf8378b01e52be43958c231943c2f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyID: 0
+  keyID: 
   isOpen: 0
   isClosedByEnemies: 0
   lockedSprite: {fileID: -396035294860175646, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -502,7 +502,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf8378b01e52be43958c231943c2f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyID: 0
+  keyID: 
   isOpen: 0
   isClosedByEnemies: 0
   lockedSprite: {fileID: -4815885190406460031, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -732,7 +732,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf8378b01e52be43958c231943c2f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyID: 0
+  keyID: 
   isOpen: 0
   isClosedByEnemies: 0
   lockedSprite: {fileID: 7477116942032994148, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -1375,7 +1375,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cdf8378b01e52be43958c231943c2f07, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  keyID: 0
+  keyID: 
   isOpen: 0
   isClosedByEnemies: 0
   lockedSprite: {fileID: -3627264120405484348, guid: b92c1c44f604d074595ba5ee0e831239,
@@ -1535,10 +1535,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   x: 0
   y: 0
-  northDoor: -1
-  southDoor: -1
-  eastDoor: -1
-  westDoor: -1
+  northDoor: 
+  southDoor: 
+  eastDoor: 
+  westDoor: 
   availableKeyID: 0
   isStart: 0
   isEnd: 0
@@ -1552,6 +1552,8 @@ MonoBehaviour:
   keyPrefab: {fileID: 114071332633170896, guid: ced0218549bee9d46b47102a1253d89a,
     type: 3}
   triPrefab: {fileID: 114081354997558450, guid: 5d0b89090a7988a40b83856f0ca97fd9,
+    type: 3}
+  treasurePrefab: {fileID: 3809042944178231462, guid: 8077682c221f2e64fbc7d07b99c1a5a8,
     type: 3}
   colNorth: {fileID: 61238966288715422}
   colSouth: {fileID: 61780886207372558}

@@ -50,8 +50,8 @@ public class Map {
         {
             int x, y;
             string code;
-            x = int.Parse(NameLines[i++])+1;
-            y = int.Parse(NameLines[i++])+1;
+            x = int.Parse(NameLines[i++]);
+            y = int.Parse(NameLines[i++]);
             code = NameLines[i++];
             Debug.Log("X = " + x + "   y = " + y + "  code = " + code);
 
@@ -61,13 +61,17 @@ public class Map {
             { // ambos pares: sala
                 switch (code)
                 {
-                    case "s":
+                    case "s": //This is the starting room
                         startX = x;
                         startY = y;
                         break;
-                    case "B":
+                    case "B": //This room has the final item
                         endX = x;
                         endY = y;
+                        break;
+                    case "T": //This room has a treasure
+                        rooms[x, y].difficulty = GameManager.instance.dungeonDifficulty;
+                        rooms[x, y].Treasure = Random.Range(0, GameManager.instance.treasureSet.Items.Count);
                         break;
                     default:
                         rooms[x, y].keyID = int.Parse(code);
@@ -79,11 +83,16 @@ public class Map {
             { // corredor (link)
                 if (code != "c")
                 {
-                    rooms[x, y].lockID = -int.Parse(code);
+                    rooms[x, y].lockID.Clear();
+                    do
+                    {
+                        rooms[x, y].lockID.Add(-int.Parse(code));
+                        code = NameLines[i++];
+                    } while (int.Parse(code) < 0);
+                    i--;
                 }
             }
         }
-        
 		Debug.Log ("Dungeon read.");
 	}
 
@@ -190,6 +199,7 @@ public class Map {
                 {
                     rooms[iPositive * 2, jPositive * 2] = new Room(iPositive * 2, jPositive * 2);
                     type = actualRoom.Type;
+                    
                     if (i == 0 && j == 0)
                     {
                         Debug.Log("Found start");
@@ -198,6 +208,11 @@ public class Map {
                     }
                     else if (type == Type.normal)
                     {
+                        if(actualRoom.IsLeafNode())
+                        {
+                            rooms[iPositive * 2, jPositive * 2].Treasure = Random.Range(0, GameManager.instance.treasureSet.Items.Count);
+                            Debug.Log("This is a Leaf Node Room! "+ (iPositive * 2) + " - " + (jPositive * 2));
+                        }
                         rooms[iPositive * 2, jPositive * 2].keyID = 0;
                     }
                     else if (type == Type.key)
@@ -227,7 +242,7 @@ public class Map {
                         corridory = parent.Y - actualRoom.Y + 2 * jPositive;
                         rooms[corridorx, corridory] = new Room(corridorx, corridory);
                         if (type == Type.locked)
-                            rooms[corridorx, corridory].lockID = (keys.IndexOf(actualRoom.KeyToOpen) + 1);
+                            rooms[corridorx, corridory].lockID.Add(keys.IndexOf(actualRoom.KeyToOpen) + 1);
                     }
                 }
             }

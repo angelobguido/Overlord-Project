@@ -13,17 +13,12 @@ public class Player : PlaceableRoomObject {
 	public Camera minimap;
     private AudioSource audioSrc;
 
-	private ProjectileController pc;
-
-	protected int actualCombo, maxCombo;
-
 	void Awake(){
 		if (instance == null){
 			instance = this;
             audioSrc = GetComponent<AudioSource>();
-			actualCombo = 0;
 
-        } else if (instance != this){
+		} else if (instance != this){
 			Destroy (gameObject);
 		}
 		DontDestroyOnLoad (gameObject);
@@ -32,13 +27,7 @@ public class Player : PlaceableRoomObject {
 
 	private void OnEnable()
 	{
-		ProjectileController.hitEnemyEvent += IncrementCombo;
-	}
-
-	public void IncrementCombo()
-	{
-		actualCombo++;
-		Debug.Log("Combo: " + actualCombo);
+		
 	}
 
 	// Use this for initialization
@@ -59,7 +48,7 @@ public class Player : PlaceableRoomObject {
 	public void AdjustCamera(int x, int y){
 		GameManager gm = GameManager.instance;
 		Transform roomTransf = gm.roomBHVMap [x, y].transform;
-		cam.transform.position = new Vector3 (roomTransf.position.x + Room.sizeX/2.5f, roomTransf.position.y, -5f);
+		cam.transform.position = new Vector3 (roomTransf.position.x + Room.sizeX/3.5f, roomTransf.position.y, -5f);
 		//minimap.transform.position = new Vector3(roomTransf.position.x, roomTransf.position.y, -5f);
 	}
 		

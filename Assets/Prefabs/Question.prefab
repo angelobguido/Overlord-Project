@@ -795,8 +795,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   value: 0
   toggles: []
-  questionText: {fileID: 0}
-  descriptionText: {fileID: 0}
+  questionText: {fileID: 114771760026580438}
+  descriptionText: {fileID: 114145427242642074}
 --- !u!1 &1704650651371752
 GameObject:
   m_ObjectHideFlags: 0

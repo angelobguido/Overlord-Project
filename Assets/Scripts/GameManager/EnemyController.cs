@@ -14,6 +14,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField]
     protected MovementTypeSO movement;
     protected BehaviorType behavior;
+    protected ProjectileTypeSO projectileType;
 
     protected Animator anim;
     [SerializeField]
@@ -199,15 +200,18 @@ public class EnemyController : MonoBehaviour
         activeTime = enemyData.activeTime;
         attackSpeed = enemyData.attackSpeed;
         projectileSpeed = enemyData.projectileSpeed*4;
-        projectilePrefab = enemyData.weapon.projectile.projectilePrefab;
-        
-        if(enemyData.weapon.name == "Shield")
+
+
+        if (enemyData.weapon.name == "Shield")
             weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab, shieldSpawn.transform);
         else if(enemyData.weapon.name != "None")
             weaponPrefab = Instantiate(enemyData.weapon.weaponPrefab, weaponSpawn.transform);
         hasProjectile = enemyData.weapon.hasProjectile;
         if (hasProjectile)
+        {
             projectilePrefab = enemyData.weapon.projectile.projectilePrefab;
+            projectileType = enemyData.weapon.projectile;
+        }
         else
             projectilePrefab = null;
         movement = enemyData.movement;
@@ -278,8 +282,9 @@ public class EnemyController : MonoBehaviour
         }
         else
         {
-            bullet.GetComponent<ProjectileController>().damage = damage;
+            //bullet.GetComponent<ProjectileController>().damage = damage;
             bullet.GetComponent<ProjectileController>().SetEnemyThatShot(indexOnEnemyList);
+            bullet.GetComponent<ProjectileController>().ProjectileSO = projectileType;
         }
         bullet.SendMessage("Shoot", target);
     }

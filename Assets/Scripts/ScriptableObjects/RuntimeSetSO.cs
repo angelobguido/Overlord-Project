@@ -25,5 +25,10 @@ namespace EnemyGenerator
             if (Items.Contains(thing))
                 Items.Remove(thing);
         }
+
+        public T GetRandomItem()
+        {
+            return Items[Random.Range(0, Items.Count)];
+        }
     }
 }

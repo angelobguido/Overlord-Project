@@ -1,15 +1,17 @@
-﻿using System.Collections;
+﻿using EnemyGenerator;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
     [SerializeField]
-    protected float speed, shootSpeed, shootCD;
+    protected float speed, shootSpeed, coolDownTime, atkSpeed;
     [SerializeField]
     protected int shootDmg, maxHealth;
     [SerializeField]
-    protected GameObject bulletPrefab, bulletSpawn;
+    protected GameObject bulletSpawn, bulletPrefab;
+    
 
     Animator anim;
     float lastX, lastY;
@@ -21,11 +23,17 @@ public class PlayerController : MonoBehaviour {
     private Color originalColor;
     protected Rigidbody2D rb;
 
+    private int actualProjectile;
+
     HealthController healthCtrl;
+
+    [SerializeField]
+    private ProjectileTypeSO projectileType;
 
     public void Awake()
     {
-        
+        actualProjectile = 0;
+        projectileType = GameManager.instance.projectileSet.Items[actualProjectile];
         anim = GetComponent<Animator>();
         timeAfterShoot = 0.0f;
         SpriteRenderer sr = gameObject.GetComponent<SpriteRenderer>();
@@ -33,6 +41,7 @@ public class PlayerController : MonoBehaviour {
         healthCtrl = gameObject.GetComponent<HealthController>();
         healthCtrl.SetOriginalColor(originalColor);
         rb = gameObject.GetComponent<Rigidbody2D>();
+        SetProjectileSO(GameManager.instance.projectileType);
     }
 
     // Use this for initialization
@@ -57,16 +66,19 @@ public class PlayerController : MonoBehaviour {
         Vector2 shootDir = new Vector2(shootHorizontal, shootVertical);
         shootDir.Normalize();
 
+        if (Input.GetKeyDown(KeyCode.Tab))
+            NextProjectileSO();
+
         Move(movement, shootDir);
 
-        if (shootCD < timeAfterShoot)
+        if (coolDownTime > 0.0f)
         {
-
-            Shoot(shootDir, movement);
-            
+            coolDownTime -= Time.fixedDeltaTime;
         }
         else
-            timeAfterShoot += Time.fixedDeltaTime;
+        {
+            Shoot(shootDir, movement);
+        }
     }
 
     protected void Move(Vector2 movement, Vector2 shoot)
@@ -87,38 +99,40 @@ public class PlayerController : MonoBehaviour {
         bool willShoot = false;
         if (shootDir.x > 0.01f)
         {
-            rotatedAngle = 90;
-            bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, rotatedAngle);
+            rotatedAngle = 0;
             shootForce = new Vector2(shootSpeed, 0f);
             willShoot = true;
         }
         else if (shootDir.x < -0.01f)
         {
-            rotatedAngle = -90;
-            bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, rotatedAngle);
+            rotatedAngle = 180;
             shootForce = new Vector2(-shootSpeed, 0f);
             willShoot = true;
         }
         else if (shootDir.y > 0.01f)
         {
-            rotatedAngle = 180;
-            bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, rotatedAngle);
+            rotatedAngle = 90;
             shootForce = new Vector2(0f, shootSpeed);
             willShoot = true;
         }
         else if (shootDir.y < -0.01f)
         {
-            rotatedAngle = 0;
+            rotatedAngle = 270;
             shootForce = new Vector2(0f, -shootSpeed);
             willShoot = true;
         }
+        bulletSpawn.transform.rotation = Quaternion.Euler(0, 0, rotatedAngle);
         if (willShoot)
         {
+
             GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.transform.position, bulletSpawn.transform.rotation);
-            bullet.GetComponent<Rigidbody2D>().AddForce(shootForce + movementDir, ForceMode2D.Impulse);
-            bullet.GetComponent<ProjectileController>().damage = this.shootDmg;
-            bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, -rotatedAngle);
-            timeAfterShoot = 0.0f;
+            bullet.GetComponent<ProjectileController>().ProjectileSO = projectileType;
+            bullet.SendMessage("Shoot", shootForce + movementDir);
+            bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, rotatedAngle+90);
+            //bullet.GetComponent<Rigidbody2D>().AddForce(shootForce + movementDir, ForceMode2D.Impulse);
+            //bullet.GetComponent<ProjectileController>().damage = this.shootDmg;
+            //bulletSpawn.transform.RotateAround(transform.position, Vector3.forward, -rotatedAngle);
+            coolDownTime = 1.0f / atkSpeed;
         }
     }
 
@@ -182,6 +196,15 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void SetProjectileSO(ProjectileTypeSO projectile)
+    {
+        projectileType = projectile;
+        bulletPrefab = projectileType.projectilePrefab;
+        bulletPrefab.GetComponent<ProjectileController>().ProjectileSO = projectileType;
+        atkSpeed = projectileType.atkSpeed;
+        bulletPrefab.GetComponent<SpriteRenderer>().color = projectile.color;
+    }
+
     public void ResetHealth()
     {
         healthCtrl.SetHealth(maxHealth);
@@ -196,4 +219,12 @@ public class PlayerController : MonoBehaviour {
     {
         return maxHealth;
     }
+
+    public void NextProjectileSO()
+    {
+        actualProjectile = (actualProjectile + 1)% GameManager.instance.projectileSet.Items.Count;
+        projectileType = GameManager.instance.projectileSet.Items[actualProjectile];
+        SetProjectileSO(projectileType);
+    }
+
 }

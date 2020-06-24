@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DoorBHV : MonoBehaviour
 {
 
     //public GameManager gm;
-    public int keyID;
+    public List<int> keyID;
     public bool isOpen;
     public bool isClosedByEnemies;
     public Sprite lockedSprite;
@@ -25,6 +26,7 @@ public class DoorBHV : MonoBehaviour
 
     private void Awake()
     {
+        keyID = new List<int>();
         isOpen = false;
         parentRoom = transform.parent.GetComponent<RoomBHV>();
         audioSrc = GetComponent<AudioSource>();
@@ -33,23 +35,31 @@ public class DoorBHV : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        if (keyID < 0)
+        //TODO arrumar essa gambiarra e dar um jeito da porta representar as 2
+        //Chaves que a abrem
+        int firstKeyID = -1;
+        if (keyID.Count > 0)
+            firstKeyID = keyID[0];
+        if (keyID.Count == 0)
         {
+            //Debug.Log("No Key");
             Destroy(gameObject);
         }
-        else if (keyID > 0)
+        else if (firstKeyID > 0)
         {
+            //Debug.Log("Positive key id");
             //Render the locked door sprite with the color relative to its ID
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
             sr.sprite = lockedSprite;
-            sr.color = Util.colorId[keyID - 1];
+            sr.color = Util.colorId[firstKeyID - 1];
             //text.text = keyID.ToString ();
         }
         if (parentRoom.hasEnemies)
         {
             isClosedByEnemies = true;
-            if (keyID == 0 || isOpen)
+            if (firstKeyID == 0 || isOpen)
             {
+                //Debug.Log("Negative key id");
                 SpriteRenderer sr = GetComponent<SpriteRenderer>();
                 sr.sprite = closedSprite;
             }
@@ -68,7 +78,15 @@ public class DoorBHV : MonoBehaviour
     {
         if (other.tag == "Player")
         {
-            if (keyID == 0 || isOpen)
+            int firstKeyID = -1;
+            if (keyID.Count > 0)
+                firstKeyID = keyID[0];
+            foreach (int id in keyID)
+                Debug.Log("Lock Key: "+ id);
+            foreach (int id in Player.instance.keys)
+                Debug.Log("Player Key: " + id);
+            List<int> commonKeys = keyID.Intersect(Player.instance.keys).ToList();
+            if (firstKeyID == 0 || isOpen)
             {
                 if (!isClosedByEnemies)
                 {
@@ -77,13 +95,13 @@ public class DoorBHV : MonoBehaviour
                     GameManager.instance.UpdateRoomGUI(destination.parentRoom.x, destination.parentRoom.y);
                 }
             }
-            else if (Player.instance.keys.Contains(keyID))
+            else if (commonKeys.Count() > 0)
             {
                 if (!isClosedByEnemies)
                 {
                     audioSrc.PlayOneShot(unlockSnd, 0.7f);
-                    Player.instance.keys.Remove(keyID);
-                    Player.instance.usedKeys.Add(keyID);
+                    Player.instance.keys.Remove(commonKeys[0]);
+                    Player.instance.usedKeys.Add(commonKeys[0]);
                     GameManager.instance.UpdateKeyGUI();
                     GameManager.instance.UpdateRoomGUI(destination.parentRoom.x, destination.parentRoom.y);
                     OpenDoor();
@@ -91,7 +109,7 @@ public class DoorBHV : MonoBehaviour
                         destination.OpenDoor();
                     isOpen = true;
                     destination.isOpen = true;
-                    OnKeyUsed(keyID);
+                    OnKeyUsed(commonKeys.First());
                     MovePlayerToNextRoom();
                 }
             } 
@@ -176,7 +194,10 @@ public class DoorBHV : MonoBehaviour
 
     public void OpenDoorAfterKilling()
     {
-        if (keyID == 0 || isOpen)
+        int firstKeyID = -1;
+        if (keyID.Count > 0)
+            firstKeyID = keyID[0];
+        if (firstKeyID == 0 || isOpen)
         {
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
             sr.sprite = openedSprite;

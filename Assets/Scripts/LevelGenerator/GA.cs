@@ -432,7 +432,8 @@ namespace LevelGenerator
                 }
                 if (ind.neededLocks > ind.nLocks)
                     Debug.Log("SOMETHING IS REALLY WRONG!");
-                return (2*(System.Math.Abs(nV - ind.RoomList.Count) + System.Math.Abs(nK - ind.nKeys) + System.Math.Abs(nL - ind.nLocks) + System.Math.Abs(lCoef - ind.AvgChildren)) + (ind.nLocks - ind.neededLocks) + (ind.RoomList.Count - ind.neededRooms));
+                return (2*(System.Math.Abs(nV - ind.RoomList.Count) + System.Math.Abs(nK - ind.nKeys) + System.Math.Abs(nL - ind.nLocks) 
+                    + System.Math.Abs(lCoef - ind.AvgChildren)*5) + (ind.nLocks - ind.neededLocks) + System.Math.Abs(ind.RoomList.Count*0.8f - ind.neededRooms));
             }
             else
                 return (2*(System.Math.Abs(nV - ind.RoomList.Count) + System.Math.Abs(nK - ind.nKeys) + System.Math.Abs(nL - ind.nLocks) + System.Math.Abs(lCoef - ind.AvgChildren)));

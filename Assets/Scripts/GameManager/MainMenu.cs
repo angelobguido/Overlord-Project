@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
-    public GameObject introScreen, introScreen2, mainScreen, gameOverScreen, difficultySelect;
+    public GameObject introScreen, introScreen2, mainScreen, gameOverScreen, difficultySelect, weaponSelect;
 
     public void IntroScreen()
     {
@@ -44,25 +44,24 @@ public class MainMenu : MonoBehaviour {
 
     public void DifficultySelect()
     {
-        introScreen2.SetActive(false);
+        weaponSelect.SetActive(false);
         difficultySelect.SetActive(true);
     }
 
-    public void EasyButton()
+    public void WeaponSelect()
     {
-        GameManager.instance.EasyMode();
+        introScreen2.SetActive(false);
+        weaponSelect.SetActive(true);
     }
-    public void MediumButton()
-    {
-        GameManager.instance.MediumMode();
-    }
-    public void HardButton()
-    {
-        GameManager.instance.HardMode();
-    }
+
     public void SecondIntro()
     {
         introScreen.SetActive(false);
         introScreen2.SetActive(true);
+    }
+
+    protected void OnEnable()
+    {
+        WeaponLoaderBHV.loadDifficultySelect += DifficultySelect;
     }
 }

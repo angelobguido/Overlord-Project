@@ -15,6 +15,13 @@ public static class Util
     public const int nSpawnPointsHor = 4;
     public const int distFromBorder = 1;
 
-    public const int defaultRoomSizeX = 19;
+    public const int defaultRoomSizeX = 22;
     public const int defaultRoomSizeY = 19;
+
+    public enum PlayerProjectileEnum
+    {
+        STRAIGHT = 0,
+        SIN = 1,
+        TRIPLE = 2
+    }
 }
