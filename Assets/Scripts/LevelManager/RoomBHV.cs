@@ -248,6 +248,8 @@ public class RoomBHV : MonoBehaviour {
     }
     private void OnRoomEnter(bool hasEnemies, List<int> enemyList, int playerHealth)
     {
+        //Change color so we know the player has already visited
+        minimapIcon.GetComponent<SpriteRenderer>().color = new Color (0.5433761f, 0.2772784f, 0.6320754f));
         PlayerProfile.instance.OnRoomEnter(x, y, hasEnemies, enemyList, playerHealth);
     }
     public void CheckIfAllEnemiesDead()
