@@ -2,38 +2,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class WeaponLoaderBHV : MonoBehaviour
+public class WeaponLoaderBHV : MonoBehaviour, IMenuPanel
 {
-    Button button;
     ProjectileTypeSO projectileSO;
+    [SerializeField]
+    GameObject previousPanel;
+    [SerializeField]
+    Button button;
+    [SerializeField]
+    protected string nextPanel;
     public delegate void LoadWeaponButtonEvent(ProjectileTypeSO projectileSO);
     public static event LoadWeaponButtonEvent loadWeaponButtonEvent;
-    public delegate void LoadDifficultySelect();
-    public static event LoadDifficultySelect loadDifficultySelect;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        button = GetComponent<Button>();
-        button.onClick.RemoveAllListeners();
-        button.onClick.AddListener(OnConfirmWeapon);
-    }
 
     protected void OnEnable()
     {
+        button.interactable = false;
         WeaponSelectionButtonBHV.selectWeaponButtonEvent += PrepareWeapon;
     }
 
     protected void PrepareWeapon(ProjectileTypeSO projectileSO)
     {
         this.projectileSO = projectileSO;
+        button.interactable = true;
     }
 
-    void OnConfirmWeapon()
+    public void GoToNext()
     {
         loadWeaponButtonEvent(projectileSO);
-        loadDifficultySelect();
+        SceneManager.LoadScene(nextPanel);
+        gameObject.SetActive(false);
+    }
+
+    public void GoToPrevious()
+    {
+        previousPanel.SetActive(true);
+        gameObject.SetActive(false);
     }
 }

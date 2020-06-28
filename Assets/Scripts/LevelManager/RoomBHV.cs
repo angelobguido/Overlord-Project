@@ -74,6 +74,7 @@ public class RoomBHV : MonoBehaviour {
 		if (isStart){
 			//Algum efeito
 			transform.GetChild(0).GetComponent<SpriteRenderer>().color = Color.green;
+            minimapIcon.GetComponent<SpriteRenderer>().color = new Color(0.5433761f, 0.2772784f, 0.6320754f, 1.0f);
             hasEnemies = false;
         }
         else if (isEnd){
@@ -243,15 +244,16 @@ public class RoomBHV : MonoBehaviour {
             enemy = GameManager.instance.enemyLoader.InstantiateEnemyWithIndex(enemiesIndex[3], new Vector3(transform.position.x - 6, transform.position.y + 5.5f, 0f), transform.rotation);
             enemy.GetComponent<EnemyController>().SetRoom(this);
         }*/
+    }
 
-        OnRoomEnter(hasEnemies, enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
-    }
-    private void OnRoomEnter(bool hasEnemies, List<int> enemyList, int playerHealth)
+    public void OnRoomEnter()
     {
-        //Change color so we know the player has already visited
-        minimapIcon.GetComponent<SpriteRenderer>().color = new Color (0.5433761f, 0.2772784f, 0.6320754f));
-        PlayerProfile.instance.OnRoomEnter(x, y, hasEnemies, enemyList, playerHealth);
+        if (hasEnemies)
+            SpawnEnemies();
+        minimapIcon.GetComponent<SpriteRenderer>().color = new Color(0.5433761f, 0.2772784f, 0.6320754f, 1.0f);
+        PlayerProfile.instance.OnRoomEnter(x, y, hasEnemies, enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
     }
+
     public void CheckIfAllEnemiesDead()
     {
         enemiesDead++;

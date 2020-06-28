@@ -5,11 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour {
 
-    public GameObject introScreen, introScreen2, mainScreen, gameOverScreen, difficultySelect, weaponSelect;
+    /*public GameObject introScreen, introScreen2, gameOverScreen, levelSelect, weaponSelect, preTestForm;
 
     public void IntroScreen()
     {
-        //mainScreen.SetActive(false);
         introScreen.SetActive(true);
     }
     public void PlayGame()
@@ -45,7 +44,7 @@ public class MainMenu : MonoBehaviour {
     public void DifficultySelect()
     {
         weaponSelect.SetActive(false);
-        difficultySelect.SetActive(true);
+        levelSelect.SetActive(true);
     }
 
     public void WeaponSelect()
@@ -58,10 +57,5 @@ public class MainMenu : MonoBehaviour {
     {
         introScreen.SetActive(false);
         introScreen2.SetActive(true);
-    }
-
-    protected void OnEnable()
-    {
-        WeaponLoaderBHV.loadDifficultySelect += DifficultySelect;
-    }
+    }*/
 }

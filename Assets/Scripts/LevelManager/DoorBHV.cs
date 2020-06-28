@@ -81,10 +81,10 @@ public class DoorBHV : MonoBehaviour
             int firstKeyID = -1;
             if (keyID.Count > 0)
                 firstKeyID = keyID[0];
-            foreach (int id in keyID)
+            /*foreach (int id in keyID)
                 Debug.Log("Lock Key: "+ id);
             foreach (int id in Player.instance.keys)
-                Debug.Log("Player Key: " + id);
+                Debug.Log("Player Key: " + id);*/
             List<int> commonKeys = keyID.Intersect(Player.instance.keys).ToList();
             if (firstKeyID == 0 || isOpen)
             {
@@ -151,10 +151,7 @@ public class DoorBHV : MonoBehaviour
         Player.instance.transform.position = destination.teleportTransform.position;
         RoomBHV parent = destination.parentRoom;
         Player.instance.AdjustCamera(parent.x, parent.y);
-        if(destination.transform.parent.GetComponent<RoomBHV>().hasEnemies)
-            destination.transform.parent.GetComponent<RoomBHV>().SpawnEnemies();
-        
-
+        destination.transform.parent.GetComponent<RoomBHV>().OnRoomEnter();
         
     }
 

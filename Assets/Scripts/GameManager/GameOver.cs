@@ -16,17 +16,6 @@ public class GameOver : MonoBehaviour
         
     }
 
-    public void QuitButton()
-    {
-        GameManager.instance.LoadForm();
-    }
-
-    public void RestartButton()
-    {
-        PlayerProfile.instance.OnMapComplete(false);
-        GameManager.instance.RestartGame();
-    }
-
     public void MainMenuButton()
     {
         GameManager.instance.MainMenu();

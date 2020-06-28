@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using UnityEditor;
 using UnityEngine.Analytics;
 using UnityEngine.SceneManagement;
 using TMPro;
 using LevelGenerator;
 using UnityEngine.UI;
 using EnemyGenerator;
+using System;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,6 +27,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator coroutine;
     private bool isCompleted;
     private bool isInGame;
+    [SerializeField]
+    private LevelConfigRuntimeSetSO levelSet;
+    private List<string> levelSetNames;
+    private string currentLevel;
 
     public static GameManager instance = null;
     //private List<TextAsset> maps = new List<TextAsset>();
@@ -51,8 +55,8 @@ public class GameManager : MonoBehaviour
     //public string mapFilePath = "Assets/Data/map.txt"; //Path to load map data from
     //public string roomsFilePath = "Assets/Data/rooms.txt";
     public bool readRooms = true;
-    public GameObject formMenu, endingScreen, gameOverScreen;
-    public MainMenu mainMenu;
+    public GameObject gameOverScreen, victoryScreen, introScreen, gameUI;
+    //public MainMenu mainMenu;
 
     public enum LevelPlayState { InProgress, Won, Lost, Skip, Quit }
     public static LevelPlayState state = LevelPlayState.InProgress;
@@ -76,7 +80,6 @@ public class GameManager : MonoBehaviour
             generator = new Program();
             enemyLoader = gameObject.GetComponent<EnemyLoader>();
             audioSource = GetComponent<AudioSource>();
-            mainMenu = GetComponent<MainMenu>();
 
             //TODO Apply selected difficulty in this
             dungeonDifficulty = 50;
@@ -91,7 +94,7 @@ public class GameManager : MonoBehaviour
                 int aux;
                 do
                 {
-                    aux = Random.Range(0, 6);
+                    aux = UnityEngine.Random.Range(0, 6);
                 }
                 while (randomLevelList.Contains(aux));
                 randomLevelList.Add(aux);
@@ -110,6 +113,11 @@ public class GameManager : MonoBehaviour
 
             nExecutions = 0;
             nBatches = 0;
+            levelSetNames = new List<string>();
+            foreach (LevelConfigSO level in levelSet.Items)
+            {
+                levelSetNames.Add(level.fileName);
+            }
 
         }
         else if (instance != this)
@@ -386,6 +394,8 @@ public class GameManager : MonoBehaviour
     public void LevelComplete()
     {
         ChangeMusic(fanfarreMusic);
+        Time.timeScale = 0f;
+        gameUI.SetActive(false);
         //TODO save every gameplay data
         //TODO make it load a new level
         Debug.Log("MapID:" + randomLevelList[currentMapId]);
@@ -398,7 +408,7 @@ public class GameManager : MonoBehaviour
         customParams.Add("locks", Player.instance.usedKeys.Count);
 
         if (!createMaps && !survivalMode)
-            LoadForm();
+            victoryScreen.SetActive(true);
         else
             CheckEndOfBatch();
 
@@ -449,15 +459,16 @@ public class GameManager : MonoBehaviour
     public void EndGame()
     {
         PlayerProfile.instance.OnMapComplete(true);
-        endingScreen.SetActive(true);
+        //endingScreen.SetActive(true);
     }
 
     void OnEnable()
     {
         //Tell our 'OnLevelFinishedLoading' function to start listening for a scene change as soon as this script is enabled.
         SceneManager.sceneLoaded += OnLevelFinishedLoading;
-        LevelLoaderButtonBHV.loadLevelButtonEvent += PlayGameOnDifficulty;
+        LevelLoaderBHV.loadLevelButtonEvent += PlayGameOnDifficulty;
         WeaponLoaderBHV.loadWeaponButtonEvent += SetProjectileSO;
+        PostFormMenuBHV.postFormButtonEvent += PlayGameOnDifficulty;
     }
 
     void SetProjectileSO(ProjectileTypeSO type)
@@ -522,34 +533,29 @@ public class GameManager : MonoBehaviour
             //pl.minimap = GameObject.Find("MinimapCamera").GetComponent<Camera>();
             //Recover health
             pl.gameObject.GetComponent<PlayerController>().ResetHealth();
-            formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
+            //formMenu = GameObject.Find("Canvas").transform.Find("Form Questions").gameObject;
             //keyText = GameObject.Find("KeyUIText").GetComponent<TextMeshProUGUI>();
             //roomText = GameObject.Find("RoomUI").GetComponent<TextMeshProUGUI>();
             //levelText = GameObject.Find("LevelUI").GetComponent<TextMeshProUGUI>();
-            endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
-            gameOverScreen = GameObject.Find("Canvas").transform.Find("GameOverPanel").gameObject;
-            healthUI = GameObject.Find("HeartVisual").GetComponent<HealthUI>();
-            keyUI = GameObject.Find("KeyVisual").GetComponent<KeyUI>();
+            //endingScreen = GameObject.Find("Canvas").transform.Find("FormPanel").gameObject;
+            //gameOverScreen = GameObject.Find("Canvas").transform.Find("GameOverPanel").gameObject;
+            //victoryScreen = GameObject.Find("Canvas").transform.Find("VictoryPanel").gameObject;
+            //introScreen = GameObject.Find("Canvas").transform.Find("PanelIntro").gameObject;
+            gameUI.SetActive(true);
+            healthUI = gameUI.GetComponentInChildren<HealthUI>();
+            keyUI = gameUI.GetComponentInChildren<KeyUI>();
+
             LoadNewLevel(mapFile, chosenDifficulty);
         }
         if (scene.name == "Main")
         {
-            mainMenu = GetComponent<MainMenu>();
-            mainMenu.IntroScreen();
+            introScreen.SetActive(true);
         }
     }
 
     void OnDestroy()
     {
 
-    }
-    public void LoadForm()
-    {
-        Time.timeScale = 0f;
-        //Open a GUI here
-        gameOverScreen.SetActive(false);
-        formMenu.SetActive(true);
-        //TODO: Should check if there is a new batch, if not, set as inactive the continue button.
     }
     //Load a new batch of levels, if it exists
     /*public void LoadNewBatch()
@@ -636,12 +642,8 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         Time.timeScale = 0f;
+        gameUI.SetActive(false);
         gameOverScreen.SetActive(true);
-    }
-
-    public void RestartGame()
-    {
-        SceneManager.LoadScene("LevelWithEnemies");
     }
 
     public void MainMenu()
@@ -655,8 +657,10 @@ public class GameManager : MonoBehaviour
         chosenDifficulty = difficulty;
         Debug.Log("Nome do Arquivo: " + fileName);
         mapFile = Resources.Load<TextAsset>("Levels/"+fileName);
+        currentLevel = fileName;
         Debug.Log("Mapa: " + mapFile);
-        SceneManager.LoadScene("LevelWithEnemies");
+        levelSetNames.Remove(fileName);
+        //SceneManager.LoadScene("LevelWithEnemies");
     }
 
         
@@ -729,4 +733,85 @@ public class GameManager : MonoBehaviour
     {
         instance.SetLevelMode(fileName, difficulty);
     }
+
+    public bool HasMoreLevels()
+    {
+        if (levelSetNames.Count > 0)
+            return true;
+        return false;
+    }
+
+    public LevelConfigSO PickNextLevel()
+    {
+        LevelConfigSO curLevel = null;
+        string nextLevelCandidate = levelSetNames[0];
+        bool hasFound = false;
+        if (PlayerProfile.instance.HasFinished)
+        {
+            foreach (string levelName in levelSetNames)
+            {
+                curLevel = levelSet.Items.Find(x => (x.fileName.CompareTo(levelName) == 0));
+                if (curLevel.enemy == chosenDifficulty)
+                {
+                    nextLevelCandidate = curLevel.fileName;
+                    hasFound = true;
+                    break;
+                }
+            }
+            if(!hasFound)
+            {
+                foreach (string levelName in levelSetNames)
+                {
+                    curLevel = levelSet.Items.Find(x => (x.fileName.CompareTo(levelName) == 0));
+                    if (Math.Abs(curLevel.enemy - chosenDifficulty) == 1)
+                    {
+                        nextLevelCandidate = curLevel.fileName;
+                        hasFound = true;
+                        break;
+                    }
+                }
+            }
+            if(!hasFound)
+            {
+                nextLevelCandidate = levelSetNames[0];
+                hasFound = true;
+            }
+        }
+        else
+        {
+            foreach (string levelName in levelSetNames)
+            {
+                curLevel = levelSet.Items.Find(x => (x.fileName.CompareTo(levelName) == 0));
+                if ((chosenDifficulty - 1) == curLevel.enemy)
+                {
+                    nextLevelCandidate = curLevel.fileName;
+                    hasFound = true;
+                    break;
+                }
+            }
+            if(!hasFound)
+            {
+                foreach (string levelName in levelSetNames)
+                {
+                    curLevel = levelSet.Items.Find(x => (x.fileName.CompareTo(levelName) == 0));
+                    if ((chosenDifficulty - 2) == curLevel.enemy)
+                    {
+                        nextLevelCandidate = curLevel.fileName;
+                        hasFound = true;
+                        break;
+                    }
+                }
+            }
+            if (!hasFound)
+            {
+                nextLevelCandidate = levelSetNames[0];
+                hasFound = true;
+            }
+        }
+
+        levelSetNames.Remove(nextLevelCandidate);
+
+        return levelSet.Items.Find(x => (x.fileName.CompareTo(nextLevelCandidate) == 0));
+    }
+
 }

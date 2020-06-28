@@ -64,7 +64,7 @@ public class PlayerProfile : MonoBehaviour {
     protected int difficultyLevel;
     protected List<int> damageDoneByEnemy;
     protected int timesPlayerDied;
-    protected bool hasFinished; //0 if player gave up, 1 if he completed the stage 
+    public bool HasFinished { get; set; } //0 if player gave up, 1 if he completed the stage 
     protected CombatRoomInfo actualRoomInfo;
 
     private string result;
@@ -149,7 +149,7 @@ public class PlayerProfile : MonoBehaviour {
         combatInfoList = new List<CombatRoomInfo>();
         difficultyLevel = -1;
         timesPlayerDied = 0;
-        hasFinished = false; //0 if player gave up, 1 if he completed the stage 
+        HasFinished = false; //0 if player gave up, 1 if he completed the stage 
     }
 
     //Events
@@ -220,6 +220,7 @@ public class PlayerProfile : MonoBehaviour {
         attemptNumber++;
         damageDoneByEnemy = new int[EnemyUtil.nBestEnemies].ToList();
         difficultyLevel = difficulty;
+        Debug.Log("On Map Start Profilling Called");
         //Log
         //Mais métricas - organiza em TAD
     }
@@ -243,7 +244,7 @@ public class PlayerProfile : MonoBehaviour {
         mapVisitedCountUnique = visitedRooms.Distinct().Count();
         ResetCombo();
 
-        hasFinished = victory;
+        HasFinished = victory;
         //Save to remote file
         SendProfileToServer();
         //Reset all values
@@ -288,7 +289,7 @@ public class PlayerProfile : MonoBehaviour {
         enemyString = "";
         enemyString += "Difficulty," + difficultyLevel+"\n";
         enemyString += "Deaths," + timesPlayerDied + "\n";
-        enemyString += "Victory?," + hasFinished + "\n";
+        enemyString += "Victory?," + HasFinished + "\n";
         enemyString += "EnemyDamage,\n";
         for(int i = 0; i < EnemyUtil.nBestEnemies; ++i)
             enemyString += i+",";

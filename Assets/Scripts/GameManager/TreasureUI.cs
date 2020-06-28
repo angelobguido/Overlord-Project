@@ -9,8 +9,6 @@ public class TreasureUI : MonoBehaviour
     protected TextMeshProUGUI treasureText;
     // Start is called before the first frame update
 
-    [SerializeField] 
-    protected Sprite treasureSprite;
     protected int treasureAmount;
 
     private void Awake()

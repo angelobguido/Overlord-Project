@@ -53,7 +53,7 @@ public class Map {
             x = int.Parse(NameLines[i++]);
             y = int.Parse(NameLines[i++]);
             code = NameLines[i++];
-            Debug.Log("X = " + x + "   y = " + y + "  code = " + code);
+            //Debug.Log("X = " + x + "   y = " + y + "  code = " + code);
 
             rooms[x, y] = new Room(x, y);
             //Sala ou corredor(link)?
