@@ -20,6 +20,11 @@ public class LevelLoaderBHV : MonoBehaviour, IMenuPanel
         LevelSelectButtonBHV.selectLevelButtonEvent += PrepareLevel;
     }
 
+    protected void OnDisable()
+    {
+        LevelSelectButtonBHV.selectLevelButtonEvent -= PrepareLevel;
+    }
+
     protected void PrepareLevel(LevelConfigSO levelConfigSO)
     {
         levelFile = levelConfigSO.fileName;

@@ -67,7 +67,7 @@ public class HealthUI : MonoBehaviour
             heartList.Add(heartImageUI);
 
             col++;
-            if (col >= colMax)
+            if ((col >= colMax) || ((heartGameObject.transform.position.x + delta + rowColSize) > Screen.width))
             {
                 row++;
                 col = 0;

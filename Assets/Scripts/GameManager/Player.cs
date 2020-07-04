@@ -27,7 +27,12 @@ public class Player : PlaceableRoomObject {
 
 	private void OnEnable()
 	{
-		
+		GameManager.newLevelLoadedEvent += ResetValues;
+	}
+
+	private void OnDisable()
+	{
+		GameManager.newLevelLoadedEvent -= ResetValues;
 	}
 
 	// Use this for initialization
@@ -51,5 +56,10 @@ public class Player : PlaceableRoomObject {
 		cam.transform.position = new Vector3 (roomTransf.position.x + Room.sizeX/3.5f, roomTransf.position.y, -5f);
 		//minimap.transform.position = new Vector3(roomTransf.position.x, roomTransf.position.y, -5f);
 	}
-		
+
+	void ResetValues()
+	{
+		keys.Clear();
+		usedKeys.Clear();
+	}
 }

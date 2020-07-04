@@ -299,7 +299,7 @@ namespace LevelGenerator
                             if (lockedRooms.IndexOf(actualRoom.KeyToOpen) == lockedRooms.Count - 1)
                                 map[iPositive * 2, jPositive * 2] = Util.RoomType.BOSS;
                             else
-                                map[iPositive * 2, jPositive * 2] = Util.RoomType.EMPTY;
+                                map[iPositive * 2, jPositive * 2] = Util.RoomType.TREASURE;
                         }
                         else
                         {
@@ -377,6 +377,8 @@ namespace LevelGenerator
                             Console.ForegroundColor = ConsoleColor.Cyan;
                             Console.Write(" s");
                             dungeonData += "s\n";
+                            //dungeonData += "0\n"; //Treasure
+                            //dungeonData += "0\n"; //Difficulty
                             //writerRG.WriteLine("s");
                             isRoom = true;
                         }
@@ -390,6 +392,8 @@ namespace LevelGenerator
                         {
                             Console.Write(" B");
                             dungeonData += "B\n";
+                            //dungeonData += "0\n"; //Treasure
+                            //dungeonData += "0\n"; //Difficulty
                             //writerRG.WriteLine("B");
                             isRoom = true;
                         }
@@ -403,6 +407,8 @@ namespace LevelGenerator
                         {
                             Console.Write("{0,2}", map[i, j]);
                             dungeonData += "T\n";
+                            //dungeonData += "50\n"; //Treasure
+                            //dungeonData += "0\n"; //Difficulty
                             //writerRG.WriteLine("T");
                             isRoom = true;
                         }
@@ -410,6 +416,8 @@ namespace LevelGenerator
                         {
                             Console.Write("{0,2}", map[i, j]);
                             dungeonData += map[i, j] + "\n";
+                            //dungeonData += "0\n"; //Treasure
+                            //dungeonData += "0\n"; //Difficulty
                             //writerRG.WriteLine(map[i, j]);
                             isRoom = true;
                         }
@@ -417,6 +425,8 @@ namespace LevelGenerator
                         {
                             Console.Write("{0,2}", map[i, j]);
                             dungeonData += map[i, j] + "\n";
+                            //dungeonData += "0\n"; //Treasure
+                            //dungeonData += "0\n"; //Difficulty
                             //writerRG.WriteLine(map[i, j]);
                             isRoom = true;
                         }

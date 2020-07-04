@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: FewCoins
   m_EditorClassIdentifier: 
   value: 20
-  sprite: {fileID: 6226223009756382190, guid: 8f144799ef7f93d4980fe5ec4c064d7f, type: 3}
+  sprite: {fileID: 5130407640561383606, guid: 29269b331c7bd2e4ca9b20f2eb3d526d, type: 3}

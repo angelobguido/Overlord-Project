@@ -53,7 +53,7 @@ public class TreasureController : PlaceableRoomObject
         }
     }
 
-    protected virtual void OnTreasureCollect()
+    protected void OnTreasureCollect()
     {
         Debug.Log("Collected the treasure");
         collectTreasureEvent(Treasure.value);

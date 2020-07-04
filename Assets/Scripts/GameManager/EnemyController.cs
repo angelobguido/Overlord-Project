@@ -32,6 +32,10 @@ public class EnemyController : MonoBehaviour
     protected HealthController healthCtrl;
     protected SpriteRenderer sr;
     protected Rigidbody2D rb;
+
+    public delegate void HitPlayerEvent();
+    public static event HitPlayerEvent hitPlayerEvent;
+
     /// <summary>
     /// Awakes this instance.
     /// </summary>
@@ -45,13 +49,10 @@ public class EnemyController : MonoBehaviour
         healthCtrl = gameObject.GetComponent<HealthController>();
         rb = gameObject.GetComponent<Rigidbody2D>();
     }
-    // Use this for initialization    
-    /// <summary>
-    /// Starts this instance.
-    /// </summary>
-    void Start()
+
+    protected virtual void OnPlayerHit()
     {
-        
+        hitPlayerEvent();
     }
     /// <summary>
     /// 
@@ -154,6 +155,7 @@ public class EnemyController : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
+            OnPlayerHit();
             collision.gameObject.GetComponent<HealthController>().ApplyDamage(damage, indexOnEnemyList);
         }
     }

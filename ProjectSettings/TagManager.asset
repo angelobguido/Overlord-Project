@@ -22,7 +22,7 @@ TagManager:
   - 
   - 
   - Minimap
-  - 
+  - Bomb
   - 
   - 
   - 
@@ -48,4 +48,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Characters
+    uniqueID: 2603867999
+    locked: 0
+  - name: Bullets
+    uniqueID: 3097021071
     locked: 0

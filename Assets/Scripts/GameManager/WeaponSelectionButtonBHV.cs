@@ -33,6 +33,11 @@ public class WeaponSelectionButtonBHV : MonoBehaviour
         selectWeaponButtonEvent += DisableOutline;
     }
 
+    protected void OnDisable()
+    {
+        selectWeaponButtonEvent -= DisableOutline;
+    }
+
     protected void DisableOutline(ProjectileTypeSO projectileSO)
     {
         if (!this.projectileSO.Equals(projectileSO))

@@ -53,6 +53,14 @@ public class FormQuestionBHV : MonoBehaviour {
         }
     }
 
+    public void ResetToggles()
+    {
+        foreach (Toggle t in toggles)
+        {
+            t.isOn = false;
+        }
+    }
+
     public void LoadData(FormQuestionData q)
     {
         questionData = q;

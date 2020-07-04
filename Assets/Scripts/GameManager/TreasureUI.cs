@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TreasureUI : MonoBehaviour
@@ -20,12 +21,25 @@ public class TreasureUI : MonoBehaviour
     protected void OnEnable()
     {
         TreasureController.collectTreasureEvent += IncrementTreasure;
+        GameManager.newLevelLoadedEvent += ResetTreasure;
+    }
+
+    protected void OnDisable()
+    {
+        TreasureController.collectTreasureEvent -= IncrementTreasure;
+        GameManager.newLevelLoadedEvent -= ResetTreasure;
     }
 
     public void IncrementTreasure(int amount)
     {
         treasureAmount += amount;
         treasureText.text = "x "+treasureAmount.ToString();
+    }
+
+    public void ResetTreasure()
+    {
+        treasureAmount = 0;
+        treasureText.text = "x " + treasureAmount.ToString();
     }
 
 }

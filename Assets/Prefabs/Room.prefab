@@ -72,7 +72,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 9061651696941551919, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 8367304209772257282, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -125,11 +125,11 @@ MonoBehaviour:
   keyID: 
   isOpen: 0
   isClosedByEnemies: 0
-  lockedSprite: {fileID: -396035294860175646, guid: b92c1c44f604d074595ba5ee0e831239,
+  lockedSprite: {fileID: -3956733982544259350, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  closedSprite: {fileID: -7967309640338825673, guid: b92c1c44f604d074595ba5ee0e831239,
+  closedSprite: {fileID: 6771403231246727389, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  openedSprite: {fileID: 9061651696941551919, guid: b92c1c44f604d074595ba5ee0e831239,
+  openedSprite: {fileID: 8367304209772257282, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   teleportTransform: {fileID: 4757452092410706}
   destination: {fileID: 0}
@@ -326,7 +326,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2
-  m_Sprite: {fileID: 6007627129536956325, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: -3045416613819417076, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -452,7 +452,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -7775419718026629507, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 6262617695268976137, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -505,11 +505,11 @@ MonoBehaviour:
   keyID: 
   isOpen: 0
   isClosedByEnemies: 0
-  lockedSprite: {fileID: -4815885190406460031, guid: b92c1c44f604d074595ba5ee0e831239,
+  lockedSprite: {fileID: -8480971649765176343, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  closedSprite: {fileID: -4827537604736492380, guid: b92c1c44f604d074595ba5ee0e831239,
+  closedSprite: {fileID: -2453109895982487715, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  openedSprite: {fileID: -7775419718026629507, guid: b92c1c44f604d074595ba5ee0e831239,
+  openedSprite: {fileID: 6262617695268976137, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   teleportTransform: {fileID: 4191061800590270}
   destination: {fileID: 0}
@@ -682,7 +682,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -781294158744790408, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 6722244415781329205, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -735,11 +735,11 @@ MonoBehaviour:
   keyID: 
   isOpen: 0
   isClosedByEnemies: 0
-  lockedSprite: {fileID: 7477116942032994148, guid: b92c1c44f604d074595ba5ee0e831239,
+  lockedSprite: {fileID: 7407669697792131152, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  closedSprite: {fileID: 4021183171127385890, guid: b92c1c44f604d074595ba5ee0e831239,
+  closedSprite: {fileID: -7768618017026414430, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  openedSprite: {fileID: -781294158744790408, guid: b92c1c44f604d074595ba5ee0e831239,
+  openedSprite: {fileID: 6722244415781329205, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   teleportTransform: {fileID: 4178795282519426}
   destination: {fileID: 0}
@@ -966,7 +966,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2
-  m_Sprite: {fileID: 6007627129536956325, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 1321307024527087600, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1229,7 +1229,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2
-  m_Sprite: {fileID: 6007627129536956325, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 6071364268469277987, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1325,7 +1325,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 8233071653059976297, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: -1771735291089344687, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1378,11 +1378,11 @@ MonoBehaviour:
   keyID: 
   isOpen: 0
   isClosedByEnemies: 0
-  lockedSprite: {fileID: -3627264120405484348, guid: b92c1c44f604d074595ba5ee0e831239,
+  lockedSprite: {fileID: -2804735369662088147, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  closedSprite: {fileID: -4272949958406870782, guid: b92c1c44f604d074595ba5ee0e831239,
+  closedSprite: {fileID: -5096553909484895532, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
-  openedSprite: {fileID: 8233071653059976297, guid: b92c1c44f604d074595ba5ee0e831239,
+  openedSprite: {fileID: -1771735291089344687, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   teleportTransform: {fileID: 4317141115486034}
   destination: {fileID: 0}
@@ -1564,6 +1564,22 @@ MonoBehaviour:
     type: 3}
   blockPrefab: {fileID: 114196944757315618, guid: d123226f4b866eb4494a445a00f10ae7,
     type: 3}
+  northWall: {fileID: 6071364268469277987, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
+    type: 3}
+  southWall: {fileID: -3045416613819417076, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
+    type: 3}
+  eastWall: {fileID: 7145586667549055568, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
+    type: 3}
+  westWall: {fileID: 1321307024527087600, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
+    type: 3}
+  NWCollumn: {fileID: 2471780992194759067, guid: 2901712b95bfaef43aa74883cadeee06,
+    type: 3}
+  NECollumn: {fileID: 7764125768302373310, guid: baf9b05d9d12c1844a6dfef41526c2e2,
+    type: 3}
+  SECollumn: {fileID: 3022459174159889229, guid: 38a86b5b13bed42499fd0bbd7a273dc3,
+    type: 3}
+  SWCollumn: {fileID: 2492866788600840322, guid: 323757856eae58244a6a5efbb5bc22a3,
+    type: 3}
   minimapIcon: {fileID: 5362506959415562241}
   spawnPoints: []
 --- !u!1 &1963288452537166
@@ -1692,7 +1708,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -2
-  m_Sprite: {fileID: 6007627129536956325, guid: b92c1c44f604d074595ba5ee0e831239,
+  m_Sprite: {fileID: 7145586667549055568, guid: 29269b331c7bd2e4ca9b20f2eb3d526d,
     type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

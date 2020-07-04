@@ -15,16 +15,21 @@ public class KeyUI : MonoBehaviour
     private void Awake()
     {
         playerKeys = new List<int>();
+        keyList = new List<Image>();
     }
     void Start()
     {
         //CreateHeartImage();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        
+        GameManager.newLevelLoadedEvent += ResetKeyGUI;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.newLevelLoadedEvent -= ResetKeyGUI;
     }
 
 
@@ -34,6 +39,7 @@ public class KeyUI : MonoBehaviour
         int col = 0;
         int colMax = 1;
 
+        clearKeyImages();
 
         keyList = new List<Image>();
 
@@ -83,5 +89,16 @@ public class KeyUI : MonoBehaviour
     public void ResetKeyGUI()
     {
         playerKeys.Clear();
+        clearKeyImages();
+
+    }
+
+    private void clearKeyImages()
+    {
+        for (int i = keyList.Count - 1; i > -1; --i)
+        {
+            Destroy(keyList[i].gameObject);
+        }
+        keyList.Clear();
     }
 }

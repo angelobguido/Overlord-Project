@@ -32,6 +32,11 @@ public class LevelSelectButtonBHV : MonoBehaviour
         selectLevelButtonEvent += DisableOutline;
     }
 
+    protected void OnDisable()
+    {
+        selectLevelButtonEvent -= DisableOutline;
+    }
+
     protected void DisableOutline(LevelConfigSO level)
     {
         if(!level.Equals(levelConfigSO))

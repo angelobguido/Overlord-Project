@@ -10,7 +10,7 @@ public class FormBHV : MonoBehaviour {
     public RectTransform submitButton;
     public float extraQuestionsPanelHeight = 100;
     private List<FormQuestionBHV> questions = new List<FormQuestionBHV>();
-
+    public int formID; //0 for pretest, 1 for posttest
     
     // Use this for initialization
     void Start () {
@@ -36,30 +36,33 @@ public class FormBHV : MonoBehaviour {
     public void Submit ()
     {
         
-        bool isAnswered = true;
+        /*bool isAnswered = true;
         foreach (FormQuestionBHV q in questions)
         {
             if (q.value == 0)
                 isAnswered = false;
-        }
-        if (isAnswered)
+        }*/
+        /*if (isAnswered)
+        {*/
+            //Debug.Log("Answered Correctly");
+        foreach (FormQuestionBHV q in questions)
         {
-            Debug.Log("Answered Correctly");
-            foreach (FormQuestionBHV q in questions)
-            {
-                int answer = q.value;
-                Debug.Log("Value:" + q.value);
-                // TODO: lógica para submissão das respostas
-                // Sugestão: passar todos os int para o formato int1, int2, int3... (csv)
-                // e criar um novo método em player profile para receber essa adição e fazer o post
-                PlayerProfile.instance.OnFormAnswered(answer);
-            }
+            int answer = q.value;
+            //Debug.Log("Value:" + q.value);
+            // TODO: lógica para submissão das respostas
+            // Sugestão: passar todos os int para o formato int1, int2, int3... (csv)
+            // e criar um novo método em player profile para receber essa adição e fazer o post
+            PlayerProfile.instance.OnFormAnswered(answer, formID);
+            q.value = 0;
+            q.ResetToggles();
+        }
+        if(formID == 1)
             GameManager.instance.EndGame();
 
             
 
             
-        }
+        //}
     }
 
 

@@ -6,8 +6,9 @@ public class GameOverPanelBHV : MonoBehaviour, IMenuPanel
     [SerializeField]
     GameObject nextPanel;
     [SerializeField]
-    string GameScene;
-
+    GameObject WeaponSelectPanel;
+    [SerializeField]
+    bool hasWon;
 
     public void GoToNext()
     {
@@ -17,8 +18,8 @@ public class GameOverPanelBHV : MonoBehaviour, IMenuPanel
 
     public void GoToPrevious()
     {
-        PlayerProfile.instance.OnMapComplete(false);
+        PlayerProfile.instance.OnMapComplete();
+        WeaponSelectPanel.SetActive(true);
         gameObject.SetActive(false);
-        SceneManager.LoadScene(GameScene);
     }
 }

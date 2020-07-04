@@ -70,6 +70,11 @@ public class GameManager : MonoBehaviour
 
     public int nExecutions, nBatches;
 
+    public delegate void NewLevelLoadedEvent();
+    public static event NewLevelLoadedEvent newLevelLoadedEvent;
+
+    public int maxTreasure, maxRooms;
+
     void Awake()
     {
         //Singleton
@@ -375,10 +380,10 @@ public class GameManager : MonoBehaviour
 
     private void OnStartMap(string mapName, int batch, Map map, int difficulty)
     {
-        Debug.Log("Map Name: " + mapName);
-        PlayerProfile.instance.OnMapStart(mapName, batch, map.rooms, difficulty);
+        //Debug.Log("Map Name: " + mapName);
+        PlayerProfile.instance.OnMapStart(mapName, batch, map.rooms, difficulty, projectileSet.Items.IndexOf(projectileType));
         PlayerProfile.instance.OnRoomEnter(map.startX, map.startY, roomBHVMap[map.startX, map.startY].hasEnemies, roomBHVMap[map.startX, map.startY].enemiesIndex, Player.instance.GetComponent<PlayerController>().GetHealth());
-        Debug.Log("Started Profiling");
+        //Debug.Log("Started Profiling");
     }
 
     void OnApplicationQuit()
@@ -398,7 +403,7 @@ public class GameManager : MonoBehaviour
         gameUI.SetActive(false);
         //TODO save every gameplay data
         //TODO make it load a new level
-        Debug.Log("MapID:" + randomLevelList[currentMapId]);
+        //Debug.Log("MapID:" + randomLevelList[currentMapId]);
         //Debug.Log("MapsLength:" + maps.Count);
 
         //Analytics for the level
@@ -406,7 +411,7 @@ public class GameManager : MonoBehaviour
         customParams.Add("seconds_played", secondsElapsed);
         customParams.Add("keys", Player.instance.keys.Count);
         customParams.Add("locks", Player.instance.usedKeys.Count);
-
+        PlayerProfile.instance.HasFinished = true;
         if (!createMaps && !survivalMode)
             victoryScreen.SetActive(true);
         else
@@ -434,7 +439,7 @@ public class GameManager : MonoBehaviour
 
     public void CheckEndOfBatch()
     {
-        PlayerProfile.instance.OnMapComplete(true);
+        PlayerProfile.instance.OnMapComplete();
         /*if (!createMaps && survivalMode)
         {
             if (currentMapId < (maps.Count - 1))
@@ -458,7 +463,7 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
-        PlayerProfile.instance.OnMapComplete(true);
+        PlayerProfile.instance.OnMapComplete();
         //endingScreen.SetActive(true);
     }
 
@@ -470,17 +475,21 @@ public class GameManager : MonoBehaviour
         WeaponLoaderBHV.loadWeaponButtonEvent += SetProjectileSO;
         PostFormMenuBHV.postFormButtonEvent += PlayGameOnDifficulty;
     }
+    void OnDisable()
+    {
+        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
+        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
+        LevelLoaderBHV.loadLevelButtonEvent -= PlayGameOnDifficulty;
+        WeaponLoaderBHV.loadWeaponButtonEvent -= SetProjectileSO;
+        PostFormMenuBHV.postFormButtonEvent -= PlayGameOnDifficulty;
+    }
 
     void SetProjectileSO(ProjectileTypeSO type)
     {
         projectileType = type;
     }
 
-    void OnDisable()
-    {
-        //Tell our 'OnLevelFinishedLoading' function to stop listening for a scene change as soon as this script is disabled. Remember to always have an unsubscription for every delegate you subscribe to!
-        SceneManager.sceneLoaded -= OnLevelFinishedLoading;
-    }
+
 
     void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
     {
@@ -544,7 +553,7 @@ public class GameManager : MonoBehaviour
             gameUI.SetActive(true);
             healthUI = gameUI.GetComponentInChildren<HealthUI>();
             keyUI = gameUI.GetComponentInChildren<KeyUI>();
-
+            OnLevelLoadedEvents();
             LoadNewLevel(mapFile, chosenDifficulty);
         }
         if (scene.name == "Main")
@@ -655,10 +664,10 @@ public class GameManager : MonoBehaviour
     public void SetLevelMode(string fileName, int difficulty)
     {
         chosenDifficulty = difficulty;
-        Debug.Log("Nome do Arquivo: " + fileName);
+        //Debug.Log("Nome do Arquivo: " + fileName);
         mapFile = Resources.Load<TextAsset>("Levels/"+fileName);
         currentLevel = fileName;
-        Debug.Log("Mapa: " + mapFile);
+        //Debug.Log("Mapa: " + mapFile);
         levelSetNames.Remove(fileName);
         //SceneManager.LoadScene("LevelWithEnemies");
     }
@@ -812,6 +821,11 @@ public class GameManager : MonoBehaviour
         levelSetNames.Remove(nextLevelCandidate);
 
         return levelSet.Items.Find(x => (x.fileName.CompareTo(nextLevelCandidate) == 0));
+    }
+
+    public void OnLevelLoadedEvents()
+    {
+        newLevelLoadedEvent();
     }
 
 }

@@ -24,40 +24,43 @@ public class PlayerProfile : MonoBehaviour {
     private int roomID = 0;
 
     private const string PostDataURL = "http://damicore.icmc.usp.br/pag/data/upload.php?";
-    private int attemptNumber = 1; //TODO: entender o por quê desse int
+    private int attemptOnLevelNumber, cumulativeAttempts; //TODO: entender o por quê desse int
 
     [SerializeField]
     public string sessionUID;
     [SerializeField]
-    private string profileString, heatMapString, enemyString;
+    private string profileString, heatMapString, levelProfileString, detailedLevelProfileString;
 
     [SerializeField]
     private int mapCount = 0;
     [SerializeField]
     private int curBatchId;
     [SerializeField]
-    private string curMapName;
+    private string curMapName = null;
 
     [SerializeField]
-    private List<Vector2Int> visitedRooms = new List<Vector2Int>();
+    public List<Vector2Int> visitedRooms = new List<Vector2Int>();
     [SerializeField]
     private int mapVisitedCount = 0;
     [SerializeField]
-    private int mapVisitedCountUnique = 0;
+    public int mapVisitedCountUnique = 0;
     [SerializeField]
     private int keysTaken = 0;
     [SerializeField]
     private int keysUsed = 0;
     [SerializeField]
-    private List<int> formAnswers = new List<int>();
+    private List<int> preFormAnswers = new List<int>();
+    [SerializeField]
+    private List<int> postFormAnswers = new List<int>();
     [SerializeField]
     private int secondsToFinish = 0;
     System.Diagnostics.Stopwatch stopWatch = new System.Diagnostics.Stopwatch();
     [SerializeField]
     private int[,] heatMap;
 
-    protected int actualCombo, maxCombo;
-    protected int treasureCollected;
+    public int actualCombo, maxCombo;
+    public int treasureCollected;
+    protected int weaponUsed;
 
     //Enemy Generator Data
     protected List<CombatRoomInfo> combatInfoList;
@@ -65,7 +68,7 @@ public class PlayerProfile : MonoBehaviour {
     protected List<int> damageDoneByEnemy;
     protected int timesPlayerDied;
     public bool HasFinished { get; set; } //0 if player gave up, 1 if he completed the stage 
-    protected CombatRoomInfo actualRoomInfo;
+    public CombatRoomInfo actualRoomInfo;
 
     private string result;
 
@@ -79,6 +82,7 @@ public class PlayerProfile : MonoBehaviour {
             actualCombo = 0;
             maxCombo = 0;
             treasureCollected = 0;
+            weaponUsed = -1;
         }
         else if (instance != this)
         {
@@ -98,7 +102,8 @@ public class PlayerProfile : MonoBehaviour {
         sessionUID += "_";
         sessionUID += dateTime;
 
-        attemptNumber = 0; //TODO: entender o por quê desse int
+        attemptOnLevelNumber = 0;
+        cumulativeAttempts = 0;
     }
 	
 	// Update is called once per frame
@@ -110,7 +115,22 @@ public class PlayerProfile : MonoBehaviour {
     {
         ProjectileController.hitEnemyEvent += IncrementCombo;
         ProjectileController.hitPlayerEvent += ResetCombo;
+        BombController.hitPlayerEvent += ResetCombo;
+        EnemyController.hitPlayerEvent += ResetCombo;
         TreasureController.collectTreasureEvent += GetTreasure;
+        GameManager.newLevelLoadedEvent += ResetMaxCombo;
+        GameManager.newLevelLoadedEvent += ResetTreasure;
+    }
+
+    protected void OnDisable()
+    {
+        ProjectileController.hitEnemyEvent -= IncrementCombo;
+        ProjectileController.hitPlayerEvent -= ResetCombo;
+        BombController.hitPlayerEvent -= ResetCombo;
+        EnemyController.hitPlayerEvent -= ResetCombo;
+        TreasureController.collectTreasureEvent -= GetTreasure;
+        GameManager.newLevelLoadedEvent -= ResetMaxCombo;
+        GameManager.newLevelLoadedEvent -= ResetTreasure;
     }
     public void IncrementCombo()
     {
@@ -124,32 +144,42 @@ public class PlayerProfile : MonoBehaviour {
         actualCombo = 0;
     }
 
+    public void ResetMaxCombo()
+    {
+        actualCombo = 0;
+        maxCombo = 0;
+    }
+
     public void GetTreasure(int value)
     {
         treasureCollected += value;
+    }
+
+    public void ResetTreasure()
+    {
+        treasureCollected = 0;
     }
     public void OnGameStart()
     {
         profileString = "";
         heatMapString = "";
-        enemyString = "";
+        levelProfileString = "";
+        detailedLevelProfileString = "";
         mapCount = 0;
         visitedRooms = new List<Vector2Int>();
         mapVisitedCount = 0;
         mapVisitedCountUnique = 0;
         keysTaken = 0;
         keysUsed = 0;
-        formAnswers = new List<int>();
+        postFormAnswers = new List<int>();
         secondsToFinish = 0;
         stopWatch = new System.Diagnostics.Stopwatch();
-        actualCombo = 0;
-        treasureCollected = 0;
-        maxCombo = 0;
         //Enemy Generator Data
         combatInfoList = new List<CombatRoomInfo>();
         difficultyLevel = -1;
         timesPlayerDied = 0;
         HasFinished = false; //0 if player gave up, 1 if he completed the stage 
+        weaponUsed = -1;
     }
 
     //Events
@@ -209,20 +239,31 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From GameManager
-    public void OnMapStart (string name, int batch, Room[,] rooms, int difficulty)
+    public void OnMapStart (string name, int batch, Room[,] rooms, int difficulty, int weapon)
     {
+        HasFinished = false;
         mapCount++;
+        if (curMapName != null)
+            if (curMapName != name)
+            {
+                attemptOnLevelNumber = 1;
+                timesPlayerDied = 0;
+            }
+            else
+                attemptOnLevelNumber++;
+        cumulativeAttempts++;
         curMapName = name;
         curBatchId = batch;
         stopWatch.Start();
         heatMap = CreateHeatMap(rooms);
         combatInfoList = new List<CombatRoomInfo>();
-        attemptNumber++;
         damageDoneByEnemy = new int[EnemyUtil.nBestEnemies].ToList();
         difficultyLevel = difficulty;
-        Debug.Log("On Map Start Profilling Called");
+        //Debug.Log("On Map Start Profilling Called");
+        weaponUsed = weapon;
         //Log
         //Mais métricas - organiza em TAD
+        
     }
 
     //From inheritance
@@ -232,7 +273,7 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From TriforceBHV
-    public void OnMapComplete (bool victory)
+    public void OnMapComplete ()
     {
         stopWatch.Stop();
         secondsToFinish = stopWatch.Elapsed.Seconds;
@@ -244,18 +285,15 @@ public class PlayerProfile : MonoBehaviour {
         mapVisitedCountUnique = visitedRooms.Distinct().Count();
         ResetCombo();
 
-        HasFinished = victory;
+        //HasFinished = victory;
         //Save to remote file
         SendProfileToServer();
         //Reset all values
         visitedRooms.Clear();
-        formAnswers.Clear();
+        postFormAnswers.Clear();
         keysTaken = 0;
         keysUsed = 0;
         profileString = "";
-        maxCombo = 0;
-        actualCombo = 0;
-        treasureCollected = 0;
         damageDoneByEnemy.Clear();
     }
 
@@ -268,66 +306,98 @@ public class PlayerProfile : MonoBehaviour {
     }
 
     //From FormBHV
-    public void OnFormAnswered(int answer)
+    public void OnFormAnswered(int answer, int formID)
     {
         //Log
-        formAnswers.Add(answer);
+        //TODO FIX THIS WITH AN ENUM OR SOMETHING
+        //0 PreTest 1 PostTest
+        if(formID == 0)
+            preFormAnswers.Add(answer);
+        else if(formID == 1)
+            postFormAnswers.Add(answer);
     }
 
     private void WrapProfileToString ()
     {
         profileString = "";
-        profileString += "\nmapCount,"+mapVisitedCount + ",uniquemap," + 
-            mapVisitedCountUnique + ",keys," + keysTaken + 
-            ",locks," + keysUsed + ",time,"+ secondsToFinish + ",maxCombo,"+
-            maxCombo+",treasure,"+treasureCollected;
-
+        if (preFormAnswers.Count > 0)
+        {
+            int i = 0;
+            foreach (int answer in preFormAnswers)
+            {
+                profileString += "PreQuestion "+i+",";
+                i++;
+            }
+            profileString += "\n";
+            foreach (int answer in preFormAnswers)
+            {
+                profileString += answer + ",";
+            }
+        }
     }
 
-    private void WrapEnemyProfileToString()
+    private void WrapLevelProfileToString()
     {
-        enemyString = "";
-        enemyString += "Difficulty," + difficultyLevel+"\n";
-        enemyString += "Deaths," + timesPlayerDied + "\n";
-        enemyString += "Victory?," + HasFinished + "\n";
-        enemyString += "EnemyDamage,\n";
-        for(int i = 0; i < EnemyUtil.nBestEnemies; ++i)
-            enemyString += i+",";
-        enemyString += "\n";
+        levelProfileString = "";
+        levelProfileString += "map,attempt,cumulativeAttempt,mapCount,uniquemap,keys,locks,time,maxCombo,treasure,weapon,difficulty,deaths,Victory?,";
         for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
-            enemyString += damageDoneByEnemy[i] + ",";
-        enemyString += "\n";
-        enemyString += "RoomID:,playerInitialHealth,PlayerFinalHealth,HealthLost,TimeToExit,hasEnemies,nEnemies,EnemiesIds,\n";
-        foreach (CombatRoomInfo info in combatInfoList)
+            levelProfileString += "Enemy"+i+"Damage,";
+        if (postFormAnswers.Count > 0)
         {
-            enemyString += info.roomId + ",";
-            enemyString += info.playerInitHealth + ",";
-            enemyString += info.playerFinalHealth + ",";
-            enemyString += (info.playerFinalHealth-info.playerInitHealth) + ",";
-            enemyString += info.timeToExit + ",";
-            enemyString += info.hasEnemies + ",";
-            enemyString += info.nEnemies + ",";
-            foreach (int enemyId in info.enemiesIndex)
-                enemyString += enemyId + ",";
-            enemyString += "\n";
-        }
-        enemyString += "\n";
-        enemyString += "\nForm,";
-        if (formAnswers.Count > 0)
-        {
-            foreach (int answer in formAnswers)
+            int i = 0;
+            foreach (int answer in postFormAnswers)
             {
-                enemyString += answer + ",";
+                levelProfileString += "PostQuestion " + i + ",";
+                i++;
             }
         }
         else
-            enemyString += "-1,";
-        enemyString += "\n";
+            levelProfileString += "NoPostQuestions,";
+        levelProfileString += "\n";
+
+        levelProfileString += curMapName+","+ attemptOnLevelNumber + ","+ cumulativeAttempts + "," + mapVisitedCount + ","+ mapVisitedCountUnique + "," + keysTaken +
+            "," + keysUsed + "," + secondsToFinish + "," + maxCombo + "," + 
+            treasureCollected + "," + weaponUsed + "," + difficultyLevel + "," + timesPlayerDied + "," + HasFinished + ",";
+        for (int i = 0; i < EnemyUtil.nBestEnemies; ++i)
+            levelProfileString += damageDoneByEnemy[i] + ",";
+        if (postFormAnswers.Count > 0)
+        {
+            foreach (int answer in postFormAnswers)
+            {
+                levelProfileString += answer + ",";
+            }
+        }
+        else
+            levelProfileString += "-1,";
+        levelProfileString += "\n";
     }
+
+    private void WrapLevelDetailedCombatProfileToString()
+    {
+        detailedLevelProfileString += "map,attemptOnLevel,cumulativeAttempt,RoomID:,playerInitialHealth,PlayerFinalHealth,HealthLost,TimeToExit,hasEnemies,nEnemies,EnemiesIds,\n";
+        foreach (CombatRoomInfo info in combatInfoList)
+        {
+            detailedLevelProfileString += curMapName + "," + attemptOnLevelNumber + "," + cumulativeAttempts + ",";
+            detailedLevelProfileString += info.roomId + ",";
+            detailedLevelProfileString += info.playerInitHealth + ",";
+            detailedLevelProfileString += info.playerFinalHealth + ",";
+            detailedLevelProfileString += (info.playerFinalHealth - info.playerInitHealth) + ",";
+            detailedLevelProfileString += info.timeToExit + ",";
+            detailedLevelProfileString += info.hasEnemies + ",";
+            detailedLevelProfileString += info.nEnemies + ",";
+            foreach (int enemyId in info.enemiesIndex)
+                detailedLevelProfileString += enemyId + ",";
+            detailedLevelProfileString += "\n";
+        }
+    }
+
 
     private void WrapHeatMapToString()
     {
         heatMapString = "";
+        heatMapString += "map,attempt,cumulativeAttempt\n";
+        heatMapString += curMapName + "," + attemptOnLevelNumber + "," + cumulativeAttempts + "\n";
+        heatMapString += "Heatmap:\n";
         for (int i = 0; i < Map.sizeX / 2; ++i)
         {
             for (int j = 0; j < Map.sizeY / 2; ++j)
@@ -344,57 +414,69 @@ public class PlayerProfile : MonoBehaviour {
     {
         WrapProfileToString();
         WrapHeatMapToString();
-        WrapEnemyProfileToString();
-        //StartCoroutine(PostData("Batch"+curBatchId.ToString() +"Map" + curMapName, profileString, heatMapString, enemyString)); //TODO: verificar corretamente como serão salvos os arquivos
-        saveToLocalFile("Batch" + curBatchId.ToString() + "Map" + curMapName, profileString, heatMapString, enemyString);
+        WrapLevelProfileToString();
+        WrapLevelDetailedCombatProfileToString();
+        StartCoroutine(PostData("Map" + curMapName, profileString, heatMapString, levelProfileString, detailedLevelProfileString)); //TODO: verificar corretamente como serão salvos os arquivos
+        //saveToLocalFile("Map" + curMapName, profileString, heatMapString, levelProfileString, detailedLevelProfileString);
         string UploadFilePath = PlayerProfile.instance.sessionUID;
 
 
     }
 
-    void saveToLocalFile(string name, string stringData, string heatMapData, string enemyData)
+    void saveToLocalFile(string name, string stringData, string heatMapData, string levelData, string levelDetailedData)
     {
-        stringData = sessionUID + "," + stringData;
         if (!Directory.Exists(Application.streamingAssetsPath+"/PlayerData"))
             Directory.CreateDirectory(Application.streamingAssetsPath + "/PlayerData");
-        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        if (cumulativeAttempts == 1)
         {
-            writer.Write(stringData);
-            writer.Flush();
-            writer.Close();
+            using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "Player" + name + ".csv", true, Encoding.UTF8))
+            {
+                writer.Write(stringData);
+                writer.Flush();
+                writer.Close();
+            }
         }
 
-        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "HM" + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "HM" + name + ".csv", true, Encoding.UTF8))
         {
             writer.Write(heatMapData);
             writer.Flush();
             writer.Close();
         }
 
-        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "Enemy" + name + "_Attempt" + attemptNumber + ".csv", false, Encoding.UTF8))
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "Level" + name + ".csv", true, Encoding.UTF8))
         {
-            writer.Write(enemyData);
+            writer.Write(levelData);
+            writer.Flush();
+            writer.Close();
+        }
+
+        using (StreamWriter writer = new StreamWriter(Application.streamingAssetsPath + "/PlayerData/" + sessionUID + "Detailed" + name + ".csv", true, Encoding.UTF8))
+        {
+            writer.Write(levelDetailedData);
             writer.Flush();
             writer.Close();
         }
 
     }
 
-    IEnumerator PostData(string name, string stringData, string heatMapData, string enemyData)
+    IEnumerator PostData(string name, string stringData, string heatMapData, string levelData, string levelDetailedData)
     {
-        stringData = sessionUID + "," + stringData;
+        name = sessionUID + name;
         byte[] data = System.Text.Encoding.UTF8.GetBytes(stringData);
         byte[] heatMapBinary = System.Text.Encoding.UTF8.GetBytes(heatMapData);
-        byte[] enemyBinary = System.Text.Encoding.UTF8.GetBytes(enemyData);
+        byte[] levelBinary = System.Text.Encoding.UTF8.GetBytes(levelData);
+        byte[] levelDetailedBinary = System.Text.Encoding.UTF8.GetBytes(levelDetailedData);
         //This connects to a server side php script that will write the data
         //string post_url = postDataURL + "name=" + WWW.EscapeURL(name) + "&data=" + data ;
         string post_url = PostDataURL;
         Debug.Log("LogName:"+name);
         WWWForm form = new WWWForm();
         form.AddField("name", sessionUID);
-        form.AddBinaryData("data", data, name + "_Attempt" + attemptNumber + ".csv", "text/csv");
-        form.AddBinaryData("heatmap", heatMapBinary, "HM"+name + "_Attempt" + attemptNumber + ".csv", "text/csv");
-        form.AddBinaryData("enemy", enemyBinary, "Enemy" + name + "_Attempt" + attemptNumber + ".csv", "text/csv");
+        form.AddBinaryData("data", data, name + ".csv", "text/csv");
+        form.AddBinaryData("heatmap", heatMapBinary, "HM"+name + ".csv", "text/csv");
+        form.AddBinaryData("level", levelBinary, "Level" + name + ".csv", "text/csv");
+        form.AddBinaryData("detailed", levelDetailedBinary, "Detailed" + name + ".csv", "text/csv");
 
         // Post the URL to the site and create a download object to get the result.
         WWW data_post = new WWW(post_url, form);
@@ -453,6 +535,6 @@ public class PlayerProfile : MonoBehaviour {
 
     public void OnRetry()
     {
-        OnMapComplete(false);
+        OnMapComplete();
     }
 }

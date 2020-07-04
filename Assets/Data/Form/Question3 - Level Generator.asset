@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Question3 - Level Generator
   m_EditorClassIdentifier: 
   question: "O quanto voc\xEA concorda com a afirma\xE7\xE3o: \"Esse n\uFDE5\xEDvel
-    foi dif\xEDcil de ser completado?\""
+    foi muito dif\xEDcil de ser completado?\""
   description: 1 = Discordo Fortemente       <->      5 = Concordo Fortemente

@@ -70,14 +70,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 8
   shootSpeed: 10
-  shootCD: 0.5
+  coolDownTime: 0
+  atkSpeed: 0
   shootDmg: 1
   maxHealth: 10
+  bulletSpawn: {fileID: 8485515136786634743}
   bulletPrefab: {fileID: 1699235863348634, guid: 7c6443c3f53cfcb42b8bf65f9e8b56f5,
     type: 3}
-  bulletSpawn: {fileID: 8485515136786634743}
   timeAfterShoot: 0
   rotatedAngle: 0
+  projectileType: {fileID: 0}
 --- !u!212 &212597136606239852
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -112,8 +114,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1691099297
+  m_SortingLayer: -1
   m_SortingOrder: 1
   m_Sprite: {fileID: -6985117363303071740, guid: b92c1c44f604d074595ba5ee0e831239,
     type: 3}

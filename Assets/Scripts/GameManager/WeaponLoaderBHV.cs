@@ -23,6 +23,11 @@ public class WeaponLoaderBHV : MonoBehaviour, IMenuPanel
         WeaponSelectionButtonBHV.selectWeaponButtonEvent += PrepareWeapon;
     }
 
+    protected void OnDisable()
+    {
+        WeaponSelectionButtonBHV.selectWeaponButtonEvent -= PrepareWeapon;
+    }
+
     protected void PrepareWeapon(ProjectileTypeSO projectileSO)
     {
         this.projectileSO = projectileSO;

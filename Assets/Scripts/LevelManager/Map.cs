@@ -21,16 +21,18 @@ public class Map {
 	public Map(string text, string roomsFilePath = null){
 		ReadMapFile (text); // lê o mapa global
         if (roomsFilePath != null){ // dá a opção de gerar o mapa com ou sem os tiles
-            Debug.Log("Has Room File");
+            //Debug.Log("Has Room File");
             ReadRoomsFile (roomsFilePath); // lê cada sala, com seus tiles
 			Room.tiled = true; // o arquivo de tiles das salas foi lido; função de tiles ativada
 		} else { // sala vazia padrão
-            Debug.Log("Doesn't Have Room File");
+            //Debug.Log("Doesn't Have Room File");
             BuildDefaultRooms();
         }
 	}
 
 	private void ReadMapFile(string text){
+        GameManager.instance.maxTreasure = 0;
+        GameManager.instance.maxRooms = 0;
         var splitFile = new string[] { "\r\n", "\r", "\n" };
 
         //StreamReader streamReaderMap = new StreamReader(filepath);
@@ -42,7 +44,7 @@ public class Map {
         sizeY = int.Parse(NameLines[1]);
 
         //Debug.Log (filepath);
-        Debug.Log("sizeX = " + sizeX + "   sizeY = " + sizeY);
+        //Debug.Log("sizeX = " + sizeX + "   sizeY = " + sizeY);
         rooms = new Room[sizeX, sizeY];
 
 
@@ -59,6 +61,7 @@ public class Map {
             //Sala ou corredor(link)?
             if (((x % 2) + (y % 2)) == 0)
             { // ambos pares: sala
+                GameManager.instance.maxRooms += 1;
                 switch (code)
                 {
                     case "s": //This is the starting room
@@ -71,7 +74,8 @@ public class Map {
                         break;
                     case "T": //This room has a treasure
                         rooms[x, y].difficulty = GameManager.instance.dungeonDifficulty;
-                        rooms[x, y].Treasure = Random.Range(0, GameManager.instance.treasureSet.Items.Count);
+                        rooms[x, y].Treasure = GameManager.instance.treasureSet.Items.Count-1;
+                        GameManager.instance.maxTreasure += 50;
                         break;
                     default:
                         rooms[x, y].keyID = int.Parse(code);
@@ -93,7 +97,7 @@ public class Map {
                 }
             }
         }
-		Debug.Log ("Dungeon read.");
+		//Debug.Log ("Dungeon read.");
 	}
 
 	//Recebe os dados de tiles das salas

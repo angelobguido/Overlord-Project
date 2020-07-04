@@ -19,6 +19,11 @@ public class WeaponDescriptionBHV : MonoBehaviour
         WeaponSelectionButtonBHV.selectWeaponButtonEvent += ShowWeaponInfo;
     }
 
+    protected void OnDisable()
+    {
+        WeaponSelectionButtonBHV.selectWeaponButtonEvent -= ShowWeaponInfo;
+    }
+
     protected void ShowWeaponInfo(ProjectileTypeSO weaponSO)
     {
         this.weaponSO = weaponSO;

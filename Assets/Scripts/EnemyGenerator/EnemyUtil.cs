@@ -12,10 +12,10 @@ namespace EnemyGenerator
         public const int mutChance = 10;
         public static int maxGenerations = 30;
         public static float desiredFitness;
-        public const float easyFitness = 15f;
-        public const float mediumFitness = 17.5f;
-        public const float hardFitness = 20.5f;
-        public const float veryHardFitness = 23.5f;
+        public const float easyFitness = 14.0f;
+        public const float mediumFitness = 17.0f;
+        public const float hardFitness = 22.5f;
+        public const float veryHardFitness = 25.5f;
         public const int nBestEnemies = 20;
         public const int minDamage = 1;
         public const int maxDamage = 4;

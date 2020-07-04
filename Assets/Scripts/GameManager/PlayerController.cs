@@ -55,7 +55,16 @@ public class PlayerController : MonoBehaviour {
 
     }
 
-	void FixedUpdate(){
+    private void OnEnable()
+    {
+        WeaponLoaderBHV.loadWeaponButtonEvent += SetProjectileSO;
+    }
+    private void OnDisable()
+    {
+        WeaponLoaderBHV.loadWeaponButtonEvent -= SetProjectileSO;
+    }
+
+    void FixedUpdate(){
 		float moveHorizontal = Input.GetAxisRaw ("Horizontal");
 		float moveVertical = Input.GetAxisRaw ("Vertical");
 		Vector2 movement = new Vector2 (moveHorizontal, moveVertical);

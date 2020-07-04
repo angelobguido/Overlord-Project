@@ -22,14 +22,14 @@ public class GameManagerTest : MonoBehaviour
 
     //singleton
     public static GameManagerTest instance = null;
-
+#if UNITY_EDITOR
     //Array of entities for the population of enemies
     public NativeArray<Entity> enemyPopulationArray;
     //Array of entities for the intermediate population of enemies
     public NativeArray<Entity> intermediateEnemyPopulationArray;
 
     public NativeArray<float> fitnessArray;
-
+#endif
     public int generationCounter;
 
     public float startTime;
@@ -50,13 +50,14 @@ public class GameManagerTest : MonoBehaviour
     public MovementTypeRuntimeSetSO movementSet;
     public BehaviorTypeRuntimeSetSO behaviorSet;
     public WeaponTypeRuntimeSetSO weaponSet;
+#if UNITY_EDITOR
     public NativeArray<int> projectileMultipliers;
     public NativeArray<float> movementMultipliers;
     //TODO put them into the EA
     public NativeArray<float> behaviorMultipliers;
     public NativeArray<float> weaponMultipliers;
     public NativeArray<bool> weaponHasProjectile;
-
+#endif
 
     public float timeToConverge, timeAfterSort;
     public float bestFitness, averageNBestFitness, averageFitness;
@@ -81,11 +82,11 @@ public class GameManagerTest : MonoBehaviour
     public void AwakeInit()
     {
         startTime = Time.realtimeSinceStartup;
+#if UNITY_EDITOR
         //Instantiate "Population Size" individuals for both populations using a native array
         enemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
         intermediateEnemyPopulationArray = new NativeArray<Entity>(EnemyUtil.popSize, Allocator.Persistent);
         fitnessArray = new NativeArray<float>(EnemyUtil.popSize, Allocator.Persistent);
-#if UNITY_EDITOR
         enemyPop = new NativeArray<EnemyComponent>(EnemyUtil.popSize, Allocator.Persistent);
         weaponPop = new NativeArray<WeaponComponent>(EnemyUtil.popSize, Allocator.Persistent);
         bestEnemyPop = new NativeArray<EnemyComponent>(EnemyUtil.nBestEnemies, Allocator.Persistent);
@@ -97,12 +98,13 @@ public class GameManagerTest : MonoBehaviour
         enemyPrinted = false;
         enemyReady = false;
         enemySorted = false;
+#if UNITY_EDITOR
         projectileMultipliers = new NativeArray<int>(projectileSet.Items.Count, Allocator.Persistent);
         movementMultipliers = new NativeArray<float>(movementSet.Items.Count, Allocator.Persistent);
         behaviorMultipliers = new NativeArray<float>(behaviorSet.Items.Count, Allocator.Persistent);
         weaponMultipliers = new NativeArray<float>(weaponSet.Items.Count, Allocator.Persistent);
         weaponHasProjectile = new NativeArray<bool>(weaponSet.Items.Count, Allocator.Persistent);
-
+#endif
         switch (difficulty)
         {
             case DifficultyEnum.easy:
@@ -130,6 +132,7 @@ public class GameManagerTest : MonoBehaviour
 
     public void StartInit()
     {
+#if UNITY_EDITOR
         for (int i = (projectileSet.Items.Count - 1); i >= 0; i--)
             projectileMultipliers[i] = projectileSet.Items[i].multiplier;
 
@@ -147,7 +150,7 @@ public class GameManagerTest : MonoBehaviour
 
         //We must have an entity manager in our current world to create and handle the entities
         entityManager = World.Active.EntityManager;
-
+#endif
         //An entity archetype is kind of a struct of entities
         //This one is for the population of enemies itself, having a "population" tag to differentiate it from the intermediate population
         //Also it has the enemy and its weapon component and, 
@@ -235,24 +238,26 @@ public class GameManagerTest : MonoBehaviour
                 //REMOVE THE COMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 CreateSOBestEnemies();
                 GameManager.instance.createEnemy = false;
-#endif
+
                 entityManager.DestroyEntity(enemyPopulationArray);
                 entityManager.DestroyEntity(intermediateEnemyPopulationArray);
                 enemyPopulationArray.Dispose();
                 intermediateEnemyPopulationArray.Dispose();
                 fitnessArray.Dispose();
+#endif
 #if UNITY_EDITOR
                 enemyPop.Dispose();
                 weaponPop.Dispose();
                 bestEnemyPop.Dispose();
                 bestWeaponPop.Dispose();
-#endif
+
                 projectileMultipliers.Dispose();
                 movementMultipliers.Dispose();
                 behaviorMultipliers.Dispose();
                 weaponMultipliers.Dispose();
                 weaponHasProjectile.Dispose();
                 GameManager.instance.Rezero();
+#endif
             }
         }
     }
@@ -352,7 +357,7 @@ public class GameManagerTest : MonoBehaviour
             Debug.Log("Creating new Folder");
             AssetDatabase.CreateFolder(foldername, subfoldername);
         }
-        
+
         while (i < EnemyUtil.nBestEnemies)
         {
             if (IsEnemyDifferent(i + shift))

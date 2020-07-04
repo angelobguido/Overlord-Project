@@ -37,6 +37,11 @@ public class LevelDescriptionDialogueBHV : MonoBehaviour
         LevelSelectButtonBHV.selectLevelButtonEvent += ShowLevelInfo;
     }
 
+    protected void OnDisable()
+    {
+        LevelSelectButtonBHV.selectLevelButtonEvent -= ShowLevelInfo;
+    }
+
     protected void ShowLevelInfo(LevelConfigSO levelConfigSO)
     {
         levelSelectData = new LevelSelectData(levelConfigSO.enemy, levelConfigSO.size, levelConfigSO.linearity);

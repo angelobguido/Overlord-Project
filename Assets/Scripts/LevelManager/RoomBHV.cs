@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using EnemyGenerator;
+using UnityEngine.Tilemaps;
 
 public class RoomBHV : MonoBehaviour {
 
@@ -38,6 +39,9 @@ public class RoomBHV : MonoBehaviour {
 	public TileBHV tilePrefab;
     public BlockBHV blockPrefab;
 
+    public Sprite northWall, southWall, eastWall, westWall;
+    public GameObject NWCollumn, NECollumn, SECollumn, SWCollumn;
+
     public GameObject minimapIcon;
 
     public List<Vector3> spawnPoints;
@@ -66,7 +70,7 @@ public class RoomBHV : MonoBehaviour {
 		}
         if(treasureID > -1)
         {
-            Debug.Log("This Room has a treasure. Instantiate!");
+            //Debug.Log("This Room has a treasure. Instantiate!");
             TreasureController treasure = Instantiate(treasurePrefab, transform);
             treasure.Treasure = GameManager.instance.treasureSet.Items[treasureID];
             treasure.SetRoom(x, y);
@@ -129,7 +133,8 @@ public class RoomBHV : MonoBehaviour {
 		colSouth.gameObject.GetComponent<SpriteRenderer>().size = new Vector2(Room.sizeX + 2, 1);
 		colEast.gameObject.GetComponent<SpriteRenderer>().size = new Vector2 (1, Room.sizeY + 2);
 		colWest.gameObject.GetComponent<SpriteRenderer>().size = new Vector2 (1, Room.sizeY + 2);
-
+        
+        GameObject auxObj;
 		//Posiciona os tiles
 		Room thisRoom = GameManager.instance.GetMap().rooms[x, y]; //TODO fazer de forma similar para tirar construção de salas do GameManager
 		for (int ix = 0; ix < Room.sizeX; ix++){
@@ -137,7 +142,49 @@ public class RoomBHV : MonoBehaviour {
 				int tileID = thisRoom.tiles [ix, iy];
                 TileBHV tileObj;
                 if (tileID == 1)
+                {
                     tileObj = Instantiate(blockPrefab);
+                    if (ix == 0)
+                    {
+                        if (iy == 0)
+                        {
+                            auxObj = Instantiate(NWCollumn);
+                            auxObj.transform.SetParent(transform);
+                            auxObj.transform.localPosition = new Vector2(ix - centerX, Room.sizeY - 1 - iy - centerY);
+                        }
+                        if(iy == (Room.sizeY-1))
+                        {
+                            auxObj = Instantiate(SWCollumn);
+                            auxObj.transform.SetParent(transform);
+                            auxObj.transform.localPosition = new Vector2(ix - centerX, Room.sizeY - 1 - iy - centerY);
+                        }
+                        tileObj.GetComponent<SpriteRenderer>().sprite = westWall;
+                    }
+                    else if(iy==0)
+                    {
+                        tileObj.GetComponent<SpriteRenderer>().sprite = northWall;
+                    }
+                    else if(ix == (Room.sizeX - 1))
+                    {
+                        if (iy == 0)
+                        {
+                            auxObj = Instantiate(NECollumn);
+                            auxObj.transform.SetParent(transform);
+                            auxObj.transform.localPosition = new Vector2(ix - centerX, Room.sizeY - 1 - iy - centerY);
+                        }
+                        if (iy == (Room.sizeY - 1))
+                        {
+                            auxObj = Instantiate(SECollumn);
+                            auxObj.transform.SetParent(transform);
+                            auxObj.transform.localPosition = new Vector2(ix - centerX, Room.sizeY - 1 - iy - centerY);
+                        }
+                        tileObj.GetComponent<SpriteRenderer>().sprite = eastWall;
+                    }
+                    else
+                    {
+                        tileObj.GetComponent<SpriteRenderer>().sprite = southWall;
+                    }
+                }
                 else
                     tileObj = Instantiate(tilePrefab);
 				tileObj.transform.SetParent (transform);
@@ -148,6 +195,20 @@ public class RoomBHV : MonoBehaviour {
 				tileObj.y = iy;
 			}
 		}
+
+        auxObj = Instantiate(NWCollumn);
+        auxObj.transform.SetParent(transform);
+        auxObj.transform.localPosition = new Vector2(- 0.5f - centerX, Room.sizeY - 0.5f - centerY);
+        auxObj = Instantiate(SECollumn);
+        auxObj.transform.SetParent(transform);
+        auxObj.transform.localPosition = new Vector2(Room.sizeX - 0.5f - centerX, - 0.5f - centerY);
+        auxObj = Instantiate(NECollumn);
+        auxObj.transform.SetParent(transform);
+        auxObj.transform.localPosition = new Vector2(Room.sizeX - 0.5f - centerX, Room.sizeY - 0.5f - centerY); 
+        auxObj = Instantiate(SWCollumn);
+        auxObj.transform.SetParent(transform);
+        auxObj.transform.localPosition = new Vector2(- 0.5f - centerX, - 0.5f - centerY);
+
         int margin = Util.distFromBorder;
         float xOffset = transform.position.x;
         float yOffset = transform.position.y;
