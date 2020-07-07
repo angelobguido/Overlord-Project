@@ -18,6 +18,9 @@ public class Map {
     
     public static int defaultTileID = 2;
 
+    /**
+     * Constructor of the Map object that uses an input file for the dungeon
+     */
 	public Map(string text, string roomsFilePath = null){
 		ReadMapFile (text); // lê o mapa global
         if (roomsFilePath != null){ // dá a opção de gerar o mapa com ou sem os tiles
@@ -29,33 +32,35 @@ public class Map {
             BuildDefaultRooms();
         }
 	}
-
-	private void ReadMapFile(string text){
+    /**
+     * Reads the Map File Generated from the EA by the "PrintNumericalGridWithConnections" method
+     * Not to be confused with the Map constructor that "reads" the created dungeon in real-time by the EA
+     */
+    private void ReadMapFile(string text){
         GameManager.instance.maxTreasure = 0;
         GameManager.instance.maxRooms = 0;
         var splitFile = new string[] { "\r\n", "\r", "\n" };
 
-        //StreamReader streamReaderMap = new StreamReader(filepath);
+        //Split the file in lines. A readLine method could also be used
 	    var NameLines = text.Split(splitFile, System.StringSplitOptions.RemoveEmptyEntries);
 
-        //sizeX = int.Parse(streamReaderMap.ReadLine());
-        //sizeY = int.Parse(streamReaderMap.ReadLine());
+        //The first two lines are the matrix sizes
         sizeX = int.Parse(NameLines[0]);
         sizeY = int.Parse(NameLines[1]);
 
-        //Debug.Log (filepath);
-        //Debug.Log("sizeX = " + sizeX + "   sizeY = " + sizeY);
+        //Create a Room grid with the sizes read
         rooms = new Room[sizeX, sizeY];
 
-
+        //Read all the other lines in the file
         for (uint i = 2; i < NameLines.Length;)
         {
+            //For now, every room/corridor has its x and y coordinates and code (identifies as a normal room, normal corridor, locked corridor, room with key, room with treasure, etc.
+            //TODO: change so the code now has up to 3 lines (if it is a room only): the first for the possible key in the room, the second for the possible treasure, and the third for the possible enemy difficulty
             int x, y;
             string code;
             x = int.Parse(NameLines[i++]);
             y = int.Parse(NameLines[i++]);
             code = NameLines[i++];
-            //Debug.Log("X = " + x + "   y = " + y + "  code = " + code);
 
             rooms[x, y] = new Room(x, y);
             //Sala ou corredor(link)?
@@ -73,20 +78,24 @@ public class Map {
                         endY = y;
                         break;
                     case "T": //This room has a treasure
+                        //"gambiarra" to give a predefined enemy difficulty for the room and always place the most valuable treasure
                         rooms[x, y].difficulty = GameManager.instance.dungeonDifficulty;
                         rooms[x, y].Treasure = GameManager.instance.treasureSet.Items.Count-1;
                         GameManager.instance.maxTreasure += 50;
                         break;
-                    default:
+                    default: //This is an empty room
                         rooms[x, y].keyID = int.Parse(code);
+                        //"gambiarra" to give a predefined enemy difficulty for the room
                         rooms[x, y].difficulty = GameManager.instance.dungeonDifficulty;
                         break;
                 }
             }
             else
-            { // corredor (link)
+            { //if not corridor, is a locked corridor
                 if (code != "c")
                 {
+                    //As in Breno's case, a lock can have many keys to open it, so we read until a positive number (not lock id) is found
+                    //But this is not yet available in the "PrintNumericalGridWithConnections" method. Only with the files he provided us
                     rooms[x, y].lockID.Clear();
                     do
                     {
@@ -155,6 +164,8 @@ public class Map {
         }
     }
 
+    //Constructs a Map based on the Dungeon created in "real-time" from the EA
+    //For now, we aren't changing this to the new method that adds treasures and enemies, but is the same principle.
     public Map(Dungeon dun)
     {
         Debug.Log(dun.RoomList.Count);
