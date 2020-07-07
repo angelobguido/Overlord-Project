@@ -359,10 +359,10 @@ namespace LevelGenerator
             while (path != "")
             {
                 count++;
-                path = AssetDatabase.AssetPathToGUID(foldername + filename + count + ".txt");
+                path = AssetDatabase.AssetPathToGUID(foldername + filename +"-"+ count + ".txt");
             }
             if (count > 0)
-                filename += count;
+                filename += "-"+count;
             filename = foldername + filename + ".txt";
             //UnityEngine.Debug.Log("Filename: " + filename);
 

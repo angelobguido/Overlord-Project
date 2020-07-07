@@ -496,7 +496,7 @@ public class GameManager : MonoBehaviour
         /*Debug.Log("Level Loaded");
         Debug.Log(scene.name);
         Debug.Log(mode);*/
-        if (scene.name == "Level" || scene.name == "LevelGenerator" || scene.name == "LevelWithEnemies")
+        /*if (scene.name == "Level" || scene.name == "LevelGenerator" || scene.name == "LevelWithEnemies")
         {
             if (createMaps && survivalMode)
             {
@@ -504,10 +504,10 @@ public class GameManager : MonoBehaviour
                 Constants.nK = nKeys;
                 Constants.nL = nLocks;
                 Constants.lCoef = linearity;
-                coroutine = generator.CreateDungeonParallel(progressText);
+                generator.CreateDungeon();
                 StartCoroutine(coroutine);
             }
-        }
+        }*/
 
         if (scene.name == "LevelGenerator")
         {
