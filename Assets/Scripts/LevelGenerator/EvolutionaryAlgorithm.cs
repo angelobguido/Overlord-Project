@@ -244,5 +244,9 @@ namespace LevelGenerator
             parent1 = pop[parentPosL[0]].fitness < pop[parentPosL[1]].fitness ? parentPosL[0] : parentPosL[1];
             parent2 = pop[parentPosL[2]].fitness < pop[parentPosL[3]].fitness ? parentPosL[2] : parentPosL[3];
         }
+
+
     }
+
+
 }
