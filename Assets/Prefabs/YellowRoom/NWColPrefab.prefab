@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4934320771426484423}
   - component: {fileID: 8794203894782058258}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NWColPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -95,7 +95,7 @@ GameObject:
   m_Component:
   - component: {fileID: 556772898253431161}
   - component: {fileID: 8675117939794369102}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -178,7 +178,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5086687960672811723}
   - component: {fileID: 4144912629314591741}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6310763136882653365}
   - component: {fileID: 7936162522989242168}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -4,7 +4,7 @@ public class EnemyMovement : MonoBehaviour
 {
     public static Vector3 MoveRandomly(Vector3 playerPos, Vector3 enemyPos)
     {
-        return new Vector3(Random.Range(-10, 11), Random.Range(-10, 11), 0);
+        return new Vector3(Random.Range(-1, 1.1f), Random.Range(-1, 1.1f), 0);
     }
 
     public static Vector3 NoMovement(Vector3 playerPos, Vector3 enemyPos)

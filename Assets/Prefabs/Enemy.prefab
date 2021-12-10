@@ -245,6 +245,7 @@ GameObject:
   - component: {fileID: 4148722967960832049}
   - component: {fileID: 7874473827222746770}
   - component: {fileID: 8416113003124335911}
+  - component: {fileID: 1686479493359769382}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -402,6 +403,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e566eb9cb903c064aa74a9a523e3ff74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <RandomMovementSprite>k__BackingField: {fileID: 0}
+  <FleeMovementSprite>k__BackingField: {fileID: 0}
+  <FollowMovementSprite>k__BackingField: {fileID: 0}
+  <NoneMovementSprite>k__BackingField: {fileID: 0}
   restTime: 0
   activeTime: 0
   movementSpeed: 0
@@ -628,6 +633,34 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &1686479493359769382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8771052608593400771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 373b52eb9bf8c40f785bb6947a1aee66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 1
+  drawGizmos: 1
+  detailedGizmos: 0
+  startEndModifier:
+    addPoints: 0
+    exactStartPoint: 3
+    exactEndPoint: 3
+    useRaycasting: 0
+    mask:
+      serializedVersion: 2
+      m_Bits: 4294967295
+    useGraphRaycasting: 0
+  traversableTags: -1
+  tagPenalties: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+  graphMask:
+    value: -1
 --- !u!1 &8771052608735145376
 GameObject:
   m_ObjectHideFlags: 0

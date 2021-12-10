@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 61902538215936378}
   - component: {fileID: 114023979573330110}
   - component: {fileID: 82771547812302412}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Door South
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -247,7 +247,7 @@ GameObject:
   - component: {fileID: 61203995201430082}
   - component: {fileID: 212714350820061636}
   - component: {fileID: 2044934116862390792}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ColliderWest
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -367,7 +367,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4191061800590270}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TeleportTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -401,7 +401,7 @@ GameObject:
   - component: {fileID: 61651499026600538}
   - component: {fileID: 114406600773019966}
   - component: {fileID: 82236141939253266}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Door West
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -635,7 +635,7 @@ GameObject:
   - component: {fileID: 61015855564586198}
   - component: {fileID: 114123737783067614}
   - component: {fileID: 82423396311077630}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Door East
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -865,7 +865,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4317141115486034}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TeleportTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -898,7 +898,7 @@ GameObject:
   - component: {fileID: 61780886207372558}
   - component: {fileID: 212245732048463976}
   - component: {fileID: 4458536150693454417}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ColliderSouth
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -1018,7 +1018,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4325609511358424}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Colliders
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -1052,7 +1052,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4757452092410706}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TeleportTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1167,7 +1167,7 @@ GameObject:
   - component: {fileID: 61238966288715422}
   - component: {fileID: 212718876013252408}
   - component: {fileID: 4277018265884172853}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ColliderNorth
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -1291,7 +1291,7 @@ GameObject:
   - component: {fileID: 61412437452761588}
   - component: {fileID: 114081829205008226}
   - component: {fileID: 82943865087853100}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Door North
   m_TagString: Block
   m_Icon: {fileID: 0}
@@ -1674,7 +1674,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4178795282519426}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TeleportTransform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1707,7 +1707,7 @@ GameObject:
   - component: {fileID: 61785919300248960}
   - component: {fileID: 212305178769760132}
   - component: {fileID: 348182752799350861}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: ColliderEast
   m_TagString: Block
   m_Icon: {fileID: 0}

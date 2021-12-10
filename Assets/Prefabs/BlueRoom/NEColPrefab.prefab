@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7078492323513590149}
   - component: {fileID: 8126560519261940303}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1121251993046366627}
   - component: {fileID: 2776609477582922291}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3632836708651960666}
   - component: {fileID: 4368701556184163224}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NEColPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8249271352337959058}
   - component: {fileID: 955641648410785644}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}

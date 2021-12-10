@@ -1,10 +1,15 @@
 ﻿using Game.EnemyGenerator;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using Game.Events;
+using Game.LevelManager;
+using Pathfinding;
 using ScriptableObjects;
 using UnityEngine;
 using Util;
+using Random = System.Random;
 
 public class EnemyController : MonoBehaviour
 {
@@ -57,9 +62,14 @@ public class EnemyController : MonoBehaviour
     public static event EventHandler playerHitEventHandler;
     public static event EventHandler KillEnemyEventHandler;
 
-    /// <summary>
-    /// Awakes this instance.
-    /// </summary>
+    private Seeker _seeker;
+    private Path _path;
+    private int _currentWaypoint = 0;
+    private const float NextWaypointDistance = 3;
+    private float _lastRepath = float.NegativeInfinity;
+    private const float RepathRate = 0.5f;
+    private Vector3 _targetPosition;
+
     private void Awake()
     {
         isActive = true;
@@ -73,12 +83,12 @@ public class EnemyController : MonoBehaviour
         rb = gameObject.GetComponent<Rigidbody2D>();
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         PlayerController.PlayerDeathEventHandler += PlayerHasDied;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         PlayerController.PlayerDeathEventHandler -= PlayerHasDied;
     }
@@ -110,62 +120,91 @@ public class EnemyController : MonoBehaviour
         isActive = false;
     }
 
-    void Update()
+    
+    private void Start () {
+        _seeker = GetComponent<Seeker>();
+        SelectMoveDirection();
+    }
+    
+    private void Update()
     {
         if (!audioSrcs[ENEMY_DEATH].isPlaying && canDestroy)
         {
             Destroy(gameObject);
         }
     }
+    
+    public void OnPathComplete (Path p) {
+        Debug.Log("A path was calculated. Did it fail with an error? " + p.error);
 
-    /// <summary>
-    ///
-    /// </summary>
-    // Update is called once per frame
-    void FixedUpdate()
+        // Path pooling. To avoid unnecessary allocations paths are reference counted.
+        // Calling Claim will increase the reference count by 1 and Release will reduce
+        // it by one, when it reaches zero the path will be pooled and then it may be used
+        // by other scripts. The ABPath.Construct and Seeker.StartPath methods will
+        // take a path from the pool if possible. See also the documentation page about path pooling.
+        p.Claim(this);
+        if (!p.error) {
+            _path?.Release(this);
+            _path = p;
+            // Reset the waypoint counter so that we start to move towards the first point in the path
+            _currentWaypoint = 0;
+        } else {
+            p.Release(this);
+        }
+    }
+
+    private void FixedUpdate()
     {
-        if (dataHasBeenLoaded && isActive && !canDestroy)
+        if (!dataHasBeenLoaded || !isActive || canDestroy) return;
+        if (isWalking)
         {
-            if (isWalking)
-            {
-                if (walkUntil > 0)
-                    Walk();
-                else
-                {
-                    walkUntil = 0.0f;
-                    isWalking = false;
-                    waitUntil = restTime;
-                    hasMoveDirBeenChosen = false;
-                }
-            }
+            if (walkUntil > 0)
+                Walk();
             else
             {
-                if (waitUntil > 0f)
-                    Wait();
-                else
-                {
-                    waitUntil = 0;
-                    isWalking = true;
-                    walkUntil = activeTime;
-                }
+                walkUntil = 0.0f;
+                isWalking = false;
+                waitUntil = restTime/10;
+                hasMoveDirBeenChosen = false;
             }
-            if (hasProjectile)
+        }
+        else
+        {
+            if (waitUntil > 0f)
+                Wait();
+            else
             {
-                if (isShooting)
-                {
-                    Shoot();
-                    isShooting = false;
-                    coolDownTime = 1.0f / attackSpeed;
+                if (_seeker.IsDone()) {
+
+                    // Start a new path to the targetPosition, call the the OnPathComplete function
+                    // when the path has been calculated (which may take a few frames depending on the complexity)
+                    var p = _seeker.StartPath(transform.position, _targetPosition, OnPathComplete);
+                    p.BlockUntilCalculated();
                 }
-                else
-                {
-                    if (coolDownTime > 0.0f)
-                        WaitShotCoolDown();
-                    else
-                    {
-                        isShooting = true;
-                    }
+                if (_path == null) {
+                    // We have no path to follow yet, so don't do anything
+                    return;
                 }
+                waitUntil = 0;
+                isWalking = true;
+                walkUntil = activeTime*2;
+            }
+        }
+
+        if (!hasProjectile) return;
+        if (isShooting)
+        {
+            Shoot();
+            isShooting = false;
+            coolDownTime = 1.0f / attackSpeed;
+        }
+        else
+        {
+            if (coolDownTime > 0.0f)
+                WaitShotCoolDown();
+            else
+            {
+                isShooting = true;
             }
         }
     }
@@ -174,45 +213,74 @@ public class EnemyController : MonoBehaviour
     {
         if (!hasMoveDirBeenChosen)
         {
-            int xOffset, yOffset;
-            //Vector2 target = new Vector2(playerObj.transform.position.x - transform.position.x, playerObj.transform.position.y - transform.position.y);
-            if (movement.movementType == null)
-                Debug.LogError("NO MOVEMENT FUNCTION!");
-            targetMoveDir = movement.movementType(playerObj.transform.position, gameObject.transform.position);
-            targetMoveDir.Normalize();
-            //TODO Animate the enemy
-            //UpdateAnimation(targetMoveDir);
-            if (targetMoveDir.x > 0)
-                xOffset = 1;
-            else if (targetMoveDir.x < 0)
-                xOffset = -1;
-            else
-                xOffset = 0;
-            if (targetMoveDir.y > 0)
-                yOffset = 1;
-            else if (targetMoveDir.y < 0)
-                yOffset = -1;
-            else
-                yOffset = 0;
-            targetMoveDir = new Vector3((targetMoveDir.x + xOffset), (targetMoveDir.y + yOffset), 0f);
-            if (hasFixedMoveDir)
-                hasMoveDirBeenChosen = true;
+            SelectMoveDirection();
         }
-        transform.position += new Vector3(targetMoveDir.x * movementSpeed * Time.fixedDeltaTime, targetMoveDir.y * movementSpeed * Time.fixedDeltaTime, 0f);
-        //transform.position += new Vector3((target.x + xOffset) * movementSpeed * Time.deltaTime, (target.y + yOffset) * movementSpeed * Time.deltaTime, 0f);
+        // Check in a loop if we are close enough to the current waypoint to switch to the next one.
+        // We do this in a loop because many waypoints might be close to each other and we may reach
+        // several of them in the same frame.
+        var reachedEndOfPath = false;
+        // The distance to the next waypoint in the path
+        float distanceToWaypoint;
+        var position = transform.position;
+
+        while (true) {
+            // If you want maximum performance you can check the squared distance instead to get rid of a
+            // square root calculation. But that is outside the scope of this tutorial.
+            distanceToWaypoint = Vector3.Distance(position, _path.vectorPath[_currentWaypoint]);
+            if (distanceToWaypoint < NextWaypointDistance) {
+                // Check if there is another waypoint or if we have reached the end of the path
+                if (_currentWaypoint + 1 < _path.vectorPath.Count) {
+                    _currentWaypoint++;
+                } else {
+                    // Set a status variable to indicate that the agent has reached the end of the path.
+                    // You can use this to trigger some special code if your game requires that.
+                    reachedEndOfPath = true;
+                    break;
+                }
+            } else {
+                break;
+            }
+        }
+        
+        // Slow down smoothly upon approaching the end of the path
+        // This value will smoothly go from 1 to 0 as the agent approaches the last waypoint in the path.
+        //var speedFactor = reachedEndOfPath ? Mathf.Sqrt(distanceToWaypoint/NextWaypointDistance) : 1f;
+
+        // Direction to the next waypoint
+        // Normalize it so that it has a length of 1 world unit
+        var dir = (_path.vectorPath[_currentWaypoint] - position).normalized;
+        // Multiply the direction by our desired speed to get a velocity
+        var velocity = dir * movementSpeed*2;
+        position += velocity * Time.fixedDeltaTime;
+        transform.position = position;
+        
         walkUntil -= Time.deltaTime;
+    }
+
+    private void SelectMoveDirection()
+    {
+        int xOffset, yOffset;
+        if (movement.movementType == null)
+            Debug.LogError("NO MOVEMENT FUNCTION!");
+        targetMoveDir = movement.movementType(playerObj.transform.position, gameObject.transform.position);
+        targetMoveDir.Normalize();
+        //TODO Animate the enemy
+        //UpdateAnimation(targetMoveDir);
+        targetMoveDir = new Vector3((targetMoveDir.x), (targetMoveDir.y), 0f);
+        _targetPosition = transform.position + targetMoveDir * 5;
     }
 
     private void Wait()
     {
         //TODO Scream
+        Debug.Log("Waiting");
         rb.velocity = Vector3.zero;
-        waitUntil -= Time.deltaTime;
+        waitUntil -= Time.fixedDeltaTime;
     }
 
     private void WaitShotCoolDown()
     {
-        coolDownTime -= Time.deltaTime;
+        coolDownTime -= Time.fixedDeltaTime;
     }
 
     private void OnCollisionStay2D(Collision2D collision)

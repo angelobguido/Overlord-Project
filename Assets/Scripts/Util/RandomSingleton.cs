@@ -4,24 +4,23 @@ namespace Util
 {
     public class RandomSingleton
     {
-        private const int randomSeed = 42;
+        private const int RandomSeed = 42;
         private RandomSingleton()
         {
-            random = new Random(randomSeed);
+            #if UNITY_EDITOR
+                Random = new Random(RandomSeed);
+            #else
+                Random = new Random();
+            #endif
         }
 
         private static RandomSingleton _instance;
-        protected Random random;
 
-        public Random Random { get => random; set => random = value; }
+        public Random Random { get; set; }
 
         public static RandomSingleton GetInstance()
         {
-            if (_instance == null)
-            {
-                _instance = new RandomSingleton();
-            }
-            return _instance;
+            return _instance ??= new RandomSingleton();
         }
     }
 }

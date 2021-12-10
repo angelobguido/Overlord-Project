@@ -11,6 +11,7 @@ using Game.NarrativeGenerator;
 using Game.NarrativeGenerator.Quests;
 using LevelGenerator;
 using MyBox;
+using Pathfinding;
 using ScriptableObjects;
 using TMPro;
 using UnityEngine;
@@ -231,7 +232,7 @@ namespace Game.GameManager
             }
         }
 
-        public void LoadNewLevel(DungeonFileSo dungeonFileSo)
+        public IEnumerator LoadNewLevel(DungeonFileSo dungeonFileSo)
         {
             ChangeMusic(bgMusic);
             maxTreasure = 0;
@@ -255,8 +256,39 @@ namespace Game.GameManager
             var selectedRoom = roomPrefabs[random.Next(roomPrefabs.Count)];
             InstantiateRooms(selectedRoom);
             ConnectRoooms();
+            SetupAStar();
             OnStartMap(dungeonFileSo.name, currentTestBatchId, map);
+            yield return null;
+            AstarPath.active.Scan();
         }
+        
+        private void SetupAStar()
+        {
+            // This holds all graph data
+            var data = AstarPath.active.data;
+
+            // This creates a Grid Graph
+            var gg = data.AddGraph(typeof(GridGraph)) as GridGraph;
+
+            gg.is2D = true;
+            gg.collision.mask = LayerMask.GetMask("Obstacle");
+            gg.collision.use2D = true;
+            gg.collision.diameter = 0.8f;
+            gg.collision.collisionCheck = false;
+            
+            // Setup a grid graph with some values
+            var width = (int)(map.Dimensions.Width*roomBHVMap[map.StartRoomCoordinates].roomData.Dimensions.Width+roomSpacingX*map.Dimensions.Width);
+            var depth = (int)(map.Dimensions.Height*roomBHVMap[map.StartRoomCoordinates].roomData.Dimensions.Height+roomSpacingY*map.Dimensions.Height);
+            var nodeSize = 1f;
+            var center = roomBHVMap[map.StartRoomCoordinates].gameObject.transform.position;
+            gg.center = new Vector3(center.x, center.y + 0.5f, center.z);
+            
+            // Updates internal size from the above values
+            gg.SetDimensions(width, depth, nodeSize);
+            // Scans all graphs
+            //
+        }
+
 
         private void OnStartMap(string mapName, int batch, Map map)
         {
@@ -324,21 +356,23 @@ namespace Game.GameManager
         
         private void OnLevelFinishedLoading(Scene scene, LoadSceneMode mode)
         {
-            if (scene.name == "Level" || scene.name == "LevelWithEnemies")
+            switch (scene.name)
             {
-                isInGame = true;
-                startButton = null;
-                isCompleted = false;
+                case "Level":
+                case "LevelWithEnemies":
+                    isInGame = true;
+                    startButton = null;
+                    isCompleted = false;
 
-                gameUI.SetActive(true);
-                healthUI = gameUI.GetComponentInChildren<HealthUI>();
-                keyUI = gameUI.GetComponentInChildren<KeyUI>();
-                OnLevelLoadedEvents();
-                LoadNewLevel(currentDungeonSO);
-            }
-            if (scene.name == "Main")
-            {
-                introScreen.SetActive(true);
+                    gameUI.SetActive(true);
+                    healthUI = gameUI.GetComponentInChildren<HealthUI>();
+                    keyUI = gameUI.GetComponentInChildren<KeyUI>();
+                    OnLevelLoadedEvents();
+                    StartCoroutine(LoadNewLevel(currentDungeonSO));
+                    break;
+                case "Main":
+                    introScreen.SetActive(true);
+                    break;
             }
         }
 

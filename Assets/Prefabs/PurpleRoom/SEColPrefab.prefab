@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 571114729008876152}
   - component: {fileID: 4204728262134693146}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Base
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -93,7 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5626638359896538687}
   - component: {fileID: 6312810536146316249}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SEColPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1278746825911999048}
   - component: {fileID: 2911437181334607870}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: RightWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -262,7 +262,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5981947904111931195}
   - component: {fileID: 6881497921227459474}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: LeftWing
   m_TagString: Untagged
   m_Icon: {fileID: 0}

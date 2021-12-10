@@ -122,15 +122,32 @@ namespace Game.NarrativeGenerator
 
             for (int i = 2; i < 12; i++)
             {
-                if (i == 2 || i == 3 || i == 4) pesos[2] += answers[i];
-                else if (i == 5 || i == 6) pesos[3] += answers[i];
-                else if (i == 7 || i == 8) pesos[1] += answers[i];
-                else if (i == 9 || i == 10) pesos[0] += answers[i];
-                else
+                switch (i)
                 {
-                    pesos[3] -= answers[i];
-                    pesos[1] -= answers[i];
-                    pesos[0] -= answers[i];
+                    case 2:
+                        pesos[2] += answers[i] - 3;
+                        break;
+                    case 3:
+                    case 4:
+                        pesos[2] += answers[i];
+                        break;
+                    case 5:
+                    case 6:
+                        pesos[3] += answers[i];
+                        break;
+                    case 7:
+                    case 8:
+                        pesos[1] += answers[i];
+                        break;
+                    case 9:
+                    case 10:
+                        pesos[0] += answers[i];
+                        break;
+                    default:
+                        pesos[3] -= answers[i];
+                        pesos[1] -= answers[i];
+                        pesos[0] -= answers[i];
+                        break;
                 }
             }
 
